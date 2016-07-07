@@ -248,14 +248,18 @@ It can include values of one throttle.up group in the status bar of rtorrent by 
 Change log
 ----------
 
+-  v1.3-0.9.6 (2016.07.07.)
+
+   -  Fix scheduled sorting/filtering bug on started and stopped views in rtorrent (<https://github.com/chros73/rtorrent-ps/issues/19>)
+
 -  v1.2-0.9.6 (2016.06.27.)
 
-   -  Modify Data-directory column under the hood (#17)
+   -  Modify Data-directory column under the hood (<https://github.com/chros73/rtorrent-ps/issues/17>)
 
 -  v1.1-0.9.6 (2016.06.24.)
 
-   -  Fix displaying last_active time in upload rate column when peers are connected (#14)
-   -  Modify Unsafe-data column under the hood (#15) : this change requires version 0.5-0.9.6 or above of `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
+   -  Fix displaying last_active time in upload rate column when peers are connected (<https://github.com/chros73/rtorrent-ps/issues/14>)
+   -  Modify Unsafe-data column under the hood (<https://github.com/chros73/rtorrent-ps/issues/15>) : this change requires version 0.5-0.9.6 or above of `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
 
 -  v1.0-0.9.6 (2016.05.21.)
 
