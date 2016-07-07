@@ -250,16 +250,16 @@ Change log
 
 -  v1.3-0.9.6 (2016.07.07.)
 
-   -  Fix scheduled sorting/filtering bug on started and stopped views in rtorrent (<https://github.com/chros73/rtorrent-ps/issues/19>)
+   -  Fix scheduled sorting/filtering bug on started and stopped views in rtorrent (`#19 <https://github.com/chros73/rtorrent-ps/issues/19>`_)
 
 -  v1.2-0.9.6 (2016.06.27.)
 
-   -  Modify Data-directory column under the hood (<https://github.com/chros73/rtorrent-ps/issues/17>)
+   -  Modify Data-directory column under the hood (`#17 <https://github.com/chros73/rtorrent-ps/issues/17>`_)
 
 -  v1.1-0.9.6 (2016.06.24.)
 
-   -  Fix displaying last_active time in upload rate column when peers are connected (<https://github.com/chros73/rtorrent-ps/issues/14>)
-   -  Modify Unsafe-data column under the hood (<https://github.com/chros73/rtorrent-ps/issues/15>) : this change requires version 0.5-0.9.6 or above of `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
+   -  Fix displaying last_active time in upload rate column when peers are connected (`#14 <https://github.com/chros73/rtorrent-ps/issues/14>`_)
+   -  Modify Unsafe-data column under the hood (`#15 <https://github.com/chros73/rtorrent-ps/issues/15>`_) : this change requires version 0.5-0.9.6 or above of `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
 
 -  v1.0-0.9.6 (2016.05.21.)
 
