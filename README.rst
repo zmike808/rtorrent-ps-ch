@@ -254,10 +254,12 @@ Change log
 
 -  v1.2-0.9.6 (2016.06.27.)
 
+   -  Add modified screenshot (`#12 <https://github.com/chros73/rtorrent-ps/issues/12>`_)
    -  Modify Data-directory column under the hood (`#17 <https://github.com/chros73/rtorrent-ps/issues/17>`_)
 
 -  v1.1-0.9.6 (2016.06.24.)
 
+   -  Add more 256 color themes (`#13 <https://github.com/chros73/rtorrent-ps/issues/13>`_)
    -  Fix displaying last_active time in upload rate column when peers are connected (`#14 <https://github.com/chros73/rtorrent-ps/issues/14>`_)
    -  Modify Unsafe-data column under the hood (`#15 <https://github.com/chros73/rtorrent-ps/issues/15>`_) : this change requires version 0.5-0.9.6 or above of `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
 
@@ -272,6 +274,6 @@ Change log
    -  Change name in title and in package name (`#9 <https://github.com/chros73/rtorrent-ps/issues/9>`_)
    -  Add fork notes to readme file (`#10 <https://github.com/chros73/rtorrent-ps/issues/10>`_)
    -  Add version number (`#11 <https://github.com/chros73/rtorrent-ps/issues/11>`_)
-   -  Add modified screenshot (`#12 <https://github.com/chros73/rtorrent-ps/issues/12>`_)
+
 
 
