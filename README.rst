@@ -263,6 +263,15 @@ Change log
 
 -  v1.0-0.9.6 (2016.05.21.)
 
-   -  Initial version.
+   -  Include more columns on collapsed view (`#1 <https://github.com/chros73/rtorrent-ps/issues/1>`_)
+   -  Change character in header of newly added Priority column (`#2 <https://github.com/chros73/rtorrent-ps/issues/2>`_)
+   -  Add 2 more columns on collapsed view (`#3 <https://github.com/chros73/rtorrent-ps/issues/3>`_)
+   -  Display values of 1 throttle.up in the first part of status bar (`#4 <https://github.com/chros73/rtorrent-ps/issues/4>`_)
+   -  Replace fix path of install directory in build script (`#5 <https://github.com/chros73/rtorrent-ps/issues/5>`_)
+   -  Modify build script (`#8 <https://github.com/chros73/rtorrent-ps/issues/8>`_)
+   -  Change name in title and in package name (`#9 <https://github.com/chros73/rtorrent-ps/issues/9>`_)
+   -  Add fork notes to readme file (`#10 <https://github.com/chros73/rtorrent-ps/issues/10>`_)
+   -  Add version number (`#11 <https://github.com/chros73/rtorrent-ps/issues/11>`_)
+   -  Add modified screenshot (`#12 <https://github.com/chros73/rtorrent-ps/issues/12>`_)
 
 
