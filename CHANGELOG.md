@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.4-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4-0.9.6) (2016-07-20)
+**Implemented enhancements:**
+
+- Add magnet property to downloads in rtorrent [\#23](https://github.com/chros73/rtorrent-ps/issues/23)
+- Add separate change log file [\#22](https://github.com/chros73/rtorrent-ps/issues/22)
+
 ## [1.3-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.3-0.9.6) (2016-07-07)
 **Fixed bugs:**
 
