@@ -17,6 +17,7 @@
     * [network.history.*=](#networkhistory)
     * [system.env=«name» (merged into 0.9.7 )](#systemenvname-merged-into-097)
     * [ui.status.throttle_up_name.set="«name»"](#uistatusthrottle_up_namesetname)
+    * [d.is_meta=](#dis_meta)
   * [Backports of git master fixes and features to 0.9.2](#backports-of-git-master-fixes-and-features-to-092)
 
 
@@ -290,6 +291,11 @@ Configuration example:
 ```ini
 ui.status.throttle_up_name.set="slowup"
 ```
+
+
+### d.is_meta=
+
+Returns boolean, determines whether a download is meta download of magnet URI.
 
 </dd>
 
