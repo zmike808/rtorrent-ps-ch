@@ -225,7 +225,7 @@ Fork notes
    :align: center
    :alt: Extended Canvas Screenshot
 
-This fork is another set of UI patches on top of the original. It's created to use with `rtorrent-ps_setup project <https://github.com/chros73/rtorrent-ps_setup/>`_
+This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps_setup <https://github.com/chros73/rtorrent-ps_setup/>`_  project.
 
 It includes the following changes on `extended canvas <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
 
@@ -238,7 +238,12 @@ It includes the following changes on `extended canvas <https://github.com/chros7
     | ⌚ ≀∆ | Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate |
     | ⊼ | Uploaded data size |
 
-It can include values of one throttle.up group in the status bar of rtorrent by setting `ui.status.throttle_up_name <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#uistatusthrottle_up_namesetname>`_ command.
+It adds the following extra commands:
+
+-  `d.is_meta <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#dis_meta>`_
+-  `ui.status.throttle_up_name <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#uistatusthrottle_up_namesetname>`_
+
+The latter can include values of one throttle.up group in the status bar of rtorrent:
 
 .. code-block::
 
