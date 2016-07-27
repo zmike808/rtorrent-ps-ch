@@ -225,6 +225,8 @@ Fork notes
    :align: center
    :alt: Extended Canvas Screenshot
 
+*rTorrent-PS-CH*
+
 This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps_setup <https://github.com/chros73/rtorrent-ps_setup/>`_  project.
 
 It includes the following changes on `extended canvas <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
@@ -248,6 +250,12 @@ The latter can include values of one throttle.up group in the status bar of rtor
 .. code-block::
 
     [Throttle 500 (200)/1500 KB] [Rate: 441.6 (190.0|51.6)/981.3 KB]
+
+
+Ccompiling instructions
+-----------------------
+
+See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.md>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``.
 
 
 Change log
