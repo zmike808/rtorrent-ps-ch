@@ -255,7 +255,7 @@ The latter can include values of one throttle.up group in the status bar of rtor
 Ccompiling instructions
 -----------------------
 
-See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.md>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``.
+See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``.
 
 
 Change log
