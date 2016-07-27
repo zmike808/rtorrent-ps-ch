@@ -252,7 +252,7 @@ The latter can include values of one throttle.up group in the status bar of rtor
     [Throttle 500 (200)/1500 KB] [Rate: 441.6 (190.0|51.6)/981.3 KB]
 
 
-Ccompiling instructions
+Compiling instructions
 -----------------------
 
 See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``.
