@@ -30,12 +30,17 @@ First, you need to install a few **required** packages — **and no, this is not
    gem install fpm
 
 
+Note about ``tmux``
+^^^^^^^^^^^^^^^^^^^
+
 After that all you need is to place a `.tmux.conf <https://raw.githubusercontent.com/chros73/rtorrent-ps_setup/master/ubuntu-14.04/home/chros73/.tmux.conf>`_ like that in your home directory (can be ``root`` or a regular user) and you can already run ``tmux``: 
 
 .. code-block::
 
    cd ~; wget https://raw.githubusercontent.com/chros73/rtorrent-ps_setup/master/ubuntu-14.04/home/chros73/.tmux.conf
    tmux
+
+There is only 1 crucial option (along with the other useful ones) in that ``.tmux.conf``: ``set -g default-terminal "screen-256color"``. This is responsible for getting 256 color support. **No matter** what other tutorials / guides / intructions (like old docs in the ``docs`` directory ) say about the ``TERM`` environment variable: **you shouldn't set it**! You will experience strange rendering problems! Although this will result that ``rTorrent-PS-CH`` won't start in a terminal window, but that's not a problem since we always run it in ``tmux``. (`Read more <https://sanctum.geek.nz/arabesque/term-strings/>`_ about it.)
 
 
 
@@ -98,7 +103,7 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rt
 If all went well
 ^^^^^^^^^^^^^^^^
 
-Check the result by running ``rtorrent`` (you don't need a config file for this) in a ``tmux`` window, not terminal window! (We don't want to deal with any kind problems and it will run in ``tmux`` anyway.)
+Check the result by running ``rtorrent`` (you don't need a config file for this) in a ``tmux`` window, not terminal window!
 
 You can delete the ``~/src/rtorrent-ps/`` directory later in both above cases if all went well with:
 
