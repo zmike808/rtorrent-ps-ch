@@ -234,14 +234,15 @@ UI changes
 
 It includes the following changes on `extended canvas <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
 
-.. code-block::
+====  ========================================
+ ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
+ ◎    Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue) 
+ ⊕    Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
+ ↻    Number of connected peers
+⌚ ≀∆  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
+ ⊼    Uploaded data size
+====  ========================================
 
-    | ⊘ | Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name) |
-    | ◎ | Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue) |
-    | ⊕ | Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory) |
-    | ↻ | Number of connected peers |
-    | ⌚ ≀∆ | Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate |
-    | ⊼ | Uploaded data size |
 
 Extra commands
 --------------
