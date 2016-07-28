@@ -224,10 +224,13 @@ Fork notes
 .. figure:: https://raw.githubusercontent.com/chros73/rtorrent-ps/master/docs/_static/img/rTorrent-PS-CH-0.9.6-happy-pastel-kitty-s.png
    :align: center
    :alt: Extended Canvas Screenshot
-
+   
 *rTorrent-PS-CH*
 
 This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps_setup <https://github.com/chros73/rtorrent-ps_setup/>`_  project.
+
+UI changes
+----------
 
 It includes the following changes on `extended canvas <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
 
@@ -240,7 +243,10 @@ It includes the following changes on `extended canvas <https://github.com/chros7
     | ⌚ ≀∆ | Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate |
     | ⊼ | Uploaded data size |
 
-It adds the following extra commands:
+Extra commands
+--------------
+
+It also adds the following extra commands:
 
 -  `d.is_meta <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#dis_meta>`_
 -  `ui.status.throttle_up_name <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#uistatusthrottle_up_namesetname>`_
@@ -255,7 +261,7 @@ The latter can include values of one throttle.up group in the status bar of rtor
 Compiling instructions
 -----------------------
 
-See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``.
+See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 30 minutes.
 
 
 Change log
