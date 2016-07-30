@@ -134,9 +134,9 @@ If you want to update ``pyrocore`` utils later:
 
 .. code-block::
 
-   cd ~/lib && cp pyroscope pyroscope-$(date +'%Y-%m-%d').bak    # make backup first
-   cd ~ && ./lib/pyroscope/update-to-head.sh                     # update it
-   pyroadmin --version                                           # check for success
+   cd ~/lib && tar -czf pyroscope-$(date +'%Y-%m-%d').tar.gz pyroscope    # make backup first
+   cd ~ && ./lib/pyroscope/update-to-head.sh                              # update it
+   pyroadmin --version                                                    # check for success
 
 
 Summary
