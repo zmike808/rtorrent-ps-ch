@@ -1,0 +1,11 @@
+--- src/ui/download.cc	2016-07-31 19:47:53.031620872 +0100
++++ src/ui/download.cc	2016-07-31 20:30:17.447836586 +0100
+@@ -194,7 +194,7 @@ Download::create_info() {
+   element->push_column("Upload:",           te_command("cat=$convert.xb=$d.up.rate=,\" / \",$convert.xb=$d.up.total="));
+   element->push_column("Download:",         te_command("cat=$convert.xb=$d.down.rate=,\" / \",$convert.xb=$d.down.total="));
+   element->push_column("Skipped:",          te_command("cat=$convert.xb=$d.skip.rate=,\" / \",$convert.xb=$d.skip.total="));
+-  element->push_column("Preload:",          te_command("cat=$pieces.preload.type=,\" / \",$pieces.stats_preloaded=,\" / \",$pieces.stats_preloaded="));
++  element->push_column("Preload:",          te_command("cat=$pieces.preload.type=,\" / \",$pieces.stats_preloaded=,\" / \",$pieces.stats_not_preloaded="));
+ 
+   element->set_column_width(element->column_width() + 1);
+ 
