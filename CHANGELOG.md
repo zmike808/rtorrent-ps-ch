@@ -1,5 +1,19 @@
 # Change Log
 
+## [1.4.1-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.1-0.9.6) (2016-08-01)
+**Implemented enhancements:**
+
+- Add DHT segfault fix patch [\#35](https://github.com/chros73/rtorrent-ps/issues/35)
+- Add bencode parse info patch [\#34](https://github.com/chros73/rtorrent-ps/issues/34)
+- Backport use xb with peer list patch [\#33](https://github.com/chros73/rtorrent-ps/issues/33)
+- Backport show non-preloaded pieces stat patch [\#32](https://github.com/chros73/rtorrent-ps/issues/32)
+- Backport save downloaded stat per torrent patch [\#31](https://github.com/chros73/rtorrent-ps/issues/31)
+- Backport context for internal\_error patch [\#30](https://github.com/chros73/rtorrent-ps/issues/30)
+- Backport bencode fixes patch [\#29](https://github.com/chros73/rtorrent-ps/issues/29)
+- Backport adding 2 more torrent clients patch [\#28](https://github.com/chros73/rtorrent-ps/issues/28)
+- Add ability in build script to use 'all' in librottent patches [\#27](https://github.com/chros73/rtorrent-ps/issues/27)
+- Docs: Add up-to-date compiling instructions [\#26](https://github.com/chros73/rtorrent-ps/issues/26)
+
 ## [1.4-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4-0.9.6) (2016-07-20)
 **Implemented enhancements:**
 
