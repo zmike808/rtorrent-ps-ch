@@ -1,5 +1,5 @@
---- rel-0.9.6/src/command_local.cc	2015-09-03 20:03:30.000000000 +0100
-+++ rtorrent-0.9.6/src/command_local.cc	2016-08-24 11:58:24.701703979 +0100
+--- src/command_local.cc	2015-09-03 20:03:30.000000000 +0100
++++ src/command_local.cc	2016-08-24 11:58:24.701703979 +0100
 @@ -233,7 +233,7 @@ initialize_command_local() {
    CMD2_VAR_C_STRING("system.client_version",        PACKAGE_VERSION);
    CMD2_VAR_C_STRING("system.library_version",       torrent::version());
