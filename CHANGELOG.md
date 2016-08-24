@@ -1,6 +1,23 @@
 # Change Log
 
-## [1.4.1-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.1-0.9.6) (2016-08-01)
+## [1.4.2-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.2-0.9.6) (2016-08-24)
+**Implemented enhancements:**
+
+- Backport rpc unit conversion fix patch [\#43](https://github.com/chros73/rtorrent-ps/issues/43)
+- Backport increased max file size patch [\#42](https://github.com/chros73/rtorrent-ps/issues/42)
+- Rename DHT segfault fix patch [\#41](https://github.com/chros73/rtorrent-ps/issues/41)
+- Modify status bar mod to be able to display 1 throttle.down as well [\#37](https://github.com/chros73/rtorrent-ps/issues/37)
+
+**Fixed bugs:**
+
+- Fix honoring system.file.allocate.set=1 rtorrent config setting [\#39](https://github.com/chros73/rtorrent-ps/issues/39)
+- Fix honoring system.file.allocate.set=0 rtorrent config setting [\#38](https://github.com/chros73/rtorrent-ps/issues/38)
+
+**Merged pull requests:**
+
+- Update to current head fork [\#40](https://github.com/chros73/rtorrent-ps/pull/40) ([chros73](https://github.com/chros73))
+
+## [1.4.1-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.1-0.9.6) (2016-07-31)
 **Implemented enhancements:**
 
 - Add DHT segfault fix patch [\#35](https://github.com/chros73/rtorrent-ps/issues/35)
