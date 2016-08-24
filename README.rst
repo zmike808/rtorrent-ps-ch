@@ -257,7 +257,7 @@ This fork is another set of UI patches on top of the original, it also includes 
 UI changes
 ----------
 
-It includes the following changes on `extended canvas <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
+It includes the following changes on `extended canvas <docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
 
 ====  ========================================
  ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
@@ -274,23 +274,23 @@ Extra commands
 
 It also adds the following extra commands:
 
--  `d.is_meta <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#dis_meta>`_
--  `ui.status.throttle_up_name <https://github.com/chros73/rtorrent-ps/blob/master/docs/RtorrentExtended.md#uistatusthrottle_up_namesetname>`_
+-  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
+-  `ui.status.throttle.up.name <docs/RtorrentExtended.md#uistatusthrottleupnamesetname>`_ , `ui.status.throttle.down.name <docs/RtorrentExtended.md#uistatusthrottledownnamesetname>`_
 
-The latter can include values of one throttle.up group in the status bar of rtorrent:
+The latter e.g. can include values of one throttle.up group in the status bar of rtorrent:
 
 .. code-block::
 
-    [Throttle 500 (200)/1500 KB] [Rate: 441.6 (190.0|51.6)/981.3 KB]
+    [Throttle 500(200) / 1500 KB] [Rate 441.6(190.0|51.6) / 981.3 KB]
 
 
 Compiling instructions
 -----------------------
 
-See `Debian Install From Source - The Easy Way <https://github.com/chros73/rtorrent-ps/blob/master/docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 30 minutes.
+See `Debian Install From Source - The Easy Way <docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 30 minutes.
 
 
 Change log
 ----------
 
-See `CHANGELOG.md <https://github.com/chros73/rtorrent-ps/blob/master/CHANGELOG.md>`_ for more details.
+See `CHANGELOG.md <CHANGELOG.md>`_ for more details.
