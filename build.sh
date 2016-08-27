@@ -557,11 +557,20 @@ case "$1" in
                 symlink_binary -extended
                 check
                 ;;
+    ps)         clean_all
+                prep
+                download
+                set_build_env
+                build_deps;
+                extend
+                symlink_binary -extended
+                check
+                ;;
     check)      check ;;
     install)    install;;
     pkg2deb)    pkg2deb;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (all | clean | clean_all | download | build | check | extend)$OFF"
+        echo >&2 "${BOLD}Usage: $0 (all | clean | clean_all | download | build | check | extend | ps)$OFF"
         echo >&2 "Build rTorrent $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"
