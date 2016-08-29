@@ -5,11 +5,22 @@
 
 RT_CH_VERSION=1.4.2
 
+export RT_MAJOR=0.9
+export LT_MAJOR=0.13
 export RT_MINOR=6
-export LT_VERSION=0.13.$RT_MINOR; export RT_VERSION=0.9.$RT_MINOR;
+export LT_VERSION=$LT_MAJOR.$RT_MINOR; export RT_VERSION=$RT_MAJOR.$RT_MINOR;
 export SVN=0 # no git support yet!
 
-BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libsigc++-2.0-dev libssl-dev libcppunit-dev locales )
+# specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
+export GIT_RT="0cba9cb"  # 2016-08-26
+export GIT_LT="44b000e"  # 2016-08-22
+#export GIT_RT="master"
+#export GIT_LT="master"
+
+# let's fake the version number of the git version to be compatible with our patching system
+export GIT_MINOR=7
+
+BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libsigc++-2.0-dev libssl-dev libcppunit-dev locales unzip )
 
 # Fitting / tested dependency versions for major platforms
 #export CARES_VERSION=1.7.5
@@ -115,6 +126,7 @@ test -d rtorrent-0.9.2 && { export LT_VERSION=0.13.2; export RT_VERSION=0.9.2; }
 test -d rtorrent-0.9.4 && { export LT_VERSION=0.13.4; export RT_VERSION=0.9.4; }
 test -d rtorrent-0.9.5 && { export LT_VERSION=0.13.5; export RT_VERSION=0.9.5; }
 test -d rtorrent-0.9.6 && { export LT_VERSION=0.13.6; export RT_VERSION=0.9.6; }
+test -d rtorrent-0.9.7 && { export LT_VERSION=0.13.7; export RT_VERSION=0.9.7; }
 test -d SVN-HEAD -o ${SVN:-0} = 1 && { export LT_VERSION=0.12.9; export RT_VERSION=0.8.9-svn; export SVN=1; }
 
 # Incompatible patches
@@ -122,6 +134,15 @@ _trackerinfo=0
 
 export PKG_INST_DIR="/opt/rtorrent"
 export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
+
+set_git_env_vars() {
+    export LT_VERSION=$LT_MAJOR.$GIT_MINOR
+    export RT_VERSION=$RT_MAJOR.$GIT_MINOR
+    export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
+}
+
+# dealing with optional 2nd "git" argument: update necessary variables
+[[ $2 = "git" ]] && set_git_env_vars
 
 set_build_env() {
     local dump="$1"
@@ -305,6 +326,9 @@ download() { # Download and unpack sources
     fi
     for url in $TARBALLS; do
         url_base=${url##*/}
+        # skip downloading rtorrent and libtorrent here if git version should be used
+        [ -z "${url_base##*rtorrent*}" ] && [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ] && continue
+        [ -z "${url_base##*libtorrent*}" ] && [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ] && continue
         tarball_dir=${url_base%.tar.gz}
         tarball_dir=${tarball_dir%-src.tgz}
         test -f tarballs/${url_base} || ( echo "Getting $url_base" && command cd tarballs && curl -O $CURL_OPTS $url )
@@ -318,9 +342,32 @@ download() { # Download and unpack sources
         ln -nfs SVN-HEAD/rtorrent rtorrent-$RT_VERSION
     fi
 
+    if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
+        # getting rtorrent and libtorrent from GIT
+        download_git_zip rakshasa rtorrent $GIT_RT
+        download_git_zip rakshasa libtorrent $GIT_LT
+        bump_git_versions
+    fi
+
     tar xfz patches/rtorrent-extended.tar.gz
 
     touch tarballs/DONE
+}
+
+download_git_zip() {
+    owner="$1"; repo="$2"; repo_ver="$3";
+    url="https://github.com/$owner/$repo/archive/$repo_ver.zip"
+    test -f tarballs/$repo_ver.zip || ( echo "Getting $repo-$repo_ver.zip" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.zip $url )
+    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.zip" && unzip -oq tarballs/$repo-$repo_ver.zip )
+    test -d $repo-$repo_ver* || fail "Zip $repo-$repo_ver.zip could not be unpacked"
+    [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
+}
+
+bump_git_versions() {
+    # bump version number of rtorrent and libtorrent
+    $SED_I "s/rtorrent, .*, sundell/rtorrent, $RT_VERSION, sundell/" rtorrent-$RT_VERSION/configure.ac
+    $SED_I "s/libtorrent >= [^, ]*\([, ].*\)/libtorrent >= $LT_VERSION\1/g" rtorrent-$RT_VERSION/configure.ac
+    $SED_I "s/libtorrent, .*, sundell/libtorrent, $LT_VERSION, sundell/" libtorrent-$LT_VERSION/configure.ac
 }
 
 automagic() {
@@ -360,7 +407,13 @@ build_deps() {
 core_unpack() { # Unpack original LT/RT source
     test -e $INST_DIR/lib/libxmlrpc.a || fail "You need to '$0 build' first!"
 
-    if test ${SVN:-0} = 0; then
+    if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
+        unzip -oq tarballs/libtorrent-$GIT_LT.zip
+        [ -d libtorrent-$GIT_LT* ] && cp -rfT libtorrent-$GIT_LT* libtorrent-$LT_VERSION/ && rm -rf libtorrent-$GIT_LT*
+        unzip -oq tarballs/rtorrent-$GIT_RT.zip
+        [ -d rtorrent-$GIT_RT* ] && cp -rfT rtorrent-$GIT_RT* rtorrent-$RT_VERSION/ && rm -rf rtorrent-$GIT_RT*
+        bump_git_versions
+    elif test ${SVN:-0} = 0; then
         tar xfz tarballs/libtorrent-$LT_VERSION.tar.gz
         tar xfz tarballs/rtorrent-$RT_VERSION.tar.gz
     else
@@ -375,15 +428,6 @@ build() { # Build and install all components
         ./configure $CFG_OPTS $CFG_OPTS_LT && $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
     ( set +x ; cd rtorrent-$RT_VERSION && automagic && \
-        ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
-        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
-}
-
-build_git() { # Build and install libtorrent and rtorrent from git checkouts
-    ( set +x ; cd ../libtorrent && automagic && \
-        ./configure $CFG_OPTS $CFG_OPTS_LT && $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
-    $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
-    ( set +x ; cd ../rtorrent && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
 }
@@ -423,15 +467,17 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
         test ! -e "$backport" || { bold "$(basename $backport)"; patch -uNp0 -i "$backport"; }
     done
 
-    bold "pyroscope.patch"
-    patch -uNp1 -i "$SRC_DIR/patches/pyroscope.patch"
+    for pyropatch in $SRC_DIR/patches/pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
+        test ! -e "$pyropatch" || { bold "$(basename $pyropatch)"; patch -uNp1 -i "$pyropatch"; }
+    done
     for i in "$SRC_DIR"/patches/*.{cc,h}; do
         ln -nfs $i src
     done
 
     if [[ "${_interface}" = "3" ]]; then
-        bold "ui_pyroscope.patch"
-        patch -uNp1 -i "${SRC_DIR}/patches/ui_pyroscope.patch"
+        for uipyropatch in $SRC_DIR/patches/ui_pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
+            test ! -e "$uipyropatch" || { bold "$(basename $uipyropatch)"; patch -uNp1 -i "$uipyropatch"; }
+        done
     fi
 
     $SED_I "s/rTorrent \\\" VERSION/rTorrent-PS-CH $RT_CH_VERSION \\\" VERSION/" src/ui/download_list.cc
@@ -452,7 +498,7 @@ clean() { # Clean up generated files
 }
 
 clean_all() { # Remove all downloads and created files
-    test ! -d tarballs || rm tarballs/*.tar.gz tarballs/DONE >/dev/null || :
+    test ! -d tarballs || rm -f tarballs/*.tar.gz tarballs/DONE tarballs/*.zip >/dev/null || :
     for i in $SUBDIRS; do
         test ! -d $i || rm -rf $i >/dev/null
     done
@@ -542,13 +588,6 @@ case "$1" in
     download)   prep; download ;;
     env)        prep; set +x; set_build_env echo '"';;
     build)      prep; build_everything ;;
-    git|build_git)
-                prep
-                set_build_env
-                build_git
-                symlink_binary -git
-                check
-                ;;
     rtorrent)   prep; core_unpack; NODEPS=true; build_everything ;;
     extend)     prep
                 set_build_env
@@ -573,7 +612,7 @@ case "$1" in
     install)    install;;
     pkg2deb)    pkg2deb;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (all | clean | clean_all | download | build | check | extend | ps)$OFF"
+        echo >&2 "${BOLD}Usage: $0 (all [git] | clean | clean_all | download [git] | build | check [git] | extend [git] | ps [git] | install [git])$OFF"
         echo >&2 "Build rTorrent $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"
