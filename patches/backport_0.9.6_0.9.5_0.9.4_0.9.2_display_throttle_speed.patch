@@ -1,5 +1,5 @@
---- rel-0.9.6/src/command_ui.cc		2015-09-03 20:03:30.000000000 +0100
-+++ rtorrent-0.9.6/src/command_ui.cc	2016-08-08 11:15:30.981091307 +0100
+--- src/command_ui.cc		2015-09-03 20:03:30.000000000 +0100
++++ src/command_ui.cc	2016-08-08 11:15:30.981091307 +0100
 @@ -548,6 +548,8 @@ initialize_command_ui() {
    // Commands that affect the default rtorrent UI.
    CMD2_DL        ("ui.unfocus_download",   tr1::bind(&cmd_ui_unfocus_download, tr1::placeholders::_1));
@@ -9,8 +9,8 @@
  
    // Move.
    CMD2_ANY("print", &apply_print);
---- rel-0.9.6/src/display/utils.cc	2015-08-08 16:40:41.000000000 +0100
-+++ rtorrent-0.9.6/src/display/utils.cc	2016-08-06 23:51:22.234873771 +0100
+--- src/display/utils.cc	2015-08-08 16:40:41.000000000 +0100
++++ src/display/utils.cc	2016-08-06 23:51:22.234873771 +0100
 @@ -257,21 +257,101 @@ print_client_version(char* first, char*
    }
  }

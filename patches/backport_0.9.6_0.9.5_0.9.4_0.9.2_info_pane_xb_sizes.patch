@@ -1,14 +1,5 @@
---- rel-0.9.4/src/ui/download.cc	2014-05-14 16:30:51.000000000 +0200
-+++ rtorrent-0.9.4/src/ui/download.cc	2015-08-11 03:31:14.000000000 +0200
-@@ -171,6 +171,6 @@
-   element->push_back("");
-   element->push_column("Memory usage:",     te_command("cat=$convert.mb=$pieces.memory.current=,\" MB\""));
--  element->push_column("Max memory usage:", te_command("cat=$convert.mb=$pieces.memory.max=,\" MB\""));
--  element->push_column("Free diskspace:",   te_command("cat=$convert.mb=$d.free_diskspace=,\" MB\""));
-+  element->push_column("Max memory usage:", te_command("cat=$convert.mb=$pieces.memory.max=,\" MB = \",$convert.xb=$pieces.memory.max="));
-+  element->push_column("Free diskspace:",   te_command("cat=$convert.mb=$d.free_diskspace=,\" MB = \",$convert.xb=$d.free_diskspace="));
-   element->push_column("Safe diskspace:",   te_command("cat=$convert.mb=$pieces.sync.safe_free_diskspace=,\" MB\""));
- 
+--- src/ui/download.cc	2014-05-14 16:30:51.000000000 +0200
++++ src/ui/download.cc	2015-08-11 03:31:14.000000000 +0200
 @@ -192,7 +192,7 @@
  
    element->push_back("");

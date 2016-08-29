@@ -1,5 +1,5 @@
---- rel-0.9.5/src/core/curl_stack.h	2015-07-02 00:32:45.000000000 +0200
-+++ rtorrent-0.9.5/src/core/curl_stack.h	2015-08-08 22:44:11.000000000 +0200
+--- src/core/curl_stack.h	2015-07-02 00:32:45.000000000 +0200
++++ src/core/curl_stack.h	2015-08-08 22:44:11.000000000 +0200
 @@ -104,2 +104,4 @@
    void                set_ssl_verify_peer(bool s)            { m_ssl_verify_peer = s; }
 +  bool                ssl_verify_host() const                { return m_ssl_verify_host; }
@@ -9,8 +9,8 @@
    bool                m_ssl_verify_peer;
 +  bool                m_ssl_verify_host;
    long                m_dns_timeout;
---- rel-0.9.5/src/core/curl_stack.cc	2015-07-02 00:32:45.000000000 +0200
-+++ rtorrent-0.9.5/src/core/curl_stack.cc	2015-08-08 22:47:37.000000000 +0200
+--- src/core/curl_stack.cc	2015-07-02 00:32:45.000000000 +0200
++++ src/core/curl_stack.cc	2015-08-08 22:47:37.000000000 +0200
 @@ -54,2 +54,3 @@
    m_ssl_verify_peer(true),
 +  m_ssl_verify_host(true),
@@ -19,8 +19,8 @@
    curl_easy_setopt(get->handle(), CURLOPT_SSL_VERIFYPEER, (long)m_ssl_verify_peer); 
 +  curl_easy_setopt(get->handle(), CURLOPT_SSL_VERIFYHOST, (long)(m_ssl_verify_host ? 2 : 0));
    curl_easy_setopt(get->handle(), CURLOPT_DNS_CACHE_TIMEOUT, m_dns_timeout);
---- rel-0.9.5/src/command_network.cc	2015-07-02 00:32:45.000000000 +0200
-+++ rtorrent-0.9.5/src/command_network.cc	2015-08-08 22:49:39.000000000 +0200
+--- src/command_network.cc	2015-07-02 00:32:45.000000000 +0200
++++ src/command_network.cc	2015-08-08 22:49:39.000000000 +0200
 @@ -276,2 +276,4 @@
    CMD2_ANY_VALUE_V ("network.http.ssl_verify_peer.set",   tr1::bind(&core::CurlStack::set_ssl_verify_peer, httpStack, tr1::placeholders::_2));
 +  CMD2_ANY         ("network.http.ssl_verify_host",       tr1::bind(&core::CurlStack::ssl_verify_host, httpStack));
