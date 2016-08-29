@@ -1,5 +1,14 @@
 # Change Log
 
+## [1.4.3-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.3-0.9.6) (2016-08-29)
+**Implemented enhancements:**
+
+- Modify git section main readme file [\#50](https://github.com/chros73/rtorrent-ps/issues/50)
+- Refactor all the patches thanks to git support [\#48](https://github.com/chros73/rtorrent-ps/issues/48)
+- Add proper support for building from git versions in build script [\#47](https://github.com/chros73/rtorrent-ps/issues/47)
+- Add ability in build script to use multiple versions in name of patches [\#46](https://github.com/chros73/rtorrent-ps/issues/46)
+- Add ability to build only extended when building for user [\#45](https://github.com/chros73/rtorrent-ps/issues/45)
+
 ## [1.4.2-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.2-0.9.6) (2016-08-24)
 **Implemented enhancements:**
 
