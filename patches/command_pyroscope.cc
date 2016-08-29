@@ -45,7 +45,7 @@
 #include "control.h"
 #include "command_helpers.h"
 
-#if (RT_HEX_VERSION >= 0x000901)
+#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION <= 0x000906)
     #define _cxxstd_ tr1
 #else
     #define _cxxstd_ std

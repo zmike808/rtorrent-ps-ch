@@ -38,7 +38,7 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "control.h"
 #include "command_helpers.h"
 
-#if (RT_HEX_VERSION >= 0x000901)
+#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION <= 0x000906)
     #define _cxxstd_ tr1
 #else
     #define _cxxstd_ std
@@ -384,15 +384,15 @@ void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* can
 
 	// better handling for trail of line 2 (ratio etc.)
 	int status_pos = 91;
-	int ratio = rpc::call_command_value("d.get_ratio", rpc::make_target(*range.first));
+	int ratio = rpc::call_command_value("d.ratio", rpc::make_target(*range.first));
 
 	if (status_pos < canvas->width()) {
 		canvas->print(status_pos, pos+1, "R:%6.2f [%c%c] %-4.4s  ",
 			float(ratio) / 1000.0,
-			rpc::call_command_string("d.get_tied_to_file", rpc::make_target(*range.first)).empty() ? ' ' : 'T',
-			(rpc::call_command_value("d.get_ignore_commands", rpc::make_target(*range.first)) == 0) ? ' ' : 'I',
+			rpc::call_command_string("d.tied_to_file", rpc::make_target(*range.first)).empty() ? ' ' : 'T',
+			(rpc::call_command_value("d.ignore_commands", rpc::make_target(*range.first)) == 0) ? ' ' : 'I',
 			(*range.first)->priority() == 2 ? "" :
-				rpc::call_command_string("d.get_priority_str", rpc::make_target(*range.first)).c_str()
+				rpc::call_command_string("d.priority_str", rpc::make_target(*range.first)).c_str()
 		);
 		status_pos += 9 + 5 + 5;
 	}
@@ -403,7 +403,7 @@ void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* can
 
 		if (!(*range.first)->bencode()->get_key("rtorrent").get_key_string("throttle_name").empty()) {
 			//item_status += "T=";
-			item_status += rpc::call_command_string("d.get_throttle_name", rpc::make_target(*range.first)) + ' ';
+			item_status += rpc::call_command_string("d.throttle_name", rpc::make_target(*range.first)) + ' ';
 		}
 
 		// left-justifying this also overwrites any junk from the original display that we overwrite
@@ -523,7 +523,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 		core::Download* d = *range.first;
 		core::Download* item = d;
 		torrent::Tracker* tracker = get_active_tracker((*range.first)->download());
-		int ratio = rpc::call_command_value("d.get_ratio", rpc::make_target(d));
+		int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
 		bool has_msg = !d->message().empty();
 		bool has_alert = has_msg && d->message().find("Tried all trackers") == std::string::npos;
 		int offset = row_offset(view, range);
@@ -603,8 +603,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 		canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 			range.first == view->focus() ? "»" : " ",
 			item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
-			rpc::call_command_string("d.get_tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
-			rpc::call_command_value("d.get_ignore_commands", rpc::make_target(d)) == 0 ? "⚒ " : "◌ ",
+			rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
+			rpc::call_command_value("d.ignore_commands", rpc::make_target(d)) == 0 ? "⚒ " : "◌ ",
 			prios[d->priority() % 4],
 			!throttlename.empty() ? throttlename == "NULL" ? "∞ " : throttle_str : "  ",
 			unsafe_data[get_custom_long(d, "unsafe_data") % 3],
@@ -689,7 +689,11 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 		char* last = buffer + canvas->width() + 1;
 
 		pos = canvas->height() - 2 - network_history_lines;
+#if RT_HEX_VERSION < 0x000907
 		print_download_info(buffer, last, *view->focus());
+#else
+		print_download_info_full(buffer, last, *view->focus());
+#endif
 		canvas->print(3, pos, "%s", buffer);
 		canvas->set_attr(0, pos, -1, attr_map[ps::COL_LABEL], ps::COL_LABEL);
 		print_download_status(buffer, last, *view->focus());
