@@ -557,7 +557,8 @@ case "$1" in
                 symlink_binary -extended
                 check
                 ;;
-    ps)         clean_all
+    ps|extend-only)
+                clean_all
                 prep
                 download
                 set_build_env
@@ -566,6 +567,8 @@ case "$1" in
                 symlink_binary -extended
                 check
                 ;;
+#    patch)      extend ;;
+#    down)       clean_all; prep; download; core_unpack ;;
     check)      check ;;
     install)    install;;
     pkg2deb)    pkg2deb;;
