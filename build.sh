@@ -403,7 +403,7 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
     # Patch libtorrent
     pushd libtorrent-$LT_VERSION
 
-    for backport in $SRC_DIR/patches/{backport,trac,misc}_{${LT_VERSION%-svn},all}_*.patch; do
+    for backport in $SRC_DIR/patches/{backport,trac,misc}_{*${LT_VERSION%-svn}*,all}_*.patch; do
         test ! -e "$backport" || { bold "$(basename $backport)"; patch -uNp0 -i "$backport"; }
     done
 
@@ -415,11 +415,11 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
     srcdir=$SRC_DIR/rtorrent-extended
     aur_patches
 
-    for corepatch in $SRC_DIR/patches/ps-*_{${RT_VERSION%-svn},all}.patch; do
+    for corepatch in $SRC_DIR/patches/ps-*_{*${RT_VERSION%-svn}*,all}.patch; do
         test ! -e "$corepatch" || { bold "$(basename $corepatch)"; patch -uNp1 -i "$corepatch"; }
     done
 
-    for backport in $SRC_DIR/patches/{backport,misc}_${RT_VERSION%-svn}_*.patch; do
+    for backport in $SRC_DIR/patches/{backport,misc}_*${RT_VERSION%-svn}*_*.patch; do
         test ! -e "$backport" || { bold "$(basename $backport)"; patch -uNp0 -i "$backport"; }
     done
 
