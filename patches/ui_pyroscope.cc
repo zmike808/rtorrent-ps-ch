@@ -38,7 +38,7 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "control.h"
 #include "command_helpers.h"
 
-#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION <= 0x000906)
+#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION < 0x000907)
     #define _cxxstd_ tr1
 #else
     #define _cxxstd_ std
