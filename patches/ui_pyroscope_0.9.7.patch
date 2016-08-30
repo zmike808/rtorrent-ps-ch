@@ -36,18 +36,26 @@
 +  void ui_pyroscope_statusbar_redraw(Window* window, display::Canvas* canvas);
 +  ui_pyroscope_statusbar_redraw(this, m_canvas);
    m_lastTick = control->tick();
---- orig/src/display/window_download_list.cc	2009-11-12 09:03:47.000000000 +0100
-+++ rtorrent-0.8.6/src/display/window_download_list.cc	2011-05-30 20:34:59.000000000 +0200
-@@ -75,2 +75,4 @@
+--- rel-0.9.7/src/display/window_download_list.cc<----->2016-08-26 10:06:55.000000000 +0100
++++ rtorrent-0.9.7/src/display/window_download_list.cc<>2016-08-30 12:27:10.745588420 +0100
+@@ -83,6 +83,8 @@ WindowDownloadList::redraw() {
+ 
+   m_canvas->print(0, 0, "%s", ("[View: " + m_view->name() + "]").c_str());
  
 +  bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, core::View* view);
 +  if (ui_pyroscope_download_list_redraw(this, m_canvas, m_view)) return;
    if (m_view->empty_visible() || m_canvas->width() < 5 || m_canvas->height() < 2)
-@@ -107,2 +109,4 @@
+     return;
  
-+    void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* canvas, core::View* view, int pos, Range& range);
-+    ui_pyroscope_download_list_redraw_item(this, m_canvas, m_view, pos, range);
-     ++range.first;
+@@ -132,6 +134,8 @@ WindowDownloadList::redraw() {
+       print_download_status(buffer, last, *range.first);
+       m_canvas->print(0, pos++, "%c %s", range.first == m_view->focus() ? '*' : ' ', buffer);
+ 
++      void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* canvas, core::View* view, int pos, Range& range);
++      ui_pyroscope_download_list_redraw_item(this, m_canvas, m_view, pos, range);
+       range.first++;
+     }
+ 
 --- orig/src/display/canvas.cc	2009-11-12 09:03:47.000000000 +0100
 +++ rtorrent-0.8.6/src/display/canvas.cc	2011-05-30 21:07:29.000000000 +0200
 @@ -94,2 +94,4 @@
