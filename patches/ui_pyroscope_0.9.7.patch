@@ -36,8 +36,8 @@
 +  void ui_pyroscope_statusbar_redraw(Window* window, display::Canvas* canvas);
 +  ui_pyroscope_statusbar_redraw(this, m_canvas);
    m_lastTick = control->tick();
---- rel-0.9.7/src/display/window_download_list.cc<----->2016-08-26 10:06:55.000000000 +0100
-+++ rtorrent-0.9.7/src/display/window_download_list.cc<>2016-08-30 12:27:10.745588420 +0100
+--- rel-0.9.7/src/display/window_download_list.cc	2016-08-26 10:06:55.000000000 +0100
++++ rtorrent-0.9.7/src/display/window_download_list.cc	2016-08-30 12:27:10.745588420 +0100
 @@ -83,6 +83,8 @@ WindowDownloadList::redraw() {
  
    m_canvas->print(0, 0, "%s", ("[View: " + m_view->name() + "]").c_str());
