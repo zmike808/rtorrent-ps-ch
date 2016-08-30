@@ -1,5 +1,14 @@
 # Change Log
 
+## [1.4.4-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.4-0.9.6) (2016-08-30)
+**Implemented enhancements:**
+
+- Bump rtorrent commit in build script [\#52](https://github.com/chros73/rtorrent-ps/issues/52)
+
+**Fixed bugs:**
+
+- Fix broken full list redraw in git version [\#51](https://github.com/chros73/rtorrent-ps/issues/51)
+
 ## [1.4.3-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.3-0.9.6) (2016-08-29)
 **Implemented enhancements:**
 
