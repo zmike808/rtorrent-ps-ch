@@ -12,7 +12,7 @@ export LT_VERSION=$LT_MAJOR.$RT_MINOR; export RT_VERSION=$RT_MAJOR.$RT_MINOR;
 export SVN=0 # no git support yet!
 
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
-export GIT_RT="06f1c03"  # 2016-08-30
+export GIT_RT="ce00085"  # 2016-09-09
 export GIT_LT="c97b462"  # 2016-09-05
 #export GIT_RT="master"
 #export GIT_LT="master"
