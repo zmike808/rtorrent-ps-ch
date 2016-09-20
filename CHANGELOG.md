@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.4.5-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.5-0.9.6) (2016-09-20)
+**Implemented enhancements:**
+
+- Add IPv6 support to git build [\#55](https://github.com/chros73/rtorrent-ps/issues/55)
+- Bump libtorrent/rtorrent commit in build script [\#54](https://github.com/chros73/rtorrent-ps/issues/54)
+
 ## [1.4.4-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.4-0.9.6) (2016-08-30)
 **Implemented enhancements:**
 
