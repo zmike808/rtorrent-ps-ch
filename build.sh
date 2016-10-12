@@ -3,7 +3,7 @@
 # Build rTorrent including patches
 #
 
-RT_CH_VERSION=1.4.5
+RT_CH_VERSION=1.4.6
 
 export RT_MAJOR=0.9
 export LT_MAJOR=0.13
