@@ -153,7 +153,7 @@ set_build_env() {
     $dump export PKG_CONFIG_PATH="$quot$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}$quot"
 }
 
-SELF_URL=https://github.com/pyroscope/rtorrent-ps.git
+SELF_URL=https://github.com/chros73/rtorrent-ps.git
 XMLRPC_URL="http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV"
 TARBALLS=$(cat <<.
 http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz
