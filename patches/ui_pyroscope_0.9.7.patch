@@ -54,7 +54,7 @@
 +++ rtorrent-0.9.7/src/display/window_download_list.cc	2016-08-30 12:27:10.745588420 +0100
 @@ -83,6 +83,8 @@ WindowDownloadList::redraw() {
  
-   m_canvas->print(0, 0, "%s", ("[View: " + m_view->name() + "]").c_str());
+   m_canvas->print(0, 0, "%s", ("[View: " + m_view->name() + (m_view->get_temp_filter().is_empty() ? "" : " (filtered)") + "]").c_str());
  
 +  bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, core::View* view);
 +  if (ui_pyroscope_download_list_redraw(this, m_canvas, m_view)) return;
