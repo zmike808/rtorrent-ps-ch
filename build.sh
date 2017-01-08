@@ -369,7 +369,10 @@ download_git_zip() {
 bump_git_versions() {
     # bump version number of rtorrent and libtorrent
     $SED_I "s/rtorrent, .*, sundell/rtorrent, $RT_VERSION, sundell/" rtorrent-$RT_VERSION/configure.ac
+    # for RT_VERSION <= 0.9.6
     $SED_I "s/libtorrent >= [^, ]*\([, ].*\)/libtorrent >= $LT_VERSION\1/g" rtorrent-$RT_VERSION/configure.ac
+    # for RT_VERSION >= 0.9.7
+    $SED_I "s/\[libtorrent >= .*\]/\[libtorrent >= $LT_VERSION\]/" rtorrent-$RT_VERSION/configure.ac
     $SED_I "s/libtorrent, .*, sundell/libtorrent, $LT_VERSION, sundell/" libtorrent-$LT_VERSION/configure.ac
 }
 
