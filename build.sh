@@ -3,16 +3,19 @@
 # Build rTorrent including patches
 #
 
-RT_CH_VERSION=1.4.6
+RT_CH_MAJOR_VERSION=1.4
+RT_CH_MINOR_RELEASE=6
+RT_CH_MINOR_GIT=21
+RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_RELEASE
 
 export RT_MAJOR=0.9
 export LT_MAJOR=0.13
 export RT_MINOR=6
 export LT_VERSION=$LT_MAJOR.$RT_MINOR; export RT_VERSION=$RT_MAJOR.$RT_MINOR;
-export SVN=0 # no git support yet!
+export SVN=0
 
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
-export GIT_RT="10ce686"  # 2016-11-04	(bug in src/command_ip.cc at 7902c61 on 2016-11-07)
+export GIT_RT="226e670"  # 2016-10-23
 export GIT_LT="c167c5a"  # 2016-12-12
 #export GIT_RT="master"
 #export GIT_LT="master"
@@ -139,6 +142,7 @@ export PKG_INST_DIR="/opt/rtorrent"
 export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
 
 set_git_env_vars() {
+    export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
     export LT_VERSION=$LT_MAJOR.$GIT_MINOR
     export RT_VERSION=$RT_MAJOR.$GIT_MINOR
     export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
