@@ -331,7 +331,11 @@ static void decorate_download_title(Window* window, display::Canvas* canvas, cor
 	// download title color
 	int title_col;
 	unsigned long focus_attr = range.first == view->focus() ? attr_map[ps::COL_FOCUS] : 0;
+#if RT_HEX_VERSION < 0x000907
 	if ((*range.first)->is_done())
+#else
+	if ((*range.first)->data()->is_partially_done())
+#endif
 		title_col = (active ? D_INFO(item)->up_rate()->rate() ? ps::COL_SEEDING : ps::COL_COMPLETE : ps::COL_STOPPED) + offset;
 	else
 		title_col = (active ? D_INFO(item)->down_rate()->rate() ? ps::COL_LEECHING : ps::COL_INCOMPLETE : ps::COL_QUEUED) + offset;
@@ -630,11 +634,20 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 				human_size(D_INFO(item)->up_rate()->total(), 0).c_str() :
 				num2(D_INFO(item)->up_rate()->total()).c_str(),
 			D_INFO(item)->up_rate()->total() ? "" : "  ",
+#if RT_HEX_VERSION < 0x000907
 			d->is_done() || !down_rate ? "" : " ",
 			d->is_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
-			!down_rate   ? elapsed_time(get_custom_long(d, "tm_loaded")).c_str() :
+#else
+			d->data()->is_partially_done() || !down_rate ? "" : " ",
+			d->data()->is_partially_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
+#endif
+				!down_rate ? elapsed_time(get_custom_long(d, "tm_loaded")).c_str() :
 			               human_size(down_rate, 2 | 8).c_str(),
+#if RT_HEX_VERSION < 0x000907
 			human_size(item->file_list()->size_bytes(), 2).c_str(),
+#else
+			human_size(item->file_list()->selected_size_bytes(), 2).c_str(),
+#endif
 			displayname.empty() ? "" : " ",
 			displayname.empty() ? buffer : displayname.c_str()
 		);
@@ -665,9 +678,17 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 		}
 
 		// color down rates / time
+#if RT_HEX_VERSION < 0x000907
 		if (d->is_done() || !down_rate) {
+#else
+		if (d->data()->is_partially_done() || !down_rate) {
+#endif
 			// time display
+#if RT_HEX_VERSION < 0x000907
 			int tm_color = (d->is_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
+#else
+			int tm_color = (d->data()->is_partially_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
+#endif
 			canvas->set_attr(x_rate+6+7+1, pos, 1, attr_map[tm_color], tm_color);
 			canvas->set_attr(x_rate+6+7+4, pos, 1, attr_map[tm_color], tm_color);
 		} else {
