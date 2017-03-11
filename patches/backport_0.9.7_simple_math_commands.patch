@@ -1,9 +1,71 @@
+--- rak/algorithm.h	2016-11-04 21:58:44.000000000 +0000
++++ rak/algorithm.h	2017-03-10 21:16:32.039264146 +0000
+@@ -176,6 +176,26 @@ inline int popcount_wrapper(T t) {
+ #endif
+ }
+ 
++// Get the median of an unordered set of numbers of arbitrary
++// type by modifing the underlying dataset
++template <typename T = double, typename _InputIter>
++T median(_InputIter __first, _InputIter __last) {
++  T __med;
++
++  unsigned int __size = __last - __first;
++  unsigned int __middle = __size / 2;
++  _InputIter __target1 = __first + __middle;
++  std::nth_element(__first, __target1, __last);
++  __med = *__target1;
++
++  if (__size % 2 == 0) {
++    _InputIter __target2 = std::max_element(__first, __target1);
++    __med = (__med + *__target2) / 2.0;
++  }
++
++  return __med;
++}
++
+ }
+ 
+ #endif
 --- src/command_ui.cc	2017-02-19 15:05:13.000000000 +0000
-+++ src/command_ui.cc	2017-03-07 12:42:29.891266251 +0000
-@@ -530,6 +530,94 @@ apply_elapsed_greater(const torrent::Obj
++++ src/command_ui.cc	2017-03-10 22:05:03.086826981 +0000
+@@ -38,6 +38,7 @@
+ 
+ #include <sys/types.h>
+ 
++#include <rak/algorithm.h>
+ #include <ctime>
+ #include <rak/functional.h>
+ #include <rak/functional_fun.h>
+@@ -530,6 +531,122 @@ apply_elapsed_greater(const torrent::Obj
    return (int64_t)(start_time != 0 && rak::timer::current_seconds() - start_time > rpc::convert_to_value(args.back()));
  }
  
++inline std::vector<int64_t>
++as_vector(const torrent::Object::list_type& args) {
++  if (args.size() == 0)
++    throw torrent::input_error("Wrong argument count in as_list.");
++
++  std::vector<int64_t> result;
++
++  for (torrent::Object::list_const_iterator itr = args.begin(), last = args.end(); itr != last; itr++) {
++
++    if (itr->is_value()) {
++      result.push_back(itr->as_value());
++    } else if (itr->is_string()) {
++      result.push_back(rpc::convert_to_value(itr->as_string()));
++    } else if (itr->is_list()) {
++      std::vector<int64_t> subResult = as_vector(itr->as_list());
++      result.insert(result.end(), subResult.begin(), subResult.end());
++    } else {
++      throw torrent::input_error("Wrong type supplied to as_list.");
++    }
++
++  }
++
++  return result;
++}
++
 +int64_t
 +apply_math_basic(const std::function<int64_t(int64_t,int64_t)> op, const torrent::Object::list_type& args) {
 +  if (args.size() == 0)
@@ -85,17 +147,20 @@
 +  if (args.size() == 0)
 +    throw torrent::input_error("Wrong argument count in apply_arith_other.");
 +
-+  if (op == "average")
++  if (op == "average") {
 +    return (int64_t)(apply_math_basic(std::plus<int64_t>(), args) / apply_arith_count(args));
-+  else
++  } else if (op == "median") {
++    std::vector<int64_t> result = as_vector(args);
++    return (int64_t)rak::median(result.begin(), result.end());
++  } else {
 +    throw torrent::input_error("Wrong operation supplied to apply_arith_other.");
-+
++  }
 +}
 +
  void
  initialize_command_ui() {
    CMD2_VAR_STRING("keys.layout", "qwerty");
-@@ -597,6 +685,16 @@ initialize_command_ui() {
+@@ -597,6 +714,17 @@ initialize_command_ui() {
    CMD2_ANY_VALUE("convert.throttle",     std::bind(&apply_to_throttle, std::placeholders::_2));
    CMD2_ANY_VALUE("convert.group",        std::bind(&apply_to_group, std::placeholders::_2));
  
@@ -108,6 +173,7 @@
 +  CMD2_ANY_LIST("math.max",              std::bind(&apply_arith_basic, std::greater<int64_t>(), std::placeholders::_2));
 +  CMD2_ANY_LIST("math.cnt",              std::bind(&apply_arith_count, std::placeholders::_2));
 +  CMD2_ANY_LIST("math.avg",              std::bind(&apply_arith_other, "average", std::placeholders::_2));
++  CMD2_ANY_LIST("math.med",              std::bind(&apply_arith_other, "median", std::placeholders::_2));
 +
    CMD2_ANY_LIST ("elapsed.less",         std::bind(&apply_elapsed_less, std::placeholders::_2));
    CMD2_ANY_LIST ("elapsed.greater",      std::bind(&apply_elapsed_greater, std::placeholders::_2));
