@@ -17,11 +17,9 @@ export SVN=0
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
 export GIT_RT="226e670"  # 2016-10-23
 export GIT_LT="c167c5a"  # 2016-12-12
-#export GIT_RT="master"
-#export GIT_LT="master"
 
 # let's fake the version number of the git version to be compatible with our patching system
-export GIT_MINOR=7
+export GIT_MINOR=$[$RT_MINOR + 1]
 
 BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libsigc++-2.0-dev libssl-dev libcppunit-dev locales unzip )
 
@@ -36,7 +34,6 @@ BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libsigc++-2.0-dev libssl-dev l
 
 export CARES_VERSION=1.10.0
 ##export CURL_VERSION=7.47.1 # 2016-02
-##export CURL_VERSION=7.49.0 # 2016-05
 export CURL_VERSION=7.51.0 # 2016-11
 export XMLRPC_REV=2775 # Release 1.43.01 2015-10
 # WARNING: see rT issue #457 regarding curl configure options
@@ -138,18 +135,18 @@ test -d SVN-HEAD -o ${SVN:-0} = 1 && { export LT_VERSION=0.12.9; export RT_VERSI
 # Incompatible patches
 _trackerinfo=0
 
-export PKG_INST_DIR="/opt/rtorrent"
-export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
-
 set_git_env_vars() {
     export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
     export LT_VERSION=$LT_MAJOR.$GIT_MINOR
     export RT_VERSION=$RT_MAJOR.$GIT_MINOR
-    export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION"
 }
 
 # dealing with optional 2nd "git" argument: update necessary variables
 [[ $2 = "git" ]] && set_git_env_vars
+
+export ROOT_SYMLINK_DIR="/opt/rtorrent"
+export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_VERSION-$RT_CH_VERSION"
+export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION-$RT_CH_VERSION"
 
 set_build_env() {
     local dump="$1"
@@ -542,6 +539,7 @@ RT_PS_XMLRPC_REV=$XMLRPC_REV
     clean_all; prep; download;
     set_build_env; build_deps; extend
     #check
+    ln -nfs "$INST_DIR" "$ROOT_SYMLINK_DIR"
 }
 
 pkg2deb() { # Package current $PKG_INST_DIR installation [needs fpm]
@@ -622,7 +620,7 @@ case "$1" in
     install)    install;;
     pkg2deb)    pkg2deb;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (all [git] | clean | clean_all | download [git] | build | check [git] | extend [git] | ps [git] | install [git])$OFF"
+        echo >&2 "${BOLD}Usage: $0 (all [git] | clean | clean_all | download [git] | build | check [git] | extend [git] | ps [git] | install [git] | pkg2deb [git])$OFF"
         echo >&2 "Build rTorrent $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"
