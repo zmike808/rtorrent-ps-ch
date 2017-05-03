@@ -104,7 +104,7 @@
    CMD2_ANY_STRING("ui.current_view.set",   std::bind(&cmd_ui_set_view, std::placeholders::_2));
  
 +  CMD2_VAR_STRING("view.temp_filter.excluded", "default,started,stopped");
-+  CMD2_VAR_BOOL  ("ui.console.log.tempfilter", 0);
++  CMD2_VAR_BOOL  ("view.temp_filter.log", 0);
 +
    // TODO: Add 'option_string' for rtorrent-specific options.
    CMD2_VAR_STRING("ui.torrent_list.layout", "full");
@@ -290,7 +290,7 @@
  
 +    case INPUT_FILTER:
 +      if (input->str().empty()) {
-+        if (rpc::call_command_value("ui.console.log.tempfilter"))
++        if (rpc::call_command_value("view.temp_filter.log"))
 +          control->core()->push_log_std("Clear temporary filter on '" + current_view()->name() + "' view.");
 +        current_view()->set_temp_filter(torrent::Object());
 +        current_view()->filter();
@@ -303,7 +303,7 @@
 +          pattern = ".*" + pattern;
 +        std::transform(pattern.begin(), pattern.end(), pattern.begin(), ::tolower);
 +        std::string tempFilter = "match={d.name=," + pattern + "}";
-+        if (rpc::call_command_value("ui.console.log.tempfilter"))
++        if (rpc::call_command_value("view.temp_filter.log"))
 +          control->core()->push_log_std("Temporary filter on '" + current_view()->name() + "' view: " + pattern);
 +        current_view()->set_temp_filter(tempFilter);
 +        current_view()->filter();
