@@ -483,7 +483,7 @@ package_prep() { # make $PACKAGE_ROOT lean and mean
     test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
 
     DIST_DIR="/tmp/rt-ps-dist"
-    rm -rf "$DIST_DIR" || mkdir -p "$DIST_DIR"
+    rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
     chmod -R a+rX "$PKG_INST_DIR/"
 
     . "$PKG_INST_DIR"/version-info.sh
