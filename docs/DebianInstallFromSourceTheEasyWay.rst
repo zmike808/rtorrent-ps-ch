@@ -88,14 +88,14 @@ You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-dist`` to somewhere
 Creating Arch Linux package
 """""""""""""""""""""""""""
 
-You can even ``create a package`` of this build with ``pacman`` if you like (so you can distribute it later):
+You can even ``create a package`` of this build with ``pacman`` (``fpm`` from the AUR should be used!) if you like (so you can distribute it later):
 
 .. code-block::
 
    export DEBFULLNAME="yourname"; export DEBEMAIL="youremailaddress"
    ./build.sh pkg2pacman
 
-You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
+You should copy resulted ``*.tar.xz`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
 
 
 
