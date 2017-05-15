@@ -1,5 +1,30 @@
 # Change Log
 
+## [1.5.0-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.0-0.9.7) (2017-05-15)
+**Implemented enhancements:**
+
+- Modify bencode parse info patch to sanitize output [\#80](https://github.com/chros73/rtorrent-ps/issues/80)
+- Update docs [\#79](https://github.com/chros73/rtorrent-ps/issues/79)
+- Support only git version \(not old versions\) [\#78](https://github.com/chros73/rtorrent-ps/issues/78)
+- Update build.sh [\#77](https://github.com/chros73/rtorrent-ps/issues/77)
+- Update to current head fork [\#75](https://github.com/chros73/rtorrent-ps/issues/75)
+- Modify throttle status bar mod to be able to display multiple values [\#74](https://github.com/chros73/rtorrent-ps/issues/74)
+- Add support for multiple local rtorrent-ps versions in build script [\#73](https://github.com/chros73/rtorrent-ps/issues/73)
+- Add support for basic arithmetic operators to git version [\#71](https://github.com/chros73/rtorrent-ps/issues/71)
+- Modify ui\_pyroscope.cc to handle partially done downloads in git version [\#70](https://github.com/chros73/rtorrent-ps/issues/70)
+- Fix partially done downloads and choke groups in git version [\#69](https://github.com/chros73/rtorrent-ps/issues/69)
+- Modify fixing honoring system.file.allocate.set=1 patch in git version [\#68](https://github.com/chros73/rtorrent-ps/issues/68)
+- Bump rtorrent commit backwards in build script for git version [\#67](https://github.com/chros73/rtorrent-ps/issues/67)
+- Small color config changes [\#65](https://github.com/chros73/rtorrent-ps/issues/65)
+- Get relevant changes from upstream repo [\#64](https://github.com/chros73/rtorrent-ps/issues/64)
+- Backport temp filter patch only for git version [\#63](https://github.com/chros73/rtorrent-ps/issues/63)
+- Bump libtorrent/rtorrent commit in build script for git version [\#62](https://github.com/chros73/rtorrent-ps/issues/62)
+
+**Fixed bugs:**
+
+- rtorrent become to unusable when set out rang ui color [\#76](https://github.com/chros73/rtorrent-ps/issues/76)
+- self url in build.sh [\#60](https://github.com/chros73/rtorrent-ps/issues/60)
+
 ## [1.4.6-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.6-0.9.6) (2016-10-12)
 **Implemented enhancements:**
 
@@ -9,12 +34,12 @@
 **Implemented enhancements:**
 
 - Add IPv6 support to git build [\#55](https://github.com/chros73/rtorrent-ps/issues/55)
-- Bump libtorrent/rtorrent commit in build script [\#54](https://github.com/chros73/rtorrent-ps/issues/54)
+- Bump libtorrent/rtorrent commit in build script for git version [\#54](https://github.com/chros73/rtorrent-ps/issues/54)
 
 ## [1.4.4-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.4-0.9.6) (2016-08-30)
 **Implemented enhancements:**
 
-- Bump rtorrent commit in build script [\#52](https://github.com/chros73/rtorrent-ps/issues/52)
+- Bump rtorrent commit in build script for git version [\#52](https://github.com/chros73/rtorrent-ps/issues/52)
 
 **Fixed bugs:**
 
@@ -97,7 +122,7 @@
 - Replace fix path of install directory in build script [\#5](https://github.com/chros73/rtorrent-ps/issues/5)
 - Display values of 1 throttle.up in the first part of status bar [\#4](https://github.com/chros73/rtorrent-ps/issues/4)
 - Add 2 more columns on collapsed view [\#3](https://github.com/chros73/rtorrent-ps/issues/3)
-- Change character in header of newly added Priority column [\#2](https://github.com/chros73/rtorrent-ps/issues/2)
+- Change character in header of newly added Throttle column [\#2](https://github.com/chros73/rtorrent-ps/issues/2)
 - Include more columns on collapsed view [\#1](https://github.com/chros73/rtorrent-ps/issues/1)
 
 
