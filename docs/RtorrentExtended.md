@@ -272,11 +272,11 @@ session.path.set="$cat=\"$system.env=RTORRENT_HOME\",\"/.session\""
 ```
 
 
-### ui.status.throttle.up.name.set="«name»"
+### ui.status.throttle.up.set=«name»
 
-### ui.status.throttle.down.name.set="«name»"
+### ui.status.throttle.down.set=«name»
 
-Displays values of the given ``throttle.up``/``throttle.down`` in the first part of status bar.
+Displays values of the given ``throttle.up``/``throttle.down`` in the first part of status bar, multiple comma separated names can be given.
 Include the max limit of the throttle, the main upload/download rate and the upload/download rate of the throttle (in this order).
 
 Original: ``[Throttle 500/1500 KB] [Rate: 441.6/981.3 KB]``
@@ -288,7 +288,12 @@ Modified possible cases:
 [Throttle 200(114) / 500 KB] [Rate 107.0(1.0|105.9) / 307.6 KB]
 [Throttle 200 / 500(250) KB] [Rate 124.7 / 298.2(298.2|0.0) KB]
 [Throttle 200(114) / 500(250) KB] [Rate 115.9(1.7|114.2) / 333.9(333.9|0.0) KB]
+
+[Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
 ```
+
+Limitation is that every group (there are 4 possible groups) can contain the following number of characters (it leaves space for at least 5 throttles to be displayed):
+ 40 chars for limits, 50 chars for rates.
 
 This extra info isn't displayed in the following cases:
 
@@ -299,8 +304,8 @@ This extra info isn't displayed in the following cases:
 Configuration example:
 
 ```ini
-ui.status.throttle.up.name.set="slowup"
-ui.status.throttle.down.name.set="slowdown"
+ui.status.throttle.up.set=slowup,tardyup
+ui.status.throttle.down.set=slowdown
 ```
 
 
