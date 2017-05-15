@@ -1,6 +1,6 @@
---- src/command_download.cc	2017-02-01 18:39:42.000000000 +0000
-+++ src/command_download.cc	2017-03-03 18:30:31.898161673 +0000
-@@ -197,19 +197,6 @@ apply_d_connection_type(core::Download*
+--- src/command_download.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/command_download.cc	2017-04-30 21:40:38.853044300 +0100
+@@ -196,19 +196,6 @@ apply_d_connection_type(core::Download*
    return torrent::Object();
  }
  
@@ -20,7 +20,7 @@
  const char*
  retrieve_d_priority_str(core::Download* download) {
    switch (download->priority()) {
-@@ -695,6 +682,7 @@ initialize_command_download() {
+@@ -687,6 +674,7 @@ initialize_command_download() {
    CMD2_DL         ("d.is_partially_done",     CMD2_ON_DATA(is_partially_done));
    CMD2_DL         ("d.is_not_partially_done", CMD2_ON_DATA(is_not_partially_done));
    CMD2_DL         ("d.is_meta",               CMD2_ON_INFO(is_meta_download));
@@ -28,7 +28,7 @@
  
    CMD2_DL_V       ("d.resume",     std::bind(&core::DownloadList::resume_default, control->core()->download_list(), std::placeholders::_1));
    CMD2_DL_V       ("d.pause",      std::bind(&core::DownloadList::pause_default, control->core()->download_list(), std::placeholders::_1));
-@@ -768,16 +756,6 @@ initialize_command_download() {
+@@ -760,16 +748,6 @@ initialize_command_download() {
    CMD2_DL_VAR_STRING("d.connection_leech",      "rtorrent", "connection_leech");
    CMD2_DL_VAR_STRING("d.connection_seed",       "rtorrent", "connection_seed");
  
@@ -45,16 +45,16 @@
    CMD2_DL         ("d.hashing_failed",     std::bind(&core::Download::is_hash_failed, std::placeholders::_1));
    CMD2_DL_VALUE_V ("d.hashing_failed.set", std::bind(&core::Download::set_hash_failed, std::placeholders::_1, std::placeholders::_2));
  
-@@ -829,6 +807,8 @@ initialize_command_download() {
-   CMD2_DL         ("d.is_enough_diskspace", CMD2_ON_FL(is_enough_diskspace));
+@@ -820,6 +798,8 @@ initialize_command_download() {
+   CMD2_DL         ("d.free_diskspace", CMD2_ON_FL(free_diskspace));
  
-   CMD2_DL         ("d.size_files",             CMD2_ON_FL(size_files));
+   CMD2_DL         ("d.size_files",     CMD2_ON_FL(size_files));
 +  CMD2_DL         ("d.selected_size_bytes",    CMD2_ON_FL(selected_size_bytes));
 +  CMD2_DL_V       ("d.set_selected_size_bytes",CMD2_ON_FL(set_selected_size_bytes));
-   CMD2_DL         ("d.size_bytes",             CMD2_ON_FL(size_bytes));
-   CMD2_DL         ("d.allocatable_size_bytes", CMD2_ON_FL(allocatable_size_bytes));
-   CMD2_DL         ("d.size_chunks",            CMD2_ON_FL(size_chunks));
-@@ -863,18 +843,8 @@ initialize_command_download() {
+   CMD2_DL         ("d.size_bytes",     CMD2_ON_FL(size_bytes));
+   CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
+   CMD2_DL         ("d.chunk_size",     CMD2_ON_FL(chunk_size));
+@@ -853,18 +833,8 @@ initialize_command_download() {
    CMD2_DL         ("d.priority_str", std::bind(&retrieve_d_priority_str, std::placeholders::_1));
    CMD2_DL_VALUE_V ("d.priority.set", std::bind(&core::Download::set_priority, std::placeholders::_1, std::placeholders::_2));
  
@@ -74,8 +74,8 @@
    CMD2_DL_V       ("d.group.set",  std::bind(&cg_d_group_set, std::placeholders::_1, std::placeholders::_2));
  
    CMD2_DL_LIST    ("f.multicall", std::bind(&f_multicall, std::placeholders::_1, std::placeholders::_2));
---- src/command_groups.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_groups.cc	2017-02-14 15:39:51.000000000 +0000
+--- src/command_groups.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/command_groups.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -52,12 +52,6 @@
  // For cg_d_group.
  #include "core/download.h"
@@ -210,8 +210,8 @@
  
    // Commands specific for a group. Supports as the first argument the
    // name, the index or a negative index.
---- src/command_local.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_local.cc	2017-02-15 18:59:03.000000000 +0000
+--- src/command_local.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/command_local.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -73,7 +73,7 @@ apply_pieces_stats_total_size() {
  
    for (core::DownloadList::iterator itr = d_list->begin(), last = d_list->end(); itr != last; itr++)
@@ -221,8 +221,8 @@
  
    return size;
  }
---- src/command_network.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_network.cc	2017-02-12 21:38:03.000000000 +0000
+--- src/command_network.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/command_network.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -254,11 +254,6 @@ initialize_command_network() {
    CMD2_VAR_STRING  ("protocol.connection.leech", "leech");
    CMD2_VAR_STRING  ("protocol.connection.seed",  "seed");
@@ -235,9 +235,9 @@
    CMD2_ANY         ("network.http.cacert",                std::bind(&core::CurlStack::http_cacert, httpStack));
    CMD2_ANY_STRING_V("network.http.cacert.set",            std::bind(&core::CurlStack::set_http_cacert, httpStack, std::placeholders::_2));
    CMD2_ANY         ("network.http.capath",                std::bind(&core::CurlStack::http_capath, httpStack));
---- src/command_ui.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_ui.cc	2017-02-19 15:05:13.000000000 +0000
-@@ -361,6 +361,17 @@ apply_to_throttle(const torrent::Object&
+--- src/command_ui.cc	2017-04-30 21:07:03.000000000 +0100
++++ src/command_ui.cc	2017-04-30 21:35:27.000000000 +0100
+@@ -411,6 +411,17 @@ apply_to_throttle(const torrent::Object&
    return std::string(buffer);
  }
  
@@ -255,16 +255,16 @@
  // A series of if/else statements. Every even arguments are
  // conditionals and odd arguments are branches to be executed, except
  // the last one which is always a branch.
-@@ -584,6 +595,7 @@ initialize_command_ui() {
+@@ -778,6 +789,7 @@ initialize_command_ui() {
    CMD2_ANY_VALUE("convert.mb",           std::bind(&apply_to_mb, std::placeholders::_2));
    CMD2_ANY_VALUE("convert.xb",           std::bind(&apply_to_xb, std::placeholders::_2));
    CMD2_ANY_VALUE("convert.throttle",     std::bind(&apply_to_throttle, std::placeholders::_2));
 +  CMD2_ANY_VALUE("convert.group",        std::bind(&apply_to_group, std::placeholders::_2));
  
-   CMD2_ANY_LIST ("elapsed.less",         std::bind(&apply_elapsed_less, std::placeholders::_2));
-   CMD2_ANY_LIST ("elapsed.greater",      std::bind(&apply_elapsed_greater, std::placeholders::_2));
---- src/core/download.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download.cc	2017-02-24 19:30:02.000000000 +0000
+   CMD2_ANY_LIST("math.add",              std::bind(&apply_math_basic, std::plus<int64_t>(), std::placeholders::_2));
+   CMD2_ANY_LIST("math.sub",              std::bind(&apply_math_basic, std::minus<int64_t>(), std::placeholders::_2));
+--- src/core/download.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -94,7 +94,7 @@ Download::set_priority(uint32_t p) {
    p %= 4;
  
@@ -274,8 +274,8 @@
      torrent::download_set_priority(m_download, p * p * 2);
    else
      torrent::download_set_priority(m_download, p * p);
---- src/core/download_factory.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download_factory.cc	2017-02-19 11:46:25.000000000 +0000
+--- src/core/download_factory.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download_factory.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -421,6 +421,9 @@ DownloadFactory::initialize_rtorrent(Dow
    if (rtorrent->has_key_value("total_downloaded"))
      download->info()->mutable_down_rate()->set_total(rtorrent->get_key_value("total_downloaded"));
@@ -298,8 +298,8 @@
  }
  
  }
---- src/core/download.h	2017-02-01 18:11:36.000000000 +0000
-+++ src/core/download.h	2017-02-24 19:30:50.000000000 +0000
+--- src/core/download.h	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download.h	2017-04-30 21:35:27.000000000 +0100
 @@ -79,8 +79,9 @@ public:
    bool                is_open() const                          { return m_download.info()->is_open(); }
    bool                is_active() const                        { return m_download.info()->is_active(); }
@@ -312,7 +312,7 @@
  
    // FIXME: Fixed a bug in libtorrent that caused is_hash_checked to
    // return true when the torrent is closed. Remove this redundant
-@@ -131,7 +132,6 @@ public:
+@@ -129,7 +130,6 @@ public:
  
    float               distributed_copies() const;
  
@@ -320,9 +320,9 @@
    unsigned int        group() const { return m_group; }
    void                set_group(unsigned int g) { m_group = g; }
  
---- src/core/download_list.cc	2017-02-02 18:38:28.000000000 +0000
-+++ src/core/download_list.cc	2017-02-20 18:52:05.000000000 +0000
-@@ -185,6 +185,7 @@ DownloadList::insert(Download* download)
+--- src/core/download_list.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download_list.cc	2017-04-30 21:35:27.000000000 +0100
+@@ -182,6 +182,7 @@ DownloadList::insert(Download* download)
    try {
      (*itr)->data()->slot_initial_hash()        = std::bind(&DownloadList::hash_done, this, download);
      (*itr)->data()->slot_download_done()       = std::bind(&DownloadList::received_finished, this, download);
@@ -330,9 +330,9 @@
  
      // This needs to be separated into two different calls to ensure
      // the download remains in the view.
-@@ -369,31 +370,18 @@ DownloadList::resume(Download* download,
-     // This will never actually do anything due to the above hash check.
-     // open_throw(download);
+@@ -371,31 +372,18 @@ DownloadList::resume(Download* download,
+     rpc::call_command("d.state_changed.set", cachedTime.seconds(), rpc::make_target(download));
+     rpc::call_command("d.state_counter.set", rpc::call_command_value("d.state_counter", rpc::make_target(download)) + 1, rpc::make_target(download));
  
 -    if (download->is_done()) {
 -      torrent::Object conn_current = rpc::call_command("d.connection_seed", torrent::Object(), rpc::make_target(download));
@@ -369,7 +369,7 @@
  
        // For the moment, clear the resume data so we force hash-check
        // on non-complete downloads after a crash. This shouldn't be
-@@ -543,14 +531,14 @@ DownloadList::hash_done(Download* downlo
+@@ -528,14 +516,14 @@ DownloadList::hash_done(Download* downlo
  
      // If the download was previously completed but the files were
      // f.ex deleted, then we clear the state and complete.
@@ -386,7 +386,7 @@
      torrent::resume_save_progress(*download->download(), download->download()->bencode()->get_key("libtorrent_resume"));
  
      if (rpc::call_command_value("d.state", rpc::make_target(download)) == 1)
-@@ -560,7 +548,7 @@ DownloadList::hash_done(Download* downlo
+@@ -545,7 +533,7 @@ DownloadList::hash_done(Download* downlo
  
    case Download::variable_hashing_last:
  
@@ -395,7 +395,7 @@
        confirm_finished(download);
      } else {
        download->set_message("Hash check on download completion found bad chunks, consider using \"safe_sync\".");
-@@ -638,19 +626,14 @@ DownloadList::confirm_finished(Download*
+@@ -623,19 +611,14 @@ DownloadList::confirm_finished(Download*
  
    rpc::call_command("d.complete.set", (int64_t)1, rpc::make_target(download));
  
@@ -419,7 +419,7 @@
    download->set_priority(download->priority());
  
    if (rpc::call_command_value("d.peers_min", rpc::make_target(download)) == rpc::call_command_value("throttle.min_peers.normal") &&
-@@ -671,8 +654,9 @@ DownloadList::confirm_finished(Download*
+@@ -656,8 +639,9 @@ DownloadList::confirm_finished(Download*
    }
  
    // Send the completed request before resuming so we don't reset the
@@ -431,7 +431,7 @@
  
    // Save the hash in case the finished event erases it.
    torrent::HashString infohash = download->info()->hash();
-@@ -703,6 +687,40 @@ DownloadList::confirm_finished(Download*
+@@ -688,6 +672,40 @@ DownloadList::confirm_finished(Download*
  }
  
  void
@@ -472,8 +472,8 @@
  DownloadList::process_meta_download(Download* download) {
    lt_log_print_info(torrent::LOG_TORRENT_INFO, download->info(), "download_list", "Processing meta download.");
  
---- src/core/download_list.h	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download_list.h	2017-02-14 14:23:02.000000000 +0000
+--- src/core/download_list.h	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download_list.h	2017-04-30 21:35:27.000000000 +0100
 @@ -123,6 +123,7 @@ public:
      D_SLOTS_HASH_REMOVED,
      D_SLOTS_HASH_DONE,
@@ -498,8 +498,8 @@
  
    void                process_meta_download(Download* d);
  };
---- src/core/download_store.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download_store.cc	2017-02-19 11:48:46.000000000 +0000
+--- src/core/download_store.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/core/download_store.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -141,6 +141,7 @@ DownloadStore::save(Download* d, int fla
    rtorrent_base->insert_key("chunks_wanted",  d->download()->data()->wanted_chunks());
    rtorrent_base->insert_key("total_uploaded", d->info()->up_rate()->total());
@@ -508,9 +508,9 @@
  
    // Don't save for completed torrents when we've cleared the uncertain_pieces.
    torrent::resume_save_progress(*d->download(), *resume_base);
---- src/display/utils.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/display/utils.cc	2017-02-18 12:49:40.000000000 +0000
-@@ -157,8 +157,12 @@ print_download_info_full(char* first, ch
+--- src/display/utils.cc	2017-04-30 21:07:03.000000000 +0100
++++ src/display/utils.cc	2017-04-30 21:35:27.000000000 +0100
+@@ -161,8 +161,12 @@ print_download_info_full(char* first, ch
      first = print_buffer(first, last, " ");
      first = print_download_percentage_done(first, last, d);
  
@@ -525,7 +525,7 @@
    } else {
      first = print_buffer(first, last, "                ");
    }
-@@ -257,7 +261,7 @@ print_download_info_compact(char* first,
+@@ -261,7 +265,7 @@ print_download_info_compact(char* first,
    first = print_buffer(first, last, "| %7.1f MB ", (double)d->info()->up_rate()->total() / (1 << 20));
    first = print_buffer(first, last, "| ");
  
@@ -534,7 +534,7 @@
      first = print_download_time_left(first, last, d);
    else
      first = print_buffer(first, last, "         ");
-@@ -287,7 +291,7 @@ print_download_time_left(char* first, ch
+@@ -291,7 +295,7 @@ print_download_time_left(char* first, ch
    if (rate < 512)
      return print_buffer(first, last, "--d --:--");
    
@@ -543,8 +543,8 @@
  
    return print_ddhhmm(first, last, remaining);
  }
---- src/display/window_download_chunks_seen.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/display/window_download_chunks_seen.cc	2017-02-04 20:04:58.000000000 +0000
+--- src/display/window_download_chunks_seen.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/display/window_download_chunks_seen.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -67,7 +67,7 @@ WindowDownloadChunksSeen::redraw() {
      return;
  
@@ -563,9 +563,9 @@
      m_canvas->print(36, 0, "X downloaded    missing    queued    downloading");
      m_canvas->print_char(50, 0, 'X' | A_BOLD);
      m_canvas->print_char(61, 0, 'X' | A_BOLD | A_UNDERLINE);
---- src/main.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/main.cc	2017-02-14 20:12:18.000000000 +0000
-@@ -258,6 +258,7 @@ main(int argc, char** argv) {
+--- src/main.cc	2017-04-30 21:07:03.000000000 +0100
++++ src/main.cc	2017-04-30 21:35:27.000000000 +0100
+@@ -262,6 +262,7 @@ main(int argc, char** argv) {
         "method.insert = event.download.paused,multi|rlookup|static\n"
         
         "method.insert = event.download.finished,multi|rlookup|static\n"
@@ -573,7 +573,7 @@
         "method.insert = event.download.hash_done,multi|rlookup|static\n"
         "method.insert = event.download.hash_failed,multi|rlookup|static\n"
         "method.insert = event.download.hash_final_failed,multi|rlookup|static\n"
-@@ -274,7 +275,7 @@ main(int argc, char** argv) {
+@@ -278,7 +279,7 @@ main(int argc, char** argv) {
         "method.set_key = event.download.erased, ~_delete_tied, d.delete_tied=\n"
  
         "method.set_key = event.download.resumed,   !_timestamp, ((d.timestamp.started.set_if_z, ((system.time)) ))\n"
@@ -582,7 +582,7 @@
         "method.set_key = event.download.hash_done, !_timestamp, {(branch,((d.complete)),((d.timestamp.finished.set_if_z,(system.time))))}\n"
  
         "method.insert.c_simple = group.insert_persistent_view,"
-@@ -283,6 +284,9 @@ main(int argc, char** argv) {
+@@ -287,6 +288,9 @@ main(int argc, char** argv) {
         "file.prioritize_toc.first.set = {*.avi,*.mp4,*.mkv,*.gz}\n"
         "file.prioritize_toc.last.set  = {*.zip}\n"
  
@@ -592,7 +592,7 @@
         // Allow setting 'group2.view' as constant, so that we can't
         // modify the value. And look into the possibility of making
         // 'const' use non-heap memory, as we know they can't be
-@@ -318,12 +322,13 @@ main(int argc, char** argv) {
+@@ -322,12 +326,13 @@ main(int argc, char** argv) {
  
         "view.add = complete\n"
         "view.filter = complete,((d.complete))\n"
@@ -608,7 +608,7 @@
  
         // The hashing view does not include stopped torrents.
         "view.add = hashing\n"
-@@ -333,11 +338,11 @@ main(int argc, char** argv) {
+@@ -337,11 +342,11 @@ main(int argc, char** argv) {
  
         "view.add    = seeding\n"
         "view.filter = seeding,((and,((d.state)),((d.complete))))\n"
@@ -622,8 +622,8 @@
  
         "schedule2 = view.main,10,10,((view.sort,main,20))\n"
         "schedule2 = view.name,10,10,((view.sort,name,20))\n"
---- src/ui/download.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/ui/download.cc	2017-02-24 19:35:20.000000000 +0000
+--- src/ui/download.cc	2017-04-30 21:07:03.000000000 +0100
++++ src/ui/download.cc	2017-04-30 21:35:27.000000000 +0100
 @@ -160,6 +160,7 @@ Download::create_info() {
    element->push_column("File stats:",       te_command("cat=$if=$d.is_multi_file=\\,multi\\,single,\" \",$d.size_files=,\" files\""));
  

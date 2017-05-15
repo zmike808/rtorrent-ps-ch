@@ -3,48 +3,73 @@
 # Build rTorrent including patches
 #
 
-RT_CH_MAJOR_VERSION=1.4
-RT_CH_MINOR_RELEASE=6
-RT_CH_MINOR_GIT=21
-RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_RELEASE
+ONLYSUPPORTGITVERSION=true
+
+RT_CH_MAJOR_VERSION=1.5
+RT_CH_MINOR_RELEASE=0
+RT_CH_MINOR_GIT=0
 
 export RT_MAJOR=0.9
 export LT_MAJOR=0.13
 export RT_MINOR=6
-export LT_VERSION=$LT_MAJOR.$RT_MINOR; export RT_VERSION=$RT_MAJOR.$RT_MINOR;
-export SVN=0
 
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
 export GIT_RT="226e670"  # 2016-10-23
 export GIT_LT="c167c5a"  # 2016-12-12
 
+
+export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_RELEASE
+export LT_VERSION=$LT_MAJOR.$RT_MINOR;
+export RT_VERSION=$RT_MAJOR.$RT_MINOR;
+
 # let's fake the version number of the git version to be compatible with our patching system
 export GIT_MINOR=$[$RT_MINOR + 1]
 
-BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libsigc++-2.0-dev libssl-dev libcppunit-dev locales unzip )
+set_git_env_vars() {
+    export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
+    export LT_VERSION=$LT_MAJOR.$GIT_MINOR
+    export RT_VERSION=$RT_MAJOR.$GIT_MINOR
+}
+
+# Only support git version or dealing with optional 2nd "git" argument: update necessary variables
+[[ $ONLYSUPPORTGITVERSION = true ]] || [[ $2 = "git" ]] && set_git_env_vars
+
+
+# Debian-like deps, see below for other distros
+BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev locales unzip )
 
 # Fitting / tested dependency versions for major platforms
-#export CARES_VERSION=1.7.5
-#export CURL_VERSION=7.22.0
-#export XMLRPC_REV=2366
-
-#export CARES_VERSION=1.10.0
-#export CURL_VERSION=7.38.0
-#export XMLRPC_REV=2626 # Release 1.38.04 2014-07
-
 export CARES_VERSION=1.10.0
-##export CURL_VERSION=7.47.1 # 2016-02
 export CURL_VERSION=7.51.0 # 2016-11
 export XMLRPC_REV=2775 # Release 1.43.01 2015-10
 # WARNING: see rT issue #457 regarding curl configure options
 
-case "$(lsb_release -cs 2>/dev/null || echo NonLinux)" in
-    precise|trusty|utopic|wheezy)
+# Extra options handling (set overridable defaults)
+: ${INSTALL_ROOT:=$HOME}
+export ROOT_SYMLINK_DIR="/opt/rtorrent"
+export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_VERSION-$RT_CH_VERSION"
+export INST_DIR="$INSTALL_ROOT/lib/rtorrent-$RT_VERSION-$RT_CH_VERSION"
+export BIN_DIR="$INSTALL_ROOT/bin"
+: ${CURL_OPTS:=-sLS}
+: ${MAKE_OPTS:=}
+: ${CFG_OPTS:=}
+: ${CFG_OPTS_LT:=}
+: ${CFG_OPTS_RT:=}
+export INSTALL_ROOT CURL_OPTS MAKE_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT
+
+# Distro specifics
+case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
+    *-precise|*-trusty|*-utopic|*-wheezy)
         ;;
-    vivid|wily|xenial|jessie)
+    *-vivid|*-wily|*-xenial|*-yakkety|*-jessie|*-stretch)
         export CARES_VERSION=1.11.0 # 2016-02
         ;;
-    NonLinux)
+    Arch-*) # 0.9.[46] only!
+        BUILD_PKG_DEPS=( ncurses openssl cppunit )
+        source /etc/makepkg.conf 2>/dev/null
+        MAKE_OPTS="${MAKEFLAGS}${MAKE_OPTS:+ }${MAKE_OPTS}"
+        ;;
+    NonLSB)
         # Place tests for MacOSX etc. here
         BUILD_PKG_DEPS=( )
         echo
@@ -53,21 +78,13 @@ case "$(lsb_release -cs 2>/dev/null || echo NonLinux)" in
         ;;
 esac
 
-# Extra options handling
-: ${CURL_OPTS:=-sLS}
-: ${MAKE_OPTS:=}
-: ${CFG_OPTS:=}
-: ${CFG_OPTS_LT:=}
-: ${CFG_OPTS_RT:=}
-export CURL_OPTS MAKE_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT
-
 # Try this when you get configure errors regarding xmlrpc-c
 # ... on a Intel PC type system with certain types of CPUs:
 #export CFLAGS="$CFLAGS -march=i586"
 if command which dpkg-architecture >/dev/null && dpkg-architecture -earmhf; then
     GCC_TYPE="Raspbian"
 elif command which gcc >/dev/null; then
-    GCC_TYPE=$(gcc --version | head -n1 | tr -s '()' ' ' | cut -f2 -d' ')
+    GCC_TYPE=$(gcc --version | head -n1 | tr -s '()' ' ' | cut -f2 -d' ')	#'
 else
     GCC_TYPE=none
 fi
@@ -82,19 +99,6 @@ case "$GCC_TYPE" in
         fi
         ;;
 esac
-
-# AUR Patches (do NOT touch these)
-_magnet_uri=0
-_ipv6=0
-_ip_filter=0
-_friend=0
-_bad_peer_handling=0
-# 1 = canvas color patch / 2 = karabja mod patch / 3 = PyroScope UI
-_interface=3
-_show_idle_times=0
-_trackerinfo=1
-# 1 = tjwoosta vi keybindings / 2 = akston vi keybindings
-_keybindings=0
 
 
 #
@@ -114,61 +118,43 @@ command which glibtoolize && export LIBTOOLIZE=glibtoolize || export LIBTOOLIZE=
 export SED_I="sed -i -e"
 case "$(uname -s)" in
     FreeBSD)
-        export CFLAGS="-pipe -O2 -pthread ${CFLAGS}"
-        export LDFLAGS="-s -lpthread ${LDFLAGS}"
+        export CFLAGS="-pipe -O2 -pthread${CFLAGS:+ }${CFLAGS}"
+        export LDFLAGS="-s -lpthread${LDFLAGS:+ }${LDFLAGS}"
         export SED_I="sed -i '' -e"
         ;;
     Linux)
-        export CPPFLAGS="-pthread ${CPPFLAGS}"
-        export LIBS="-lpthread ${LIBS}"
+        export CPPFLAGS="-pthread${CPPFLAGS:+ }${CPPFLAGS}"
+        export LIBS="-lpthread${LIBS:+ }${LIBS}"
         ;;
 esac
 
-# Keep rTorrent version, once it was built in this directory
-test -d rtorrent-0.9.2 && { export LT_VERSION=0.13.2; export RT_VERSION=0.9.2; }
-test -d rtorrent-0.9.4 && { export LT_VERSION=0.13.4; export RT_VERSION=0.9.4; }
-test -d rtorrent-0.9.5 && { export LT_VERSION=0.13.5; export RT_VERSION=0.9.5; }
-test -d rtorrent-0.9.6 && { export LT_VERSION=0.13.6; export RT_VERSION=0.9.6; }
-test -d rtorrent-0.9.7 && { export LT_VERSION=0.13.7; export RT_VERSION=0.9.7; }
-test -d SVN-HEAD -o ${SVN:-0} = 1 && { export LT_VERSION=0.12.9; export RT_VERSION=0.8.9-svn; export SVN=1; }
-
-# Incompatible patches
-_trackerinfo=0
-
-set_git_env_vars() {
-    export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
-    export LT_VERSION=$LT_MAJOR.$GIT_MINOR
-    export RT_VERSION=$RT_MAJOR.$GIT_MINOR
-}
-
-# dealing with optional 2nd "git" argument: update necessary variables
-[[ $2 = "git" ]] && set_git_env_vars
-
-export ROOT_SYMLINK_DIR="/opt/rtorrent"
-export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_VERSION-$RT_CH_VERSION"
-export INST_DIR="$HOME/lib/rtorrent-$RT_VERSION-$RT_CH_VERSION"
-
 set_build_env() {
-    local dump="$1"
-    local quot="$2"
-    $dump export CPPFLAGS="$quot-I $INST_DIR/include ${CPPFLAGS}$quot"
-    $dump export CXXFLAGS="$quot$CFLAGS$quot"
-    $dump export LDFLAGS="$quot-L$INST_DIR/lib ${LDFLAGS}$quot"
-    $dump export PKG_CONFIG_PATH="$quot$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}$quot"
+    export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
+    export CXXFLAGS="$CFLAGS"
+    export LDFLAGS="-L$INST_DIR/lib${LDFLAGS:+ }${LDFLAGS}"
+    export LIBS="${LIBS}"
+    export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
+
+    echo "!!! Installing rTorrent $RT_CH_VERSION-$RT_VERSION into $INST_DIR !!!"; echo
+
+    printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
+    printf "export CXXFLAGS=%q\n"           "$CFLAGS"
+    printf "export LDFLAGS=%q\n"            "${LDFLAGS}"
+    printf "export LIBS=%q\n"               "${LIBS}"
+    printf "export PKG_CONFIG_PATH=%q\n"    "${PKG_CONFIG_PATH}"
 }
 
 SELF_URL=https://github.com/chros73/rtorrent-ps.git
 XMLRPC_URL="http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV"
-TARBALLS=$(cat <<.
-http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz
-http://curl.haxx.se/download/curl-$CURL_VERSION.tar.gz
-.
+TARBALLS=(
+"http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz"
+"http://curl.haxx.se/download/curl-$CURL_VERSION.tar.gz"
 )
 
 XMLRPC_SVN=true
 case $XMLRPC_REV in
     2775|2366|2626)
-        TARBALLS="$TARBALLS https://bintray.com/artifact/download/pyroscope/rtorrent-ps/xmlrpc-c-advanced-$XMLRPC_REV-src.tgz"
+        TARBALLS+=( "https://bintray.com/artifact/download/pyroscope/rtorrent-ps/xmlrpc-c-advanced-$XMLRPC_REV-src.tgz" )
         XMLRPC_SVN=false
         ;;
 esac
@@ -177,11 +163,9 @@ esac
 #   http://rtorrent.net/downloads/
 #   http://pkgs.fedoraproject.org/repo/pkgs/libtorrent/
 #   http://pkgs.fedoraproject.org/repo/pkgs/rtorrent/
-test ${SVN:-0} = 0 && TARBALLS=$(cat <<.
-$TARBALLS
-https://bintray.com/artifact/download/pyroscope/rtorrent-ps/libtorrent-$LT_VERSION.tar.gz
-https://bintray.com/artifact/download/pyroscope/rtorrent-ps/rtorrent-$RT_VERSION.tar.gz
-.
+TARBALLS+=(
+"https://bintray.com/artifact/download/pyroscope/rtorrent-ps/libtorrent-$LT_VERSION.tar.gz"
+"https://bintray.com/artifact/download/pyroscope/rtorrent-ps/rtorrent-$RT_VERSION.tar.gz"
 )
 
 BUILD_CMD_DEPS=$(cat <<.
@@ -201,18 +185,21 @@ pkg-config:pkg-config
 set -e
 set +x
 export SRC_DIR=$(cd $(dirname $0) && pwd)
-SUBDIRS="c-ares-*[0-9] curl-*[0-9] xmlrpc-c-advanced-$XMLRPC_REV libtorrent-*[0-9] rtorrent-*[0-9] rtorrent-extended"
+SUBDIRS="c-ares-*[0-9] curl-*[0-9] xmlrpc-c-advanced-$XMLRPC_REV libtorrent-*[0-9] rtorrent-*[0-9]"
 ESC=$(echo -en \\0033)
 BOLD="$ESC[1m"
 OFF="$ESC[0m"
 
 echo "${BOLD}Env for building rTorrent $RT_VERSION/$LT_VERSION$OFF"
-set_build_env echo '"'
-echo "export CURL_OPTS=\"$CURL_OPTS\""
-echo "export MAKE_OPTS=\"$MAKE_OPTS\""
-echo "export CFG_OPTS=\"$CFG_OPTS\""
-echo "export CFG_OPTS_LT=\"$CFG_OPTS_LT\""
-echo "export CFG_OPTS_RT=\"$CFG_OPTS_RT\""
+printf 'export PKG_INST_DIR=%q\n'   "$PKG_INST_DIR"
+printf 'export INSTALL_ROOT=%q\n'   "$INSTALL_ROOT"
+printf 'export INST_DIR=%q\n'       "$INST_DIR"
+printf 'export BIN_DIR=%q\n'        "$BIN_DIR"
+printf 'export CURL_OPTS=%q\n'      "$CURL_OPTS"
+printf 'export MAKE_OPTS=%q\n'      "$MAKE_OPTS"
+printf 'export CFG_OPTS=%q\n'       "$CFG_OPTS"
+printf 'export CFG_OPTS_LT=%q\n'    "$CFG_OPTS_LT"
+printf 'export CFG_OPTS_RT=%q\n'    "$CFG_OPTS_RT"
 echo
 
 
@@ -238,65 +225,26 @@ check_deps() {
             exit 1
         fi
     done
+
+    local have_dep=''
+    local installer=''
+
     if which dpkg >/dev/null; then
-        for dep in ${BUILD_PKG_DEPS[@]}; do
-            if ! dpkg -l "$dep" >/dev/null; then
+        have_dep='dpkg -l'
+        installer='apt-get install'
+    elif which pacman >/dev/null; then
+        have_dep='pacman -Q'
+        installer='pacman -S'
+    fi
+
+    if test -n "$installer"; then
+        for dep in "${BUILD_PKG_DEPS[@]}"; do
+            if ! $have_dep "$dep" >/dev/null; then
                 echo "You don't have the '$dep' package installed, you likely need to:"
-                bold "    sudo apt-get install $dep"
+                bold "    sudo $installer $dep"
                 exit 1
             fi
         done
-    fi
-}
-
-aur_patches() {
-    #ex
-    if [[ "${_magnet_uri}" = "1" || "${_ipv6}" = "1" ]]; then
-        bold "ex_magnet_uri.patch"
-        patch -uNp1 -i "${srcdir}/ex_magnet_uri.patch"
-    fi
-    if [[ "${_ipv6}" = "1" ]]; then
-        bold "ex_ip6.patch"
-        patch -uNp1 -i "${srcdir}/ex_ipv6.patch"
-        _cfg_opts="--enable-ipv6"
-    fi
-    if [[ "${_ip_filter}" = "1" || "${_friend}" = "1" ]]; then
-        bold "ex_ip_filter.patch"
-        patch -uNp1 -i "${srcdir}/ex_ip_filter.patch"
-    fi
-    if [[ "${_friend}" = "1" ]]; then
-        bold "ex_friend.patch"
-        patch -uNp1 -i "${srcdir}/ex_friend.patch"
-    fi
-    if [[ "${_bad_peer_handling}" = "1" ]]; then
-        bold "ex_bad_peer_handling.patch"
-        patch -uNp1 -i "${srcdir}/ex_bad_peer_handling.patch"
-    fi
-
-    #ui
-    if [[ "${_interface}" = "1" ]]; then
-        bold "ui_canvas_color.patch"
-        patch -uNp1 -i "${srcdir}/ui_canvas_color.patch"
-    elif [[ "${_interface}" = "2" ]]; then
-        bold "ui_karabaja_mod.patch"
-        patch -uNp1 -i "${srcdir}/ui_karabaja_mod.patch"
-    fi
-    if [[ "${_show_idle_times}" = "1" ]]; then
-        bold "ui_show_idle_times.patch"
-        patch -uNp1 -i "${srcdir}/ui_show_idle_times.patch"
-    fi
-    if [[ "${_trackerinfo}" = "1" ]]; then
-        bold "ui_trackerinfo.patch"
-        patch -uNp1 -i "${srcdir}/ui_trackerinfo.patch"
-    fi
-
-    #kb
-    if [[ "${_keybindings}" = "1" ]]; then
-        bold "kb_vi_tjwoosta.patch"
-        patch -uNp1 -i "${srcdir}/kb_vi_tjwoosta.patch"
-    elif [[ "${_keybindings}" = "2" ]]; then
-        bold "kb_vi_akston.patch"
-        patch -uNp1 -i "${srcdir}/kb_vi_akston.patch"
     fi
 }
 
@@ -305,9 +253,9 @@ symlink_binary() {
     flavour="$1"
     test -z "$flavour" || ln -f "$binary" "$binary$flavour"
 
-    mkdir -p ~/bin
-    ln -nfs "$binary$flavour" ~/bin/rtorrent-$RT_VERSION
-    test -e ~/bin/rtorrent || ln -s rtorrent-$RT_VERSION ~/bin/rtorrent
+    mkdir -p "$BIN_DIR"
+    ln -nfs "$binary$flavour" "$BIN_DIR/rtorrent-$RT_VERSION"
+    test -e "$BIN_DIR/rtorrent" || ln -nfs rtorrent-$RT_VERSION "$BIN_DIR/rtorrent"
 }
 
 
@@ -328,7 +276,7 @@ download() { # Download and unpack sources
         test -d xmlrpc-c-advanced-$XMLRPC_REV || ( echo "Getting xmlrpc-c r$XMLRPC_REV" && \
             svn -q checkout "$XMLRPC_URL" xmlrpc-c-advanced-$XMLRPC_REV )
     fi
-    for url in $TARBALLS; do
+    for url in "${TARBALLS[@]}"; do
         url_base=${url##*/}
         # skip downloading rtorrent and libtorrent here if git version should be used
         [ -z "${url_base##*rtorrent*}" ] && [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ] && continue
@@ -340,20 +288,12 @@ download() { # Download and unpack sources
         test -d $tarball_dir || fail "Tarball ${url_base} could not be unpacked"
     done
 
-    if test ${SVN:-0} = 1 -a ! -d SVN-HEAD; then
-        svn co svn://rakshasa.no/libtorrent/trunk SVN-HEAD
-        ln -nfs SVN-HEAD/libtorrent libtorrent-$LT_VERSION
-        ln -nfs SVN-HEAD/rtorrent rtorrent-$RT_VERSION
-    fi
-
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
         # getting rtorrent and libtorrent from GIT
         download_git_zip rakshasa rtorrent $GIT_RT
         download_git_zip rakshasa libtorrent $GIT_LT
-        bump_git_versions
+        #bump_git_versions
     fi
-
-    tar xfz patches/rtorrent-extended.tar.gz
 
     touch tarballs/DONE
 }
@@ -367,15 +307,15 @@ download_git_zip() {
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
 }
 
-bump_git_versions() {
-    # bump version number of rtorrent and libtorrent
-    $SED_I "s/rtorrent, .*, sundell/rtorrent, $RT_VERSION, sundell/" rtorrent-$RT_VERSION/configure.ac
-    # for RT_VERSION <= 0.9.6
-    $SED_I "s/libtorrent >= [^, ]*\([, ].*\)/libtorrent >= $LT_VERSION\1/g" rtorrent-$RT_VERSION/configure.ac
-    # for RT_VERSION >= 0.9.7
-    $SED_I "s/\[libtorrent >= .*\]/\[libtorrent >= $LT_VERSION\]/" rtorrent-$RT_VERSION/configure.ac
-    $SED_I "s/libtorrent, .*, sundell/libtorrent, $LT_VERSION, sundell/" libtorrent-$LT_VERSION/configure.ac
-}
+#bump_git_versions() {
+#    # bump version number of rtorrent and libtorrent
+#    $SED_I "s/rtorrent, .*, sundell/rtorrent, $RT_VERSION, sundell/" rtorrent-$RT_VERSION/configure.ac
+#    # for RT_VERSION <= 0.9.6
+#    $SED_I "s/libtorrent >= [^, ]*\([, ].*\)/libtorrent >= $LT_VERSION\1/g" rtorrent-$RT_VERSION/configure.ac
+#    # for RT_VERSION >= 0.9.7
+#    $SED_I "s/\[libtorrent >= .*\]/\[libtorrent >= $LT_VERSION\]/" rtorrent-$RT_VERSION/configure.ac
+#    $SED_I "s/libtorrent, .*, sundell/libtorrent, $LT_VERSION, sundell/" libtorrent-$LT_VERSION/configure.ac
+#}
 
 automagic() {
     aclocal
@@ -387,18 +327,9 @@ automagic() {
     ./autogen.sh
 }
 
-tag_svn_rev() {
-    if test ${SVN:-0} = 1; then
-        svnrev=$(export LANG=en_US.UTF8 && svn info SVN-HEAD/ | grep ^Revision | cut -f2 -d":" | tr -d " ")
-        $SED_I "s% VERSION \"/\"% VERSION \" r$svnrev/\"%" rtorrent-$RT_VERSION/src/ui/download_list.cc
-    fi
-}
-
 build_deps() {
     # Build direct dependencies
     test -e $SRC_DIR/tarballs/DONE || fail "You need to '$0 download' first!"
-
-    tag_svn_rev
 
     ( cd c-ares-$CARES_VERSION && ./configure && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
@@ -419,14 +350,10 @@ core_unpack() { # Unpack original LT/RT source
         [ -d libtorrent-$GIT_LT* ] && cp -rfT libtorrent-$GIT_LT* libtorrent-$LT_VERSION/ && rm -rf libtorrent-$GIT_LT*
         unzip -oq tarballs/rtorrent-$GIT_RT.zip
         [ -d rtorrent-$GIT_RT* ] && cp -rfT rtorrent-$GIT_RT* rtorrent-$RT_VERSION/ && rm -rf rtorrent-$GIT_RT*
-        bump_git_versions
-    elif test ${SVN:-0} = 0; then
+        #bump_git_versions
+    else
         tar xfz tarballs/libtorrent-$LT_VERSION.tar.gz
         tar xfz tarballs/rtorrent-$RT_VERSION.tar.gz
-    else
-        # TODO: libtorrent
-        ( cd rtorrent-$RT_VERSION && svn revert -R . && svn update )
-        tag_svn_rev
     fi
 }
 
@@ -440,12 +367,9 @@ build() { # Build and install all components
 }
 
 extend() { # Rebuild and install libtorrent and rTorrent with patches applied
-    # Based partly on https://aur.archlinux.org/packages/rtorrent-extended/
-
-    core_unpack
+    ${NOBUILD:-false} || core_unpack
 
     # Version handling
-    [ "$_interface" == 3 ] || { _interface=0; bold "Interface patches disabled"; }
     RT_HEX_VERSION=$(printf "0x%02X%02X%02X" ${RT_VERSION//./ })
     $SED_I "s:\\(AC_DEFINE(HAVE_CONFIG_H.*\\):\1  AC_DEFINE(RT_HEX_VERSION, $RT_HEX_VERSION, for CPP if checks):" rtorrent-$RT_VERSION/configure.ac
     grep "AC_DEFINE.*API_VERSION" rtorrent-$RT_VERSION/configure.ac >/dev/null || \
@@ -454,7 +378,11 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
     # Patch libtorrent
     pushd libtorrent-$LT_VERSION
 
-    for backport in $SRC_DIR/patches/{backport,trac,misc}_{*${LT_VERSION%-svn}*,all}_*.patch; do
+    for corepatch in $SRC_DIR/patches/lt-ps_{*${LT_VERSION%-svn}*,all}_*.patch; do
+        test ! -e "$corepatch" || { bold "$(basename $corepatch)"; patch -uNp0 -i "$corepatch"; }
+    done
+
+    for backport in $SRC_DIR/patches/{backport,misc}_{*${LT_VERSION%-svn}*,all}_*.patch; do
         test ! -e "$backport" || { bold "$(basename $backport)"; patch -uNp0 -i "$backport"; }
     done
 
@@ -463,8 +391,6 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
 
     # Patch rTorrent
     pushd rtorrent-$RT_VERSION
-    srcdir=$SRC_DIR/rtorrent-extended
-    aur_patches
 
     for corepatch in $SRC_DIR/patches/ps-*_{*${RT_VERSION%-svn}*,all}.patch; do
         test ! -e "$corepatch" || { bold "$(basename $corepatch)"; patch -uNp1 -i "$corepatch"; }
@@ -474,28 +400,28 @@ extend() { # Rebuild and install libtorrent and rTorrent with patches applied
         test ! -e "$backport" || { bold "$(basename $backport)"; patch -uNp0 -i "$backport"; }
     done
 
-    for pyropatch in $SRC_DIR/patches/pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
+    ${NOPYROP:-false} || for pyropatch in $SRC_DIR/patches/pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
         test ! -e "$pyropatch" || { bold "$(basename $pyropatch)"; patch -uNp1 -i "$pyropatch"; }
     done
-    for i in "$SRC_DIR"/patches/*.{cc,h}; do
+
+    ${NOPYROP:-false} || for i in "$SRC_DIR"/patches/*.{cc,h}; do
         ln -nfs $i src
     done
 
-    if [[ "${_interface}" = "3" ]]; then
-        for uipyropatch in $SRC_DIR/patches/ui_pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
+    ${NOPYROP:-false} || for uipyropatch in $SRC_DIR/patches/ui_pyroscope_{*${RT_VERSION%-svn}*,all}.patch; do
             test ! -e "$uipyropatch" || { bold "$(basename $uipyropatch)"; patch -uNp1 -i "$uipyropatch"; }
-        done
-    fi
+    done
 
-    $SED_I "s/rTorrent \\\" VERSION/rTorrent-PS-CH $RT_CH_VERSION \\\" VERSION/" src/ui/download_list.cc
+    ${NOPYROP:-false} || $SED_I "s%rTorrent \\\" VERSION \\\"/\\\"%rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION - \\\"%" src/ui/download_list.cc
+    ${NOPYROP:-false} || $SED_I "s%std::string(torrent::version()) + \\\" - \\\" +%%" src/ui/download_list.cc
     popd
     bold "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     # Build it (note that libtorrent patches ALSO influence the "vanilla" version)
-    build
+    ${NOBUILD:-false} || build
 
     # Remove unnecessary files
-    rm -rf "$INST_DIR/"{lib/*.a,lib/*.la,lib/pkgconfig,share/man,man,share,include,bin/curl,bin/*-config}
+    ${NOBUILD:-false} || rm -rf "$INST_DIR/"{lib/*.a,lib/*.la,lib/pkgconfig,share/man,man,share,include,bin/curl,bin/*-config}
 }
 
 clean() { # Clean up generated files
@@ -505,20 +431,30 @@ clean() { # Clean up generated files
 }
 
 clean_all() { # Remove all downloads and created files
-    test ! -d tarballs || rm -f tarballs/*.tar.gz tarballs/DONE tarballs/*.zip >/dev/null || :
+    test ! -d tarballs || rm -f tarballs/*{.tar.gz,.tgz} tarballs/DONE tarballs/*.zip >/dev/null || :
     for i in $SUBDIRS; do
         test ! -d $i || rm -rf $i >/dev/null
     done
 }
 
 check() { # Print some diagnostic success indicators
-    for i in ~/bin/rtorrent{,-$RT_VERSION}; do
+    for i in "$BIN_DIR"/rtorrent{,-$RT_VERSION}; do
         echo $i "->" $(readlink $i) | sed -e "s:$HOME:~:g"
     done
+
+    # This first selects the rpath dependencies, and then filters out libs found in the install dirs.
+    # If anything is left, we have an external dependency that sneaked in.
     echo
     echo -n "Check that static linking worked: "
-    libs=$(ldd ~/bin/rtorrent-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")
-    test -n $(echo "$libs" | grep -v "$INST_DIR") && echo OK || echo FAIL
+    libs=$(ldd "$BIN_DIR"/rtorrent-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+    if test "$(echo "$libs" | egrep -v "$INST_DIR" | wc -l)" -eq 0; then
+        echo OK; echo
+    else
+        echo FAIL; echo; echo "Suspicious library paths are:"
+        echo "$libs" | egrep -v "$INST_DIR" || :
+        echo
+    fi
+    echo "Dependency library paths:"
     echo "$libs" | sed -e "s:$HOME:~:g"
 }
 
@@ -542,37 +478,64 @@ RT_PS_XMLRPC_REV=$XMLRPC_REV
     ln -nfs "$INST_DIR" "$ROOT_SYMLINK_DIR"
 }
 
-pkg2deb() { # Package current $PKG_INST_DIR installation [needs fpm]
+package_prep() { # make $PACKAGE_ROOT lean and mean
+    test -n "$DEBFULLNAME" || fail "You MUST set DEBFULLNAME in your environment"
+    test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
+
+    DIST_DIR="/tmp/rt-ps-dist"
+    rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
+    chmod -R a+rX "$PKG_INST_DIR/"
+
+    . "$PKG_INST_DIR"/version-info.sh
+}
+
+call_fpm() {
+    fpm -s dir -n "${fpm_pkg_name:-rtorrent-ps-ch}" \
+        -v "$RT_CH_VERSION-$RT_PS_VERSION" --iteration "$fpm_iteration" \
+        -m "\"$DEBFULLNAME\" <$DEBEMAIL>" \
+        --license "$fpm_license" --vendor "https://github.com/rakshasa , https://github.com/pyroscope/rtorrent-ps#rtorrent-ps" \
+        --description "Patched and extended ncurses BitTorrent client" \
+        --url "https://github.com/chros73/rtorrent-ps#rtorrent-ps" \
+        "$@" -C "$PKG_INST_DIR/." --prefix "$PKG_INST_DIR" '.'
+    chmod a+rX .
+    chmod a+r  *".$fpm_pkg_ext"
+}
+
+pkg2deb() { # Package current $PKG_INST_DIR installation for APT [needs fpm]
     # You need to:
     #   aptitude install ruby ruby-dev
     #   gem install fpm
     #   which fpm || ln -s $(ls -1 /var/lib/gems/*/bin/fpm | tail -1) /usr/local/bin
-    test -n "$DEBFULLNAME" || fail "You MUST set DEBFULLNAME in your environment"
-    test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
 
-    DIST_DIR=/tmp/rt-ps-dist
-    rm -rf "$DIST_DIR" || :
-    mkdir -p "$DIST_DIR"
+    package_prep
 
-    chmod -R a+rX "$PKG_INST_DIR/"
-
-    . "$PKG_INST_DIR"/version-info.sh
+    fpm_pkg_ext="deb"
+    fpm_iteration="$RT_PS_REVISION~"$(lsb_release -cs)
+    fpm_license="GPL v2"
     deps=$(ldd "$PKG_INST_DIR"/bin/rtorrent | cut -f2 -d'>' | cut -f2 -d' ' | egrep '^/lib/|^/usr/lib/' \
         | xargs -i+ dpkg -S "+" | cut -f1 -d: | sort -u | xargs -i+ echo -d "+")
 
-    ( cd "$DIST_DIR" && fpm -s dir -t deb -n rtorrent-ps-ch \
-        -v $RT_CH_VERSION-$RT_PS_VERSION --iteration $RT_PS_REVISION"~"$(lsb_release -cs) \
-        -m "\"$DEBFULLNAME\" <$DEBEMAIL>" --category "net" \
-        --license "GPL v2" --vendor "https://github.com/rakshasa , https://github.com/pyroscope/rtorrent-ps#rtorrent-ps" \
-        --description "Patched and extended ncurses BitTorrent client" \
-        --url "https://github.com/chros73/rtorrent-ps#rtorrent-ps" \
-        $deps -C "$PKG_INST_DIR/." --prefix "$PKG_INST_DIR" '.')
-    chmod a+rX "$DIST_DIR"
-    chmod a+r "$DIST_DIR"/*.deb
+    ( cd "$DIST_DIR" && call_fpm -t deb --category "net" $deps )
 
-    dpkg-deb -c "$DIST_DIR"/*.deb
-    echo "~~~" $(find "$DIST_DIR"/*.deb)
-    dpkg-deb -I "$DIST_DIR"/*.deb
+    dpkg-deb -c       "$DIST_DIR"/*".$fpm_pkg_ext"
+    echo "~~~" $(find "$DIST_DIR"/*".$fpm_pkg_ext")
+    dpkg-deb -I       "$DIST_DIR"/*".$fpm_pkg_ext"
+}
+
+pkg2pacman() { # Package current $PKG_INST_DIR installation for PACMAN [needs fpm]
+    # You need to install fpm from the AUR
+
+    package_prep
+
+    fpm_pkg_ext="tar.xz"
+    fpm_iteration="${RT_PS_REVISION//-/.}"
+    fpm_license="GPL2"
+
+    ( cd "$DIST_DIR" && call_fpm -t pacman )
+
+    pacman -Qp --info "$DIST_DIR"/*".$fpm_pkg_ext"
+    echo "~~~" $(find "$DIST_DIR"/*".$fpm_pkg_ext")
+    pacman -Qp --list "$DIST_DIR"/*".$fpm_pkg_ext"
 }
 
 build_everything() {
@@ -599,7 +562,7 @@ case "$1" in
     rtorrent)   prep; core_unpack; NODEPS=true; build_everything ;;
     extend)     prep
                 set_build_env
-                test -e $SRC_DIR/rtorrent-$RT_VERSION/src/rtorrent || fail "You need to '$0 all' first!"
+                test -e "$SRC_DIR/rtorrent-$RT_VERSION/src/rtorrent" || fail "You need to '$0 all' first!"
                 extend
                 symlink_binary -extended
                 check
@@ -614,13 +577,15 @@ case "$1" in
                 symlink_binary -extended
                 check
                 ;;
-#    patch)      extend ;;
+    patch)      NOBUILD=true; extend ;;
+    patch-dev)  NOPYROP=true; NOBUILD=true; extend ;;
 #    down)       clean_all; prep; download; core_unpack ;;
     check)      check ;;
     install)    install;;
     pkg2deb)    pkg2deb;;
+    pkg2pacman) pkg2pacman;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (all [git] | clean | clean_all | download [git] | build | check [git] | extend [git] | ps [git] | install [git] | pkg2deb [git])$OFF"
+        echo >&2 "${BOLD}Usage: $0 (all [git] | clean | clean_all | download [git] | build | check [git] | extend [git] | ps [git] | install [git] | pkg2deb [git] | pkg2pacman [git])$OFF"
         echo >&2 "Build rTorrent $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"

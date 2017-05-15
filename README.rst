@@ -272,13 +272,23 @@ Extra commands
 It also adds the following extra commands:
 
 -  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
--  `ui.status.throttle.up.name <docs/RtorrentExtended.md#uistatusthrottleupnamesetname>`_ , `ui.status.throttle.down.name <docs/RtorrentExtended.md#uistatusthrottledownnamesetname>`_
+-  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
+-  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
+-  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
 
-The latter e.g. can include values of one throttle.up group in the status bar of rtorrent:
+The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
 
 .. code-block::
 
-    [Throttle 500(200) / 1500 KB] [Rate 441.6(190.0|51.6) / 981.3 KB]
+    [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
+
+
+Notes
+-----
+
+Only git version is supported from now on. If earlier version is required - for whatever reason -, use tag `1.4.6-0.9.6 <https://github.com/chros73/rtorrent-ps/releases>`_.
+
+Client versions (rtorrent/libtorrent) are untouched. That means client still report the latest release version (e.g. ``0.9.6``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.7``).
 
 
 Compiling instructions

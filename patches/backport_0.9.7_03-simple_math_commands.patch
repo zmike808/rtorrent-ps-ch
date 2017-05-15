@@ -27,18 +27,18 @@
  }
  
  #endif
---- src/command_ui.cc	2017-02-19 15:05:13.000000000 +0000
-+++ src/command_ui.cc	2017-03-10 22:05:03.086826981 +0000
+--- src/command_ui.cc	2017-04-30 20:56:18.000000000 +0100
++++ src/command_ui.cc	2017-04-30 21:07:03.000000000 +0100
 @@ -38,6 +38,7 @@
  
  #include <sys/types.h>
  
 +#include <rak/algorithm.h>
  #include <ctime>
- #include <rak/functional.h>
- #include <rak/functional_fun.h>
-@@ -530,6 +531,122 @@ apply_elapsed_greater(const torrent::Obj
-   return (int64_t)(start_time != 0 && rak::timer::current_seconds() - start_time > rpc::convert_to_value(args.back()));
+ #include <regex>
+ 
+@@ -588,6 +589,122 @@ cmd_status_throttle_names(bool up, const
+   return torrent::Object();
  }
  
 +inline std::vector<int64_t>
@@ -160,9 +160,9 @@
  void
  initialize_command_ui() {
    CMD2_VAR_STRING("keys.layout", "qwerty");
-@@ -597,6 +714,17 @@ initialize_command_ui() {
+@@ -662,6 +779,17 @@ initialize_command_ui() {
+   CMD2_ANY_VALUE("convert.xb",           std::bind(&apply_to_xb, std::placeholders::_2));
    CMD2_ANY_VALUE("convert.throttle",     std::bind(&apply_to_throttle, std::placeholders::_2));
-   CMD2_ANY_VALUE("convert.group",        std::bind(&apply_to_group, std::placeholders::_2));
  
 +  CMD2_ANY_LIST("math.add",              std::bind(&apply_math_basic, std::plus<int64_t>(), std::placeholders::_2));
 +  CMD2_ANY_LIST("math.sub",              std::bind(&apply_math_basic, std::minus<int64_t>(), std::placeholders::_2));

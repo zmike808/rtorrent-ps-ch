@@ -1,5 +1,5 @@
---- src/command_download.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_download.cc	2017-02-01 18:39:42.625948902 +0000
+--- src/command_download.cc	2017-04-30 21:40:38.853044300 +0100
++++ src/command_download.cc	2017-04-30 22:48:43.094251399 +0100
 @@ -64,6 +64,7 @@
  #include "core/download_store.h"
  #include "core/manager.h"
@@ -8,7 +8,7 @@
  
  #include "globals.h"
  #include "control.h"
-@@ -584,6 +585,13 @@ d_list_remove(core::Download* download,
+@@ -571,6 +572,13 @@ d_list_remove(core::Download* download,
    return torrent::Object();
  }
  
@@ -22,7 +22,7 @@
  #define CMD2_ON_INFO(func) std::bind(&torrent::DownloadInfo::func, std::bind(&core::Download::info, std::placeholders::_1))
  #define CMD2_ON_DATA(func) std::bind(&torrent::download_data::func, std::bind(&core::Download::data, std::placeholders::_1))
  #define CMD2_ON_DL(func) std::bind(&torrent::Download::func, std::bind(&core::Download::download, std::placeholders::_1))
-@@ -699,7 +707,7 @@ initialize_command_download() {
+@@ -687,7 +695,7 @@ initialize_command_download() {
    CMD2_DL         ("d.save_resume",       std::bind(&core::DownloadStore::save_resume, control->core()->download_store(), std::placeholders::_1));
    CMD2_DL         ("d.save_full_session", std::bind(&core::DownloadStore::save_full, control->core()->download_store(), std::placeholders::_1));
  
@@ -31,7 +31,7 @@
  
    CMD2_DL_STRING_V("add_peer",   std::bind(&apply_d_add_peer, std::placeholders::_1, std::placeholders::_2));
  
-@@ -814,17 +822,19 @@ initialize_command_download() {
+@@ -792,15 +800,17 @@ initialize_command_download() {
    CMD2_DL         ("d.throttle_name",     std::bind(&download_get_variable, std::placeholders::_1, "rtorrent", "throttle_name"));
    CMD2_DL_STRING_V("d.throttle_name.set", std::bind(&core::Download::set_throttle_name, std::placeholders::_1, std::placeholders::_2));
  
@@ -39,31 +39,22 @@
 -  CMD2_DL         ("d.ratio",          std::bind(&retrieve_d_ratio, std::placeholders::_1));
 -  CMD2_DL         ("d.chunks_hashed",  CMD2_ON_DL(chunks_hashed));
 -  CMD2_DL         ("d.free_diskspace", CMD2_ON_FL(free_diskspace));
--
--  CMD2_DL         ("d.size_files",     CMD2_ON_FL(size_files));
--  CMD2_DL         ("d.size_bytes",     CMD2_ON_FL(size_bytes));
--  CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
--  CMD2_DL         ("d.chunk_size",     CMD2_ON_FL(chunk_size));
--  CMD2_DL         ("d.size_pex",       CMD2_ON_DL(size_pex));
--  CMD2_DL         ("d.max_size_pex",   CMD2_ON_DL(max_size_pex));
-+  CMD2_DL         ("d.bytes_done",          CMD2_ON_DL(bytes_done));
-+  CMD2_DL         ("d.ratio",               std::bind(&retrieve_d_ratio, std::placeholders::_1));
-+  CMD2_DL         ("d.chunks_hashed",       CMD2_ON_DL(chunks_hashed));
-+  CMD2_DL         ("d.free_diskspace",      CMD2_ON_FL(free_diskspace));
++  CMD2_DL         ("d.bytes_done",       CMD2_ON_DL(bytes_done));
++  CMD2_DL         ("d.ratio",            std::bind(&retrieve_d_ratio, std::placeholders::_1));
++  CMD2_DL         ("d.chunks_hashed",    CMD2_ON_DL(chunks_hashed));
++  CMD2_DL         ("d.free_diskspace",   CMD2_ON_FL(free_diskspace));
 +  CMD2_DL         ("d.is_enough_diskspace", CMD2_ON_FL(is_enough_diskspace));
-+
-+  CMD2_DL         ("d.size_files",             CMD2_ON_FL(size_files));
-+  CMD2_DL         ("d.size_bytes",             CMD2_ON_FL(size_bytes));
+ 
+   CMD2_DL         ("d.size_files",     CMD2_ON_FL(size_files));
+   CMD2_DL         ("d.selected_size_bytes",    CMD2_ON_FL(selected_size_bytes));
+   CMD2_DL_V       ("d.set_selected_size_bytes",CMD2_ON_FL(set_selected_size_bytes));
+   CMD2_DL         ("d.size_bytes",     CMD2_ON_FL(size_bytes));
 +  CMD2_DL         ("d.allocatable_size_bytes", CMD2_ON_FL(allocatable_size_bytes));
-+  CMD2_DL         ("d.size_chunks",            CMD2_ON_FL(size_chunks));
-+  CMD2_DL         ("d.chunk_size",             CMD2_ON_FL(chunk_size));
-+  CMD2_DL         ("d.size_pex",               CMD2_ON_DL(size_pex));
-+  CMD2_DL         ("d.max_size_pex",           CMD2_ON_DL(max_size_pex));
- 
-   CMD2_DL         ("d.chunks_seen",      std::bind(&d_chunks_seen, std::placeholders::_1));
- 
---- src/command_file.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/command_file.cc	2017-02-01 18:49:29.269437448 +0000
+   CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
+   CMD2_DL         ("d.chunk_size",     CMD2_ON_FL(chunk_size));
+   CMD2_DL         ("d.size_pex",       CMD2_ON_DL(size_pex));
+--- src/command_file.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/command_file.cc	2017-04-30 22:42:23.000000000 +0100
 @@ -105,11 +105,15 @@ initialize_command_file() {
  
    CMD2_FILE("f.is_create_queued",       std::bind(&torrent::File::is_create_queued, std::placeholders::_1));
@@ -80,9 +71,9 @@
  
    CMD2_FILE  ("f.prioritize_first",         std::bind(&torrent::File::has_flags,   std::placeholders::_1, torrent::File::flag_prioritize_first));
    CMD2_FILE_V("f.prioritize_first.enable",  std::bind(&torrent::File::set_flags,   std::placeholders::_1, torrent::File::flag_prioritize_first));
---- src/core/download.h	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download.h	2017-02-01 18:11:36.845081561 +0000
-@@ -118,6 +118,8 @@ public:
+--- src/core/download.h	2017-04-30 21:35:27.000000000 +0100
++++ src/core/download.h	2017-04-30 22:42:23.000000000 +0100
+@@ -119,6 +119,8 @@ public:
    uint32_t            priority();
    void                set_priority(uint32_t p);
  
@@ -91,8 +82,8 @@
    uint32_t            resume_flags()                           { return m_resumeFlags; }
    void                set_resume_flags(uint32_t flags)         { m_resumeFlags = flags; }
  
---- src/core/download_list.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/core/download_list.cc	2017-02-02 18:38:28.525242635 +0000
+--- src/core/download_list.cc	2017-04-30 21:35:27.000000000 +0100
++++ src/core/download_list.cc	2017-05-14 21:24:57.199934736 +0100
 @@ -120,9 +120,10 @@ DownloadList::find_hex_ptr(const char* h
  Download*
  DownloadList::create(torrent::Object* obj, bool printLog) {
@@ -116,7 +107,7 @@
  
    } catch (torrent::local_error& e) {
      delete object;
-@@ -340,8 +343,6 @@ DownloadList::resume(Download* download,
+@@ -341,8 +344,6 @@ DownloadList::resume(Download* download,
      if (download->download()->info()->is_active())
        return;
  
@@ -125,17 +116,17 @@
      // We need to make sure the flags aren't reset if someone decideds
      // to call resume() while it is hashing, etc.
      if (download->resume_flags() == ~uint32_t())
-@@ -368,9 +369,6 @@ DownloadList::resume(Download* download,
+@@ -369,9 +370,6 @@ DownloadList::resume(Download* download,
      // This will never actually do anything due to the above hash check.
      // open_throw(download);
  
 -    rpc::call_command("d.state_changed.set", cachedTime.seconds(), rpc::make_target(download));
 -    rpc::call_command("d.state_counter.set", rpc::call_command_value("d.state_counter", rpc::make_target(download)) + 1, rpc::make_target(download));
 -
-     if (download->is_done()) {
-       torrent::Object conn_current = rpc::call_command("d.connection_seed", torrent::Object(), rpc::make_target(download));
-       torrent::Object choke_up     = rpc::call_command("d.up.choke_heuristics.seed", torrent::Object(), rpc::make_target(download));
-@@ -413,11 +411,28 @@ DownloadList::resume(Download* download,
+     if (download->is_partially_done()) {
+       rpc::call_command("d.group.set", "default_seed", rpc::make_target(download));
+ 
+@@ -401,12 +399,32 @@ DownloadList::resume(Download* download,
      // Update the priority to ensure it has the correct
      // seeding/unfinished modifiers.
      download->set_priority(download->priority());
@@ -143,19 +134,14 @@
  
 -    download->set_resume_flags(~uint32_t());
 +    int openFlags = download->resume_flags();
-+
-+    if (rpc::call_command_value("system.file.allocate"))
-+      openFlags |= torrent::Download::open_enable_fallocate;
-+
-+    int result = download->download()->start(openFlags);
  
 -    DL_TRIGGER_EVENT(download, "event.download.resumed");
-+    if (result == torrent::Download::status_start_started) {
-+      download->set_resume_flags(~uint32_t());
-+    } else if (result == torrent::Download::status_start_no_space) {
-+      rpc::call_command("d.stop", torrent::Object(), rpc::make_target(download));
-+      control->core()->push_log_std("Not enough disk space to start download " + download->download()->info()->name());
-+    } else {
++    if (rpc::call_command_value("system.file.allocate"))
++      openFlags |= torrent::Download::open_enable_fallocate;
+ 
++    try {
++      download->download()->start(openFlags);
++
 +      rpc::parse_command_single(rpc::make_target(download), "view.set_visible=active");
 +      rpc::call_command("d.state_changed.set", cachedTime.seconds(), rpc::make_target(download));
 +      rpc::call_command("d.state_counter.set", rpc::call_command_value("d.state_counter", rpc::make_target(download)) + 1, rpc::make_target(download));
@@ -163,12 +149,21 @@
 +      download->set_resume_flags(~uint32_t());
 +
 +      DL_TRIGGER_EVENT(download, "event.download.resumed");
++    } catch (torrent::internal_error& e) {
++      std::string errmsg = e.what();
++
++      if (errmsg == "Tried to start an already started download.") {
++        download->set_resume_flags(~uint32_t());
++      } else if (errmsg == "Tried to start a download with not enough disk space for it.") {
++        rpc::call_command("d.stop", torrent::Object(), rpc::make_target(download));
++        control->core()->push_log_std("Not enough disk space to start download " + download->download()->info()->name());
++      }
 +    }
- 
    } catch (torrent::local_error& e) {
      lt_log_print(torrent::LOG_TORRENT_ERROR, "Could not resume download: %s", e.what());
---- src/ui/element_file_list.cc	2016-11-04 21:58:44.000000000 +0000
-+++ src/ui/element_file_list.cc	2017-02-01 18:16:00.010322539 +0000
+   }
+--- src/ui/element_file_list.cc	2016-10-23 05:33:00.000000000 +0100
++++ src/ui/element_file_list.cc	2017-04-30 22:42:23.000000000 +0100
 @@ -38,6 +38,7 @@
  
  #include <rak/algorithm.h>
