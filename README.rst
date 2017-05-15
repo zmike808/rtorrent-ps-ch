@@ -272,7 +272,7 @@ Extra commands
 It also adds the following extra commands:
 
 -  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
--  `F <https://github.com/chros73/rtorrent-ps/issues/63>`_ key on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
+-  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
 -  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
 
@@ -285,11 +285,10 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
 
 Notes
 -----
-Multiple versions can be supported or just the latest stable ``git`` version. If patches for multiple versions can be found inside the patches directory then
- ``build.sh`` will compile the latest release version, in this case ``git`` option can be passed to it to build ``git`` version.
- If ONLYSUPPORTGITVERSION is set to true in ``build.sh`` script then it will always build git version.
 
 Only git version is supported from now on. If earlier version is required - for whatever reason -, use tag `1.4.6-0.9.6 <https://github.com/chros73/rtorrent-ps/releases>`_.
+
+Client versions (rtorrent/libtorrent) are untouched. That means client still report the latest release version (e.g. ``0.9.6``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.7``).
 
 
 Compiling instructions
