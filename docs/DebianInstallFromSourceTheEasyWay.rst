@@ -23,7 +23,7 @@ First, you need to install a few **required** packages — **and no, this is not
 .. code-block::
 
    apt-get update
-   apt-get install tmux wget build-essential subversion git libsigc++-2.0-dev \
+   apt-get install tmux wget build-essential subversion git unzip \
        libssl-dev libncurses5-dev libncursesw5-dev locales libcppunit-dev \
        autoconf automake libtool libxml2-dev libxslt1-dev curl ruby ruby-dev mc \
        python python-dev python-virtualenv python-pip python-setuptools python-pkg-resources
@@ -47,13 +47,15 @@ There is only 1 crucial option (along with the other useful ones) in that ``.tmu
 Compiling ``rTorrent-PS-CH`` from source
 -----------------------------------
 
+Multiple versions can be supported or just the latest stable ``git`` version. If patches for multiple version can be found inside the ``patches`` directory then ``build.sh`` will compile the latest release version, in this case ``git`` option can be passed to it to build ``git`` version.
+If ``ONLYSUPPORTGITVERSION`` is set to true in ``build.sh`` script then it will always build ``git`` version.
 
 System wide
 ^^^^^^^^^^^
 
 You need ``root access`` for this and this is the ``preferred way`` if you have root access.
 
-It will build ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent`` directory.
+It will build ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent-*`` directory and create ``/opt/rtorrent`` symlink for it.
 
 .. code-block::
 
@@ -83,6 +85,19 @@ You can even ``create a package`` of this build with ``fpm`` if you like (so you
 You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
 
 
+Creating Arch Linux package
+"""""""""""""""""""""""""""
+
+You can even ``create a package`` of this build with ``pacman`` if you like (so you can distribute it later):
+
+.. code-block::
+
+   export DEBFULLNAME="yourname"; export DEBEMAIL="youremailaddress"
+   ./build.sh pkg2pacman
+
+You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
+
+
 
 For regular user
 ^^^^^^^^^^^^^^^^
@@ -97,7 +112,7 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rt
    git clone https://github.com/chros73/rtorrent-ps.git
    cd rtorrent-ps
    ./build.sh clean_all
-   nice -n 19 time ./build.sh all && nice -n 19 time ./build.sh extend
+   nice -n 19 time ./build.sh ps
 
 
 If all went well
@@ -128,7 +143,7 @@ You can check whether all went well with:
 
 .. code-block::
 
-   pyroadmin --version 
+   pyroadmin --version
 
 If you want to update ``pyrocore`` utils later:
 
