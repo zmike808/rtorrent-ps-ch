@@ -18,6 +18,7 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "globals.h"
 
 #include <cstdio>
+#include <cwchar>
 #include <list>
 #include <stdlib.h>
 #include <unistd.h>
@@ -100,6 +101,10 @@ static const char* color_vars[ps::COL_MAX] = {
 // collapsed state of views (default is false)
 static std::map<std::string, bool> is_collapsed;
 
+// tracker aliases map
+typedef std::map<std::string, std::string> string_kv_map;
+static string_kv_map tracker_aliases;
+
 // Traffic history
 static int network_history_depth = 0;
 static uint32_t network_history_count = 0;
@@ -107,6 +112,21 @@ static uint32_t* network_history_up = 0;
 static uint32_t* network_history_down = 0;
 static std::string network_history_up_str;
 static std::string network_history_down_str;
+
+
+// Chop off an UTF-8 string
+std::string u8_chop(const std::string& text, size_t glyphs) {
+    std::mbstate_t mbs = std::mbstate_t();
+    int bytes = 0, skip;
+    const char* pos = text.c_str();
+
+    while (*pos && glyphs-- > 0 && (skip = std::mbrlen(pos, text.length() - bytes, &mbs)) > 0) {
+        pos += skip;
+        bytes += skip;
+    }
+
+    return bytes < text.length() ? text.substr(0, bytes) : text;
+}
 
 
 // get custom field contaioning a long (time_t)
@@ -284,6 +304,7 @@ void ui_pyroscope_colormap_init() {
 		if (col[0] != -1 && col[0] >= get_colors() || col[1] != -1 && col[1] >= get_colors()) {
 			char buf[33];
 			sprintf(buf, "%d", get_colors());
+//			Canvas::cleanup();
 			throw torrent::input_error(col_def + ": your terminal only supports " + buf + " colors.");
 		}
 
@@ -343,6 +364,9 @@ static void decorate_download_title(Window* window, display::Canvas* canvas, cor
 	// show label for tracker in focus
 	std::string url = get_active_tracker_domain((*range.first)->download());
 	if (!url.empty()) {
+		std::string alias = tracker_aliases[url];
+		if (!alias.empty()) url = alias;
+
 		// shorten label if too long
 		int len = url.length();
 		if (len > TRACKER_LABEL_WIDTH) {
@@ -827,6 +851,52 @@ torrent::Object network_history_sample() {
 }
 
 
+torrent::Object cmd_trackers_alias_set_key(rpc::target_type target, const torrent::Object::list_type& args) {
+    torrent::Object::list_const_iterator itr = args.begin();
+    if (args.size() != 2) {
+        throw torrent::input_error("trackers.alias.set_key: expecting two arguments!");
+    }
+    std::string domain = (itr++)->as_string();
+    std::string alias  = (itr++)->as_string();
+
+    tracker_aliases[domain] = alias;
+
+    return torrent::Object();
+}
+
+
+torrent::Object cmd_trackers_alias_items(rpc::target_type target) {
+    torrent::Object rawResult = torrent::Object::create_list();
+    torrent::Object::list_type& result = rawResult.as_list();
+
+    for (string_kv_map::const_iterator itr = tracker_aliases.begin(), last = tracker_aliases.end(); itr != last; itr++) {
+        std::string mapping = itr->first + "=" + itr->second;
+        result.push_back(mapping);
+    }
+
+    return rawResult;
+}
+
+
+torrent::Object apply_human_size(const torrent::Object::list_type& args) {
+    if (args.size() != 1 && args.size() != 2)
+        throw torrent::input_error("convert.human_size takes 1 or 2 arguments!");
+
+    torrent::Object::value_type bytes = args.front().as_value();
+    torrent::Object::value_type format = args.size() > 1 ? args.back().as_value() : 2;
+
+    return display::human_size(bytes, format);
+}
+
+
+torrent::Object apply_magnitude(const torrent::Object::list_type& args) {
+    if (args.size() != 1)
+        throw torrent::input_error("convert.magnitude takes 1 value argument!");
+
+    return num2(args.front().as_value());
+}
+
+
 // register our commands
 void initialize_command_ui_pyroscope() {
 	#define PS_VARIABLE_COLOR(key, value) \
@@ -846,6 +916,9 @@ void initialize_command_ui_pyroscope() {
 	CMD2_VAR_BOOL   ("network.history.auto_scale", true);
 
 	CMD2_ANY_STRING("view.collapsed.toggle", _cxxstd_::bind(&cmd_view_collapsed_toggle, _cxxstd_::placeholders::_2));
+
+	CMD2_ANY_LIST("trackers.alias.set_key", &cmd_trackers_alias_set_key);
+	CMD2_ANY("trackers.alias.items", _cxxstd_::bind(&cmd_trackers_alias_items, _cxxstd_::placeholders::_1));
 
 	CMD2_VAR_VALUE("ui.style.progress", 1);
 	CMD2_VAR_VALUE("ui.style.ratio", 1);
@@ -875,4 +948,7 @@ void initialize_command_ui_pyroscope() {
 	PS_CMD_ANY_FUN("system.colors.max",			display::get_colors);
 	PS_CMD_ANY_FUN("system.colors.enabled",		has_colors);
 	PS_CMD_ANY_FUN("system.colors.rgb",			can_change_color);
+
+	CMD2_ANY_LIST("convert.human_size",         _cxxstd_::bind(&apply_human_size, _cxxstd_::placeholders::_2));
+	CMD2_ANY_LIST("convert.magnitude",          _cxxstd_::bind(&apply_magnitude, _cxxstd_::placeholders::_2));
 }

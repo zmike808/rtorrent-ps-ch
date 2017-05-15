@@ -19,10 +19,11 @@
 #include "globals.h"
 
 #include <cstdio>
+#include <climits>
+#include <ctime>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <ctime>
 #include <rak/path.h>
 #include <rak/functional.h>
 #include <rak/functional_fun.h>
@@ -56,6 +57,122 @@
 namespace core {
 int log_messages_fd = -1;
 };
+
+
+#if RT_HEX_VERSION <= 0x000907
+// will be merged into 0.9.7+ mainline!
+
+namespace torrent {
+
+/*  uniform_rng - Uniform distribution random number generator.
+
+    This class implements a no-shared-state random number generator that
+    emits uniformly distributed numbers with high entropy. It solves the
+    two problems of a simple `random() % limit`, which is a skewed
+    distribution due to RAND_MAX typically not being evenly divisble by
+    the limit, and worse, the lower bits of typical PRNGs having extremly
+    low entropy – the end result are grossly un-random number sequences.
+
+    A `uniform_rng` instance carries its own state, unlike the `random()`
+    function, and is thus thread-safe when no instance is shared between
+    threads. It uses `random_r()` and `initstate_r()` from glibc.
+ */
+class uniform_rng {
+public:
+    uniform_rng();
+
+    int rand();
+    int rand_range(int lo, int hi);
+    int rand_below(int limit) { return this->rand_range(0, limit-1); }
+
+private:
+    char m_state[128];
+    struct ::random_data m_data;
+};
+
+
+uniform_rng::uniform_rng() {
+    unsigned int seed = cachedTime.usec() ^ (getpid() << 16) ^ getppid();
+    ::initstate_r(seed, m_state, sizeof(m_state), &m_data);
+}
+
+// return random number in interval [0, RAND_MAX]
+int uniform_rng::rand()
+{
+    int rval;
+    if (::random_r(&m_data, &rval) == -1) {
+        throw torrent::input_error("system.random: random_r() failure!");
+    }
+    return rval;
+}
+
+// return random number in interval [lo, hi]
+int uniform_rng::rand_range(int lo, int hi)
+{
+    if (lo > hi) {
+        throw torrent::input_error("Empty interval passed to rand_range (low > high)");
+    }
+    if (lo < 0 || RAND_MAX < lo) {
+        throw torrent::input_error("Lower bound of rand_range outside 0..RAND_MAX");
+    }
+    if (hi < 0 || RAND_MAX < hi) {
+        throw torrent::input_error("Upper bound of rand_range outside 0..RAND_MAX");
+    }
+
+    int rval;
+    const int64_t range   = 1 + hi - lo;
+    const int64_t buckets = RAND_MAX / range;
+    const int64_t limit   = buckets * range;
+
+    /* Create equal size buckets all in a row, then fire randomly towards
+     * the buckets until you land in one of them. All buckets are equally
+     * likely. If you land off the end of the line of buckets, try again. */
+    do {
+        rval = this->rand();
+    } while (rval >= limit);
+
+    return (int) (lo + (rval / buckets));
+}
+
+}; // namespace torrent
+
+
+static torrent::uniform_rng system_random_gen;
+
+/*  @DOC
+    `system.random = [[<lower>,] <upper>]`
+
+    Generate *uniformly* distributed random numbers in the range
+    defined by `lower`..`upper`.
+
+    The default range with no args is `0`..`RAND_MAX`. Providing
+    just one argument sets an *exclusive* upper bound, and two
+    args define an *inclusive*  range.
+
+    An example use-case is adding jitter to time values that you
+    later check with `elapsed.greater`, to avoid load spikes and
+    similar effects of clustered time triggers.
+*/
+torrent::Object apply_random(rpc::target_type target, const torrent::Object::list_type& args) {
+    int64_t lo = 0, hi = RAND_MAX;
+
+    torrent::Object::list_const_iterator itr = args.begin();
+    if (args.size() > 2) {
+        throw torrent::input_error("system.random accepts at most two arguments!");
+    }
+    if (args.size() > 1) {
+        lo = (itr++)->as_value();
+        hi = (itr++)->as_value();
+    } else if (args.size() > 0) {
+        hi = (itr++)->as_value() - 1;
+    }
+
+    return (int64_t) system_random_gen.rand_range(lo, hi);
+}
+
+// #else
+// #include "torrent/utils/uniform_rng.h"
+#endif
 
 
 // return the "main" tracker for this download item
@@ -108,25 +225,26 @@ std::string get_active_tracker_domain(torrent::Download* item) {
 
 
 /*  @DOC
-    compare=order,command1=[,...]
+    `compare = <order>, <sort_key>=[, ...]`
 
-        Compares two items like `less=` or `greater=`, but allows to compare
-        by several different sort criteria, and ascending or descending
-        order per given field. The first parameter is a string of order
-        indicators, either `aA+` for ascending or `dD-` for descending.
-        The default, i.e. when there's more fields than indicators, is
-        ascending. Field types other than value or string are treated
-        as equal (or in other words, they're ignored).
+    Compares two items like `less=` or `greater=`, but allows to compare
+    by several different sort criteria, and ascending or descending
+    order per given field. The first parameter is a string of order
+    indicators, either `aA+` for ascending or `dD-` for descending.
+    The default, i.e. when there's more fields than indicators, is
+    ascending. Field types other than value or string are treated
+    as equal (or in other words, they're ignored).
 
-        If all fields are equal, then items are ordered in a random, but
-        stable fashion.
+    If all fields are equal, then items are ordered in a random, but
+    stable fashion.
 
-        Configuration example:
-            # VIEW: Show active and incomplete torrents (in view #9) and update every 20 seconds
-            #       Items are grouped into complete, incomplete, and queued, in that order.
-            #       Within each group, they're sorted by upload and then download speed.
-            view_sort_current = active,"compare=----,d.is_open=,d.complete=,d.up.rate=,d.down.rate="
-            schedule = filter_active,12,20,"view.filter = active,\"or={d.up.rate=,d.down.rate=,not=$d.complete=}\" ;view.sort=active"
+    Configuration example:
+
+        # VIEW: Show active and incomplete torrents (in view #9) and update every 20 seconds
+        #       Items are grouped into complete, incomplete, and queued, in that order.
+        #       Within each group, they're sorted by upload and then download speed.
+        view.sort_current = active,"compare=----,d.is_open=,d.complete=,d.up.rate=,d.down.rate="
+        schedule = filter_active,12,20,"view.filter = active,\"or={d.up.rate=,d.down.rate=,not=$d.complete=}\" ;view.sort=active"
 */
 torrent::Object apply_compare(rpc::target_type target, const torrent::Object::list_type& args) {
     if (!rpc::is_target_pair(target))
@@ -204,6 +322,7 @@ torrent::Object apply_ui_bind_key(rpc::target_type target, const torrent::Object
     const std::string& element  = (itr++)->as_string();
     const std::string& keydef   = (itr++)->as_string();
     const std::string& commands = (itr++)->as_string();
+    const bool verbose = rpc::call_command_value("ui.bind_key.verbose");
 
     // Get key index from definition
     if (keydef.empty() || keydef.size() > (keydef[0] == '0' ? 4 : keydef[0] == '^' ? 2 : 1))
@@ -247,7 +366,7 @@ torrent::Object apply_ui_bind_key(rpc::target_type target, const torrent::Object
             return torrent::Object();
     }
 
-    if (!new_binding) {
+    if (!new_binding && verbose) {
         std::string msg = "Replaced key binding";
         msg += " for " + keydef + " in " + element + " with " + commands.substr(0, 30);
         if (commands.size() > 30) msg += "...";
@@ -352,6 +471,144 @@ torrent::Object cmd_log_messages(const torrent::Object::string_type& arg) {
 }
 
 
+torrent::Object
+d_multicall_filtered(const torrent::Object::list_type& args) {
+  if (args.size() < 2)
+    throw torrent::input_error("d.multicall.filtered requires at least 2 arguments.");
+  torrent::Object::list_const_iterator arg = args.begin();
+
+  // Find the given view
+  core::ViewManager* viewManager = control->view_manager();
+  core::ViewManager::iterator viewItr;
+
+  if (!arg->as_string().empty())
+    viewItr = viewManager->find(arg->as_string());
+  else
+    viewItr = viewManager->find("default");
+
+  if (viewItr == viewManager->end())
+    throw torrent::input_error("Could not find view '" + arg->as_string() + "'.");
+
+  // Make a filtered copy of the current item list
+  core::View::base_type dlist;
+  (*viewItr)->filter_by(*++arg, dlist);
+
+  // Generate result by iterating over all items
+  torrent::Object             resultRaw = torrent::Object::create_list();
+  torrent::Object::list_type& result = resultRaw.as_list();
+  ++arg;  // skip to first command
+
+  for (core::View::iterator item = dlist.begin(); item != dlist.end(); ++item) {
+    // Add empty row to result
+    torrent::Object::list_type& row = result.insert(result.end(), torrent::Object::create_list())->as_list();
+
+    // Call the provided commands and assemble their results
+    for (torrent::Object::list_const_iterator command = arg; command != args.end(); command++) {
+      const std::string& cmdstr = command->as_string();
+      row.push_back(rpc::parse_command(rpc::make_target(*item), cmdstr.c_str(), cmdstr.c_str() + cmdstr.size()).first);
+    }
+  }
+
+  return resultRaw;
+}
+
+
+torrent::Object::value_type apply_string_contains(bool ignore_case, const torrent::Object::list_type& args) {
+    if (args.size() < 2) {
+        throw torrent::input_error("string.contains[_i] takes at least two arguments!");
+    }
+
+    torrent::Object::list_const_iterator itr = args.begin();
+    std::string text = itr->as_string();
+    if (ignore_case)
+        std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+
+    for (++itr; itr != args.end(); ++itr) {
+        std::string substr = itr->as_string();
+        if (ignore_case)
+            std::transform(substr.begin(), substr.end(), substr.begin(), ::tolower);
+        if (substr.empty() || text.find(substr) != std::string::npos)
+            return 1;
+    }
+
+    return 0;
+}
+
+
+torrent::Object cmd_string_contains(rpc::target_type target, const torrent::Object::list_type& args) {
+    return apply_string_contains(false, args);
+}
+
+// XXX: Will NOT work correctly for non-ASCII strings!
+torrent::Object cmd_string_contains_i(rpc::target_type target, const torrent::Object::list_type& args) {
+    return apply_string_contains(true, args);
+}
+
+
+torrent::Object apply_string_mutate(int operation, const torrent::Object::list_type& args) {
+    if (args.size() < 1) {
+        throw torrent::input_error("string.* takes at least a string!");
+    }
+
+    torrent::Object::list_const_iterator itr = args.begin();
+    std::string result = itr->as_string();
+
+    for (++itr; itr != args.end(); ++itr) {
+        std::string needle = itr->as_list().begin()->as_string();
+        std::string subst = itr->as_list().rbegin()->as_string();
+
+        switch (operation) {
+        case 1:
+            if (result == needle)
+                result = subst;
+            break;
+        case 2:
+            for (size_t pos = 0; (pos = result.find(needle, pos)) != std::string::npos; pos += subst.length()) {
+                result.replace(pos, needle.length(), subst);
+            }
+            break;
+        }
+    }
+
+    return result;
+}
+
+torrent::Object cmd_string_map(rpc::target_type target, const torrent::Object::list_type& args) {
+    return apply_string_mutate(1, args);
+}
+
+torrent::Object cmd_string_replace(rpc::target_type target, const torrent::Object::list_type& args) {
+    return apply_string_mutate(2, args);
+}
+
+
+torrent::Object cmd_value(rpc::target_type target, const torrent::Object::list_type& args) {
+    if (args.size() < 1) {
+        throw torrent::input_error("'value' takes at least a number argument!");
+    }
+    if (args.size() > 2) {
+        throw torrent::input_error("'value' takes at most two arguments!");
+    }
+
+    torrent::Object::value_type val = 0;
+    if (args.front().is_value()) {
+        val = args.front().as_value();
+    } else {
+        int base = args.size() > 1 ? args.back().is_value() ?
+                   args.back().as_value() : strtol(args.back().as_string().c_str(), NULL, 10) : 10;
+        char* endptr = 0;
+
+        val = strtoll(args.front().as_string().c_str(), &endptr, base);
+        while (*endptr == ' ' || *endptr == '\n') ++endptr;
+        if (*endptr) {
+            throw torrent::input_error("Junk at end of number: " + args.front().as_string());
+        }
+    }
+
+    return val;
+}
+
+
 // Backports from 0.9.2
 #if (API_VERSION < 3)
 template <typename InputIterator, typename OutputIterator> OutputIterator
@@ -402,7 +659,9 @@ torrent::Object cmd_system_env(const torrent::Object::string_type& arg) {
 
 // https://github.com/rakshasa/rtorrent/commit/30d8379391ad4cb3097d57aa56a488d061e68662
 torrent::Object cmd_ui_current_view() {
-    return control->ui()->download_list()->current_view()->name();
+    ui::DownloadList* dl = control->ui()->download_list();
+    core::View* view = dl ? dl->current_view() : 0;
+    return view ? view->name() : std::string();
 }
 #endif
 
@@ -425,8 +684,20 @@ void initialize_command_pyroscope() {
     CMD2_ANY("ui.current_view", _cxxstd_::bind(&cmd_ui_current_view));
 #endif
 
+#if RT_HEX_VERSION <= 0x000907
+    // these will be merged into 0.9.7+ mainline!
+    CMD2_ANY_LIST("system.random", &apply_random);
+    CMD2_ANY_LIST("d.multicall.filtered", _cxxstd_::bind(&d_multicall_filtered, _cxxstd_::placeholders::_2));
+#endif
+
+    CMD2_ANY_LIST("string.contains", &cmd_string_contains);
+    CMD2_ANY_LIST("string.contains_i", &cmd_string_contains_i);
+    CMD2_ANY_LIST("string.map", &cmd_string_map);
+    CMD2_ANY_LIST("string.replace", &cmd_string_replace);
+    CMD2_ANY_LIST("value", &cmd_value);
     CMD2_ANY_LIST("compare", &apply_compare);
     CMD2_ANY("ui.bind_key", &apply_ui_bind_key);
+    CMD2_VAR_VALUE("ui.bind_key.verbose", 1);
     CMD2_DL("d.tracker_domain", _cxxstd_::bind(&cmd_d_tracker_domain, _cxxstd_::placeholders::_1));
     CMD2_ANY_STRING("log.messages", _cxxstd_::bind(&cmd_log_messages, _cxxstd_::placeholders::_2));
     CMD2_ANY("ui.focus.home", _cxxstd_::bind(&cmd_ui_focus_home));
