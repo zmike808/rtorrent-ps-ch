@@ -274,6 +274,8 @@ It also adds the following extra commands:
 -  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
 -  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
+-  ``ui.throttle.global.step.small.set``, ``ui.throttle.global.step.medium.set``, ``ui.throttle.global.step.large.set``  (`global throttle steps <https://github.com/chros73/rtorrent-ps/issues/84>`_)
+-  ``ui.input.history.size.set``, ``ui.input.history.clear`` (`input history <https://github.com/chros73/rtorrent-ps/issues/83>`_)
 -  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
 
 The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
@@ -281,6 +283,18 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
 .. code-block::
 
     [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
+
+
+Important enhancements, fixes
+-----------------------------
+-  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
+-  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
+-  `basic arithmetic operators <https://github.com/chros73/rtorrent-ps/issues/71>`_
+-  `partially done downloads fix <https://github.com/chros73/rtorrent-ps/issues/69#issuecomment-284245459>`_
+-  `choke groups fix <https://github.com/chros73/rtorrent-ps/issues/69>`_
+-  `temp filter <https://github.com/chros73/rtorrent-ps/issues/63>`_
+-  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
+-  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
 
 Notes
