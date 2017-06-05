@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.5.1-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.1-0.9.7) (2017-06-05)
+**Implemented enhancements:**
+
+- Modify postfixes on Info and Peer List pane [\#85](https://github.com/chros73/rtorrent-ps/issues/85)
+- Make global throttle steps adjustable [\#84](https://github.com/chros73/rtorrent-ps/issues/84)
+- Implement input \(command\) history with categories [\#83](https://github.com/chros73/rtorrent-ps/issues/83)
+
 ## [1.5.0-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.0-0.9.7) (2017-05-15)
 **Implemented enhancements:**
 
@@ -24,6 +31,10 @@
 
 - rtorrent become to unusable when set out rang ui color [\#76](https://github.com/chros73/rtorrent-ps/issues/76)
 - self url in build.sh [\#60](https://github.com/chros73/rtorrent-ps/issues/60)
+
+**Merged pull requests:**
+
+- Update to current head fork [\#61](https://github.com/chros73/rtorrent-ps/pull/61) ([chros73](https://github.com/chros73))
 
 ## [1.4.6-0.9.6](https://github.com/chros73/rtorrent-ps/tree/1.4.6-0.9.6) (2016-10-12)
 **Implemented enhancements:**
