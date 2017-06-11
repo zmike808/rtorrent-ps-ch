@@ -1,6 +1,6 @@
 --- src/command_events.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/command_events.cc	2017-06-10 12:31:41.546484142 +0100
-@@ -308,24 +308,88 @@ d_multicall(const torrent::Object::list_
++++ src/command_events.cc	2017-06-11 10:26:11.545873005 +0100
+@@ -308,24 +308,89 @@ d_multicall(const torrent::Object::list_
  }
  
  static void
@@ -15,10 +15,11 @@
 +
 +  std::string command = *argsItr;
 +
-+  rpc_command_str = command + (*command.rbegin() != '=' ? "=" : "") + path;
++  // Include path in quotes, it can have spaces.
++  rpc_command_str = command + (*command.rbegin() != '=' ? "=" : "") + "\"" + path + "\"";
 +
 +  while (++argsItr != args.end())
-+    rpc_command_str += ", \"" + *argsItr + "\"";
++    rpc_command_str += ",\"" + *argsItr + "\"";
 +
 +  rpc::parse_command_single_std(rpc_command_str);
  }
@@ -97,7 +98,7 @@
    return torrent::Object();
  }
  
-@@ -333,10 +397,10 @@ void
+@@ -333,10 +398,10 @@ void
  initialize_command_events() {
    CMD2_ANY_STRING  ("on_ratio",        std::bind(&apply_on_ratio, std::placeholders::_2));
  
@@ -112,7 +113,7 @@
  
    CMD2_ANY_LIST    ("schedule2",        std::bind(&apply_schedule, std::placeholders::_2));
    CMD2_ANY_STRING_V("schedule_remove2", std::bind(&rpc::CommandScheduler::erase_str, control->command_scheduler(), std::placeholders::_2));
-@@ -360,5 +424,6 @@ initialize_command_events() {
+@@ -360,5 +425,6 @@ initialize_command_events() {
    CMD2_ANY_LIST    ("download_list",       std::bind(&apply_download_list, std::placeholders::_2));
    CMD2_ANY_LIST    ("d.multicall2",        std::bind(&d_multicall, std::placeholders::_2));
  
