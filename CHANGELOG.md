@@ -1,5 +1,14 @@
 # Change Log
 
+## [1.5.2-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.2-0.9.7) (2017-07-11)
+**Implemented enhancements:**
+
+- Modify directory.watch.added and add directory.watch.removed command [\#87](https://github.com/chros73/rtorrent-ps/issues/87)
+
+**Fixed bugs:**
+
+- Fix race condition between CommandScheduler insert & call\_item [\#88](https://github.com/chros73/rtorrent-ps/issues/88)
+
 ## [1.5.1-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.1-0.9.7) (2017-06-05)
 **Implemented enhancements:**
 
