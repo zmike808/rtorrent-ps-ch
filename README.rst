@@ -276,6 +276,7 @@ It also adds the following extra commands:
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
 -  ``ui.throttle.global.step.small.set``, ``ui.throttle.global.step.medium.set``, ``ui.throttle.global.step.large.set``  (`global throttle steps <https://github.com/chros73/rtorrent-ps/issues/84>`_)
 -  ``ui.input.history.size.set``, ``ui.input.history.clear`` (`input history <https://github.com/chros73/rtorrent-ps/issues/83>`_)
+-  `directory.watch.removed <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
 
 The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
@@ -287,6 +288,7 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
 
 Important enhancements, fixes
 -----------------------------
+-  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
 -  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
 -  `basic arithmetic operators <https://github.com/chros73/rtorrent-ps/issues/71>`_
