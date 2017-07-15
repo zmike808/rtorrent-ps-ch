@@ -7,7 +7,7 @@ ONLYSUPPORTGITVERSION=true
 
 RT_CH_MAJOR_VERSION=1.5
 RT_CH_MINOR_RELEASE=0
-RT_CH_MINOR_GIT=2
+RT_CH_MINOR_GIT=3
 
 export RT_MAJOR=0.9
 export LT_MAJOR=0.13
@@ -40,8 +40,8 @@ BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev loca
 
 # Fitting / tested dependency versions for major platforms
 export CARES_VERSION=1.10.0
-export CURL_VERSION=7.51.0 # 2016-11
-export XMLRPC_REV=2775 # Release 1.43.01 2015-10
+export CURL_VERSION=7.51.0  # 2016-11
+export XMLRPC_REV=2775      # Release 1.43.01 2015-10
 # WARNING: see rT issue #457 regarding curl configure options
 
 # Extra options handling (set overridable defaults)
@@ -61,8 +61,15 @@ export INSTALL_ROOT CURL_OPTS MAKE_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT
 case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
     *-precise|*-trusty|*-utopic|*-wheezy)
         ;;
-    *-vivid|*-wily|*-xenial|*-yakkety|*-jessie|*-stretch)
+    *-jessie)
+        export CURL_VERSION=7.38.0
+        ;;
+    *-vivid|*-wily|*-xenial|*-yakkety)
         export CARES_VERSION=1.11.0 # 2016-02
+        ;;
+    *-stretch)
+        export CARES_VERSION=1.13.0 # 2017-06
+        export CURL_VERSION=7.54.1  # 2017-06
         ;;
     Arch-*) # 0.9.[46] only!
         BUILD_PKG_DEPS=( ncurses openssl cppunit )
@@ -340,10 +347,11 @@ build_deps() {
             --disable-wininet-client --disable-curl-client --disable-libwww-client --disable-abyss-server --disable-cgi-server \
         && $MAKE $MAKE_OPTS && $MAKE install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/bin/xmlrpc-c-config
+    touch $INST_DIR/lib/DEPS-DONE
 }
 
 core_unpack() { # Unpack original LT/RT source
-    test -e $INST_DIR/lib/libxmlrpc.a || fail "You need to '$0 build' first!"
+    test -e $INST_DIR/lib/DEPS-DONE || fail "You need to '$0 build' first!"
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
         unzip -oq tarballs/libtorrent-$GIT_LT.zip
@@ -358,9 +366,14 @@ core_unpack() { # Unpack original LT/RT source
 }
 
 build() { # Build and install all components
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
     ( set +x ; cd libtorrent-$LT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
     ( set +x ; cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
