@@ -92,6 +92,9 @@ if command which dpkg-architecture >/dev/null && dpkg-architecture -earmhf; then
     GCC_TYPE="Raspbian"
 elif command which gcc >/dev/null; then
     GCC_TYPE=$(gcc --version | head -n1 | tr -s '()' ' ' | cut -f2 -d' ')	#'
+    # Fix libtorrent bug with gcc version >= 6 and set CXXFLAGS env var
+    GCC_MAIN_VER=$(gcc --version | head -n1 | cut -d' ' -f4 | cut -d'.' -f1)
+    [[ -z "$GCC_MAIN_VER" ]] || [[ $GCC_MAIN_VER -gt 5 ]] && export FIX_LT_GCC_BUG="yes"
 else
     GCC_TYPE=none
 fi
@@ -137,7 +140,8 @@ esac
 
 set_build_env() {
     export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
-    export CXXFLAGS="$CFLAGS"
+    export CFLAGS="${CFLAGS}"
+    export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
     export LDFLAGS="-L$INST_DIR/lib${LDFLAGS:+ }${LDFLAGS}"
     export LIBS="${LIBS}"
     export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
@@ -145,10 +149,12 @@ set_build_env() {
     echo "!!! Installing rTorrent $RT_CH_VERSION-$RT_VERSION into $INST_DIR !!!"; echo
 
     printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
-    printf "export CXXFLAGS=%q\n"           "$CFLAGS"
+    printf "export CFLAGS=%q\n"             "${CFLAGS}"
+    printf "export CXXFLAGS=%q\n"           "${CXXFLAGS}"
     printf "export LDFLAGS=%q\n"            "${LDFLAGS}"
     printf "export LIBS=%q\n"               "${LIBS}"
     printf "export PKG_CONFIG_PATH=%q\n"    "${PKG_CONFIG_PATH}"
+    printf "export FIX_LT_GCC_BUG=%q\n"     "${FIX_LT_GCC_BUG}"
 }
 
 SELF_URL=https://github.com/chros73/rtorrent-ps.git
@@ -368,13 +374,15 @@ core_unpack() { # Unpack original LT/RT source
 build() { # Build and install all components
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; cd libtorrent-$LT_VERSION && automagic && \
+    ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
+        cd libtorrent-$LT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; cd rtorrent-$RT_VERSION && automagic && \
+    ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
+        cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
 }
