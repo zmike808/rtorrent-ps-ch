@@ -133,6 +133,8 @@ case "$(uname -s)" in
         export SED_I="sed -i '' -e"
         ;;
     Linux)
+        # gcc optimization, possible "-march" values: https://gcc.gnu.org/onlinedocs/gcc-4.8.4/gcc/i386-and-x86-64-Options.html
+#        export CFLAGS="-march=core2 -pipe -O2 -fomit-frame-pointer${CFLAGS:+ }${CFLAGS}"
         export CPPFLAGS="-pthread${CPPFLAGS:+ }${CPPFLAGS}"
         export LIBS="-lpthread${LIBS:+ }${LIBS}"
         ;;
