@@ -286,7 +286,7 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
     [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
 
 
-Important enhancements, fixes
+Important enhancements, fixes over latest v0.9.6/0.13.6
 -----------------------------
 -  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
@@ -305,6 +305,12 @@ Notes
 Only git version is supported from now on. If earlier version is required - for whatever reason -, use tag `1.4.6-0.9.6 <https://github.com/chros73/rtorrent-ps/releases>`_.
 
 Client versions (rtorrent/libtorrent) are untouched. That means client still report the latest release version (e.g. ``0.9.6``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.7``).
+
+
+Known issues
+------------
+
+- Current ``libTorrent`` has a bug using ``CXXFLAGS`` with ``gcc v6.x`` compilers, hence ``CXXFLAGS`` enviroment variable is disabled when such a compiler is used.
 
 
 Compiling instructions
