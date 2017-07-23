@@ -286,8 +286,11 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
     [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
 
 
-Important enhancements, fixes over latest v0.9.6/0.13.6
+Important enhancements, fixes
 -----------------------------
+
+Over latest ``rtorrent v0.9.6/0.13.6``:
+
 -  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
 -  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
@@ -298,6 +301,10 @@ Important enhancements, fixes over latest v0.9.6/0.13.6
 -  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
 -  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
+Over latest upstream ``rtorrent-ps``:
+
+-  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
+-  `git version support <https://github.com/chros73/rtorrent-ps/issues/78>`_
 
 Notes
 -----
