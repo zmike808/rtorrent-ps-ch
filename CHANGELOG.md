@@ -1,5 +1,19 @@
 # Change Log
 
+## [1.5.3-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.3-0.9.7) (2017-07-23)
+**Implemented enhancements:**
+
+- Add version info to user build as well [\#96](https://github.com/chros73/rtorrent-ps/issues/96)
+- Update package dependencies [\#95](https://github.com/chros73/rtorrent-ps/issues/95)
+- Don't download packages if they are already available [\#94](https://github.com/chros73/rtorrent-ps/issues/94)
+- Upgrade the used external libraries [\#92](https://github.com/chros73/rtorrent-ps/issues/92)
+- Backport support for OpenSSL 1.1 [\#91](https://github.com/chros73/rtorrent-ps/issues/91)
+
+**Fixed bugs:**
+
+- Fix rpath linking on newer distros by using relative rpath linking [\#93](https://github.com/chros73/rtorrent-ps/issues/93)
+- Fix compiling issues with gcc v6.x [\#89](https://github.com/chros73/rtorrent-ps/issues/89)
+
 ## [1.5.2-0.9.7](https://github.com/chros73/rtorrent-ps/tree/1.5.2-0.9.7) (2017-07-11)
 **Implemented enhancements:**
 
