@@ -376,7 +376,8 @@ build() { # Build and install all components
 
     ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
         cd libtorrent-$LT_VERSION && automagic && \
-        ./configure $CFG_OPTS $CFG_OPTS_LT && $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
+        ./configure $CFG_OPTS $CFG_OPTS_LT && \
+        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -384,7 +385,7 @@ build() { # Build and install all components
     ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
         cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
-        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE prefix=$INST_DIR install )
+        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
 }
 
 extend() { # Rebuild and install libtorrent and rTorrent with patches applied
