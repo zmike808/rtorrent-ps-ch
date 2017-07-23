@@ -39,8 +39,8 @@ set_git_env_vars() {
 BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev locales unzip )
 
 # Fitting / tested dependency versions for major platforms
-export CARES_VERSION=1.10.0
-export CURL_VERSION=7.51.0  # 2016-11
+export CARES_VERSION=1.13.0 # 2017-06
+export CURL_VERSION=7.54.1  # 2017-06
 export XMLRPC_REV=2775      # Release 1.43.01 2015-10
 # WARNING: see rT issue #457 regarding curl configure options
 
@@ -62,14 +62,12 @@ case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') 
     *-precise|*-trusty|*-utopic|*-wheezy)
         ;;
     *-jessie)
+        export CARES_VERSION=1.10.0
         export CURL_VERSION=7.38.0
         ;;
     *-vivid|*-wily|*-xenial|*-yakkety)
-        export CARES_VERSION=1.11.0 # 2016-02
         ;;
-    *-stretch)
-        export CARES_VERSION=1.13.0 # 2017-06
-        export CURL_VERSION=7.54.1  # 2017-06
+    *-stretch|*-zesty)
         ;;
     Arch-*) # 0.9.[46] only!
         BUILD_PKG_DEPS=( ncurses openssl cppunit )
