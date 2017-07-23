@@ -388,8 +388,25 @@ build() { # Build and install all components
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
 }
 
+add_version_info() {
+    test -d "$INST_DIR"/ || fail "Could not locate dir '$INST_DIR'"
+    cat >"$INST_DIR"/version-info.sh <<.
+RT_CH_VERSION=$RT_CH_VERSION
+RT_PS_VERSION=$RT_VERSION
+RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
+RT_PS_LT_VERSION=$LT_VERSION
+RT_PS_CARES_VERSION=$CARES_VERSION
+RT_PS_CURL_VERSION=$CURL_VERSION
+RT_PS_XMLRPC_REV=$XMLRPC_REV
+.
+}
+
+
+
 extend() { # Rebuild and install libtorrent and rTorrent with patches applied
     ${NOBUILD:-false} || core_unpack
+
+    add_version_info
 
     # Version handling
     RT_HEX_VERSION=$(printf "0x%02X%02X%02X" ${RT_VERSION//./ })
@@ -485,15 +502,8 @@ install() { # Install to $PKG_INST_DIR
     test -d "$INST_DIR"/. || mkdir -p "$INST_DIR"/
     rm -rf "$INST_DIR"/* || :
     test "$(echo $INST_DIR/*)" = "$INST_DIR/*" || fail "Could not clean install dir '$INST_DIR'"
-    cat >"$INST_DIR"/version-info.sh <<.
-RT_CH_VERSION=$RT_CH_VERSION
-RT_PS_VERSION=$RT_VERSION
-RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
-RT_PS_LT_VERSION=$LT_VERSION
-RT_PS_CARES_VERSION=$CARES_VERSION
-RT_PS_CURL_VERSION=$CURL_VERSION
-RT_PS_XMLRPC_REV=$XMLRPC_REV
-.
+    add_version_info
+
     clean_all; prep; download;
     set_build_env; build_deps; extend
     #check
