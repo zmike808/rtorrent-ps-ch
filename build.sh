@@ -36,7 +36,7 @@ set_git_env_vars() {
 
 
 # Debian-like deps, see below for other distros
-BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev locales unzip )
+BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev locales unzip zlib1g-dev )
 
 # Fitting / tested dependency versions for major platforms
 export CARES_VERSION=1.13.0 # 2017-06
