@@ -283,7 +283,7 @@ prep() {
 }
 
 download() { # Download and unpack sources
-    test -d .git || { git clone $SELF_URL tarballs/self ; rm tarballs/self/build.sh; mv tarballs/self/* tarballs/self/.git . ; }
+    [[ -d tarballs ]] && [[ -f tarballs/DONE ]] && rm -f tarballs/DONE >/dev/null
 
     if $XMLRPC_SVN; then
         test -d xmlrpc-c-advanced-$XMLRPC_REV || ( echo "Getting xmlrpc-c r$XMLRPC_REV" && \
@@ -314,7 +314,7 @@ download() { # Download and unpack sources
 download_git_zip() {
     owner="$1"; repo="$2"; repo_ver="$3";
     url="https://github.com/$owner/$repo/archive/$repo_ver.zip"
-    test -f tarballs/$repo_ver.zip || ( echo "Getting $repo-$repo_ver.zip" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.zip $url )
+    test -f tarballs/$repo-$repo_ver.zip || ( echo "Getting $repo-$repo_ver.zip" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.zip $url )
     test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.zip" && unzip -oq tarballs/$repo-$repo_ver.zip )
     test -d $repo-$repo_ver* || fail "Zip $repo-$repo_ver.zip could not be unpacked"
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
