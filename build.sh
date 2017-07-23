@@ -144,7 +144,7 @@ set_build_env() {
     export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
     export CFLAGS="${CFLAGS}"
     export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
-    export LDFLAGS="-L$INST_DIR/lib${LDFLAGS:+ }${LDFLAGS}"
+    export LDFLAGS="-L$INST_DIR/lib -Wl,-rpath,'\$\$ORIGIN/../lib'${LDFLAGS:+ }${LDFLAGS}"
     export LIBS="${LIBS}"
     export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
 
