@@ -36,7 +36,7 @@ set_git_env_vars() {
 
 
 # Debian-like deps, see below for other distros
-BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev libcppunit-dev locales unzip zlib1g-dev )
+BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev zlib1g-dev libcppunit-dev locales )
 
 # Fitting / tested dependency versions for major platforms
 export CARES_VERSION=1.13.0 # 2017-06
@@ -303,20 +303,20 @@ download() { # Download and unpack sources
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
         # getting rtorrent and libtorrent from GIT
-        download_git_zip rakshasa rtorrent $GIT_RT
-        download_git_zip rakshasa libtorrent $GIT_LT
+        download_git rakshasa rtorrent $GIT_RT
+        download_git rakshasa libtorrent $GIT_LT
         #bump_git_versions
     fi
 
     touch tarballs/DONE
 }
 
-download_git_zip() {
+download_git() {
     owner="$1"; repo="$2"; repo_ver="$3";
-    url="https://github.com/$owner/$repo/archive/$repo_ver.zip"
-    test -f tarballs/$repo-$repo_ver.zip || ( echo "Getting $repo-$repo_ver.zip" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.zip $url )
-    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.zip" && unzip -oq tarballs/$repo-$repo_ver.zip )
-    test -d $repo-$repo_ver* || fail "Zip $repo-$repo_ver.zip could not be unpacked"
+    url="https://github.com/$owner/$repo/archive/$repo_ver.tar.gz"
+    test -f tarballs/$repo-$repo_ver.tar.gz || ( echo "Getting $repo-$repo_ver.tar.gz" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.tar.gz $url )
+    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.tar.gz" && tar xfz tarballs/$repo-$repo_ver.tar.gz )
+    test -d $repo-$repo_ver* || fail "Tarball $repo-$repo_ver.tar.gz could not be unpacked"
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
 }
 
@@ -360,9 +360,9 @@ core_unpack() { # Unpack original LT/RT source
     test -e $INST_DIR/lib/DEPS-DONE || fail "You need to '$0 build' first!"
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
-        unzip -oq tarballs/libtorrent-$GIT_LT.zip
+        tar xfz tarballs/libtorrent-$GIT_LT.tar.gz
         [ -d libtorrent-$GIT_LT* ] && cp -rfT libtorrent-$GIT_LT* libtorrent-$LT_VERSION/ && rm -rf libtorrent-$GIT_LT*
-        unzip -oq tarballs/rtorrent-$GIT_RT.zip
+        tar xfz tarballs/rtorrent-$GIT_RT.tar.gz
         [ -d rtorrent-$GIT_RT* ] && cp -rfT rtorrent-$GIT_RT* rtorrent-$RT_VERSION/ && rm -rf rtorrent-$GIT_RT*
         #bump_git_versions
     else

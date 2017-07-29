@@ -23,7 +23,7 @@ First, you need to install a few **required** packages — **and no, this is not
 .. code-block::
 
    apt-get update
-   apt-get install tmux wget build-essential subversion git unzip pkg-config \
+   apt-get install tmux wget build-essential subversion git pkg-config \
        libssl-dev libncurses5-dev libncursesw5-dev locales libcppunit-dev zlib1g-dev \
        autoconf automake libtool libxml2-dev libxslt1-dev curl ruby ruby-dev mc \
        python python-dev python-virtualenv python-pip python-setuptools python-pkg-resources
