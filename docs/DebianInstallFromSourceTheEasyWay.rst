@@ -60,8 +60,8 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rto
 .. code-block::
 
    mkdir -p ~/src/; cd ~/src/
-   git clone https://github.com/chros73/rtorrent-ps.git
-   cd rtorrent-ps
+   git clone https://github.com/chros73/rtorrent-ps-ch.git
+   cd rtorrent-ps-ch
    ./build.sh clean_all
    nice -n 19 time ./build.sh install
 
@@ -82,7 +82,7 @@ You can even ``create a package`` of this build with ``fpm`` if you like (so you
    export DEBFULLNAME="yourname"; export DEBEMAIL="youremailaddress"
    ./build.sh pkg2deb
 
-You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
+You should copy resulted ``*.deb`` package from ``/tmp/rt-ps-ch-dist`` to somewhere safe.
 
 
 Creating Arch Linux package
@@ -95,7 +95,7 @@ You can even ``create a package`` of this build with ``pacman`` (``fpm`` from th
    export DEBFULLNAME="yourname"; export DEBEMAIL="youremailaddress"
    ./build.sh pkg2pacman
 
-You should copy resulted ``*.tar.xz`` package from ``/tmp/rt-ps-dist`` to somewhere safe.
+You should copy resulted ``*.tar.xz`` package from ``/tmp/rt-ps-ch-dist`` to somewhere safe.
 
 
 
@@ -109,10 +109,10 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rt
 .. code-block::
 
    mkdir -p ~/src/; cd ~/src/
-   git clone https://github.com/chros73/rtorrent-ps.git
-   cd rtorrent-ps
+   git clone https://github.com/chros73/rtorrent-ps-ch.git
+   cd rtorrent-ps-ch
    ./build.sh clean_all
-   nice -n 19 time ./build.sh ps
+   nice -n 19 time ./build.sh ch
 
 
 If all went well
@@ -120,11 +120,11 @@ If all went well
 
 Check the result by running ``rtorrent`` (you don't need a config file for this) in a ``tmux`` window, not terminal window!
 
-You can delete the ``~/src/rtorrent-ps/`` directory later in both above cases if all went well with:
+You can delete the ``~/src/rtorrent-ps-ch/`` directory later in both above cases if all went well with:
 
 .. code-block::
 
-   cd ~ && [ -d ~/src/rtorrent-ps/ ] && rm -rf ~/src/rtorrent-ps/
+   cd ~ && [ -d ~/src/rtorrent-ps-ch/ ] && rm -rf ~/src/rtorrent-ps-ch/
 
 
 

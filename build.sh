@@ -79,9 +79,9 @@ esac
 
 # Extra options handling (set overridable defaults)
 : ${INSTALL_ROOT:=$HOME}
-export ROOT_SYMLINK_DIR="/opt/rtorrent"
-export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_VERSION-$RT_CH_VERSION"
-export INST_DIR="$INSTALL_ROOT/lib/rtorrent-$RT_VERSION-$RT_CH_VERSION"
+export ROOT_SYMLINK_DIR="/opt/rtorrent-ps-ch"
+export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_CH_VERSION-$RT_VERSION"
+export INST_DIR="$INSTALL_ROOT/lib/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
 export BIN_DIR="$INSTALL_ROOT/bin"
 : ${CURL_OPTS:=-sLS}
 : ${MAKE_OPTS:=}
@@ -153,7 +153,7 @@ set_build_env() { # Set final build related env vars
     export LIBS="${LIBS}"
     export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
 
-    echo "!!! Installing rTorrent $RT_CH_VERSION-$RT_VERSION into $INST_DIR !!!"; echo
+    echo "!!! Building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR !!!"; echo
 
     printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
     printf "export CFLAGS=%q\n"             "${CFLAGS}"
@@ -166,7 +166,7 @@ set_build_env() { # Set final build related env vars
 
 
 # Sources
-SELF_URL=https://github.com/chros73/rtorrent-ps.git
+SELF_URL=https://github.com/chros73/rtorrent-ps-ch.git
 XMLRPC_URL="http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV"
 TARBALLS=(
 "http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz"
@@ -316,7 +316,7 @@ download() { # Download and unpack sources
     done
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
-        # getting rtorrent and libtorrent from GIT
+        # getting rtorrent and libtorrent from GitHub
         download_git rakshasa rtorrent $GIT_RT
         download_git rakshasa libtorrent $GIT_LT
         #bump_git_versions
@@ -450,12 +450,12 @@ RT_PS_XMLRPC_REV=$XMLRPC_REV
 
 symlink_binary() { # Symlink binary
     mkdir -p "$BIN_DIR"
-    ln -nfs "$INST_DIR/bin/rtorrent" "$BIN_DIR/rtorrent-$RT_VERSION"
-    test -e "$BIN_DIR/rtorrent" || ln -nfs rtorrent-$RT_VERSION "$BIN_DIR/rtorrent"
+    ln -nfs "$INST_DIR/bin/rtorrent" "$BIN_DIR/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
+    ln -nfs "$BIN_DIR/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "$BIN_DIR/rtorrent"
 }
 
 check() { # Print some diagnostic success indicators
-    for i in "$BIN_DIR"/rtorrent{,-$RT_VERSION}; do
+    for i in "$BIN_DIR"/rtorrent{,-ps-ch-$RT_CH_VERSION-$RT_VERSION}; do
         echo $i "->" $(readlink $i) | sed -e "s:$HOME:~:g"
     done
 
@@ -463,7 +463,7 @@ check() { # Print some diagnostic success indicators
     # If anything is left, we have an external dependency that sneaked in.
     echo
     echo -n "Check that static linking worked: "
-    libs=$(ldd "$BIN_DIR"/rtorrent-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+    libs=$(ldd "$BIN_DIR"/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
     if test "$(echo "$libs" | egrep -v "$INST_DIR" | wc -l)" -eq 0; then
         echo OK; echo
     else
@@ -492,7 +492,7 @@ package_prep() { # make $PACKAGE_ROOT lean and mean
     test -n "$DEBFULLNAME" || fail "You MUST set DEBFULLNAME in your environment"
     test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
 
-    DIST_DIR="/tmp/rt-ps-dist"
+    DIST_DIR="/tmp/rt-ps-ch-dist"
     rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
     chmod -R a+rX "$PKG_INST_DIR/"
 
@@ -505,7 +505,7 @@ call_fpm() { # Helper function for pkg2* functions
         -m "\"$DEBFULLNAME\" <$DEBEMAIL>" \
         --license "$fpm_license" --vendor "https://github.com/rakshasa , https://github.com/pyroscope/rtorrent-ps#rtorrent-ps" \
         --description "Patched and extended ncurses BitTorrent client" \
-        --url "https://github.com/chros73/rtorrent-ps#rtorrent-ps" \
+        --url "https://github.com/chros73/rtorrent-ps-ch#rtorrent-ps-ch-fork-notes" \
         "$@" -C "$PKG_INST_DIR/." --prefix "$PKG_INST_DIR" '.'
     chmod a+rX .
     chmod a+r  *".$fpm_pkg_ext"
@@ -556,7 +556,7 @@ pkg2pacman() { # Package current $PKG_INST_DIR installation for PACMAN [needs fp
 #
 cd "$SRC_DIR"
 case "$1" in
-    ps)         ## Build all components into $(sed -e s:$HOME/:~/: <<<$INST_DIR)
+    ch)         ## Build all components into $(sed -e s:$HOME/:~/: <<<$INST_DIR)
                 display_env_vars
                 clean_all
                 prep
@@ -585,7 +585,7 @@ case "$1" in
     patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build ;;
     check)      check ;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (ps [git] | install [git] | pkg2deb [git] | pkg2pacman [git])$OFF"
+        echo >&2 "${BOLD}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git])$OFF"
         echo >&2 "Build rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"
