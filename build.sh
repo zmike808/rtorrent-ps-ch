@@ -43,7 +43,8 @@ BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev zlib1g-dev libcppun
 # Fitting / tested dependency versions for major platforms
 export CARES_VERSION=1.13.0 # 2017-06
 export CURL_VERSION=7.54.1  # 2017-06 ; WARNING: see rT issue #457 regarding curl configure options
-export XMLRPC_REV=2775      # Release 1.43.01 2015-10
+export XMLRPC_TREE=stable   # [super-stable | stable | advaced]
+export XMLRPC_REV=2912      # Release 1.43.06 2016-12
 
 # Distro specifics
 case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
@@ -167,7 +168,7 @@ set_build_env() { # Set final build related env vars
 
 # Sources
 SELF_URL=https://github.com/chros73/rtorrent-ps-ch.git
-XMLRPC_URL="http://svn.code.sf.net/p/xmlrpc-c/code/advanced@$XMLRPC_REV"
+XMLRPC_URL="http://svn.code.sf.net/p/xmlrpc-c/code/$XMLRPC_TREE@$XMLRPC_REV"
 TARBALLS=(
 "http://c-ares.haxx.se/download/c-ares-$CARES_VERSION.tar.gz"
 "http://curl.haxx.se/download/curl-$CURL_VERSION.tar.gz"
@@ -176,7 +177,7 @@ TARBALLS=(
 XMLRPC_SVN=true
 case $XMLRPC_REV in
     2775|2366|2626)
-        TARBALLS+=( "https://bintray.com/artifact/download/pyroscope/rtorrent-ps/xmlrpc-c-advanced-$XMLRPC_REV-src.tgz" )
+        TARBALLS+=( "https://bintray.com/artifact/download/pyroscope/rtorrent-ps/xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV-src.tgz" )
         XMLRPC_SVN=false
         ;;
 esac
@@ -190,7 +191,7 @@ TARBALLS+=(
 "https://bintray.com/artifact/download/pyroscope/rtorrent-ps/rtorrent-$RT_VERSION.tar.gz"
 )
 
-SUBDIRS="c-ares-*[0-9] curl-*[0-9] xmlrpc-c-advanced-$XMLRPC_REV libtorrent-*[0-9] rtorrent-*[0-9]"
+SUBDIRS="c-ares-*[0-9] curl-*[0-9] xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV libtorrent-*[0-9] rtorrent-*[0-9]"
 
 
 # Command dependency
@@ -300,8 +301,8 @@ download() { # Download and unpack sources
     [[ -d $SRC_DIR/tarballs ]] && [[ -f $SRC_DIR/tarballs/DONE ]] && rm -f $SRC_DIR/tarballs/DONE >/dev/null
 
     if $XMLRPC_SVN; then
-        test -d xmlrpc-c-advanced-$XMLRPC_REV || ( echo "Getting xmlrpc-c r$XMLRPC_REV" && \
-            svn -q checkout "$XMLRPC_URL" xmlrpc-c-advanced-$XMLRPC_REV || fail "xmlrpc-c-advanced-$XMLRPC_REV could not be checked out from SVN.")
+        test -d xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV || ( echo "Getting xmlrpc-c r$XMLRPC_REV" && \
+            svn -q checkout "$XMLRPC_URL" xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV || fail "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV could not be checked out from SVN.")
     fi
     for url in "${TARBALLS[@]}"; do
         url_base=${url##*/}
@@ -358,10 +359,9 @@ build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building xmlrpc-c   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( cd xmlrpc-c-advanced-$XMLRPC_REV \
-        && ./configure --prefix=$INST_DIR --with-libwww-ssl \
-            --disable-wininet-client --disable-curl-client --disable-libwww-client --disable-abyss-server --disable-cgi-server \
-        && $MAKE $MAKE_OPTS && $MAKE install \
+    ( cd xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV \
+        && ./configure --with-libwww-ssl --disable-wininet-client --disable-curl-client --disable-libwww-client --disable-abyss-server --disable-cgi-server \
+        && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
         || fail " during building 'xmlrpc-c'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/bin/xmlrpc-c-config
 
@@ -455,6 +455,7 @@ RT_PS_LT_VERSION=$LT_VERSION
 RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
 RT_PS_CARES_VERSION=$CARES_VERSION
 RT_PS_CURL_VERSION=$CURL_VERSION
+RT_PS_XMLRPC_TREE=$XMLRPC_TREE
 RT_PS_XMLRPC_REV=$XMLRPC_REV
 .
 }
