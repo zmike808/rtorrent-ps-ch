@@ -79,8 +79,8 @@ esac
 
 # Extra options handling (set overridable defaults)
 : ${INSTALL_ROOT:=$HOME}
-export ROOT_SYMLINK_DIR="/opt/rtorrent-ps-ch"
-export PKG_INST_DIR="$ROOT_SYMLINK_DIR-$RT_CH_VERSION-$RT_VERSION"
+export ROOT_SYMLINK_DIR="/opt/rtorrent"
+export PKG_INST_DIR="$ROOT_SYMLINK_DIR-ps-ch-$RT_CH_VERSION-$RT_VERSION"
 export INST_DIR="$INSTALL_ROOT/lib/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
 export BIN_DIR="$INSTALL_ROOT/bin"
 : ${CURL_OPTS:=-sLS}
@@ -226,7 +226,7 @@ bold() { # Display bold message
 }
 
 fail() { # Display bold message and exit immediately
-    bold "$@"
+    bold "ERROR: $@"
     exit 1
 }
 
@@ -437,11 +437,11 @@ patch_n_build() { # Patch libTorrent and rTorrent and build them
 
 add_version_info() { # Display version info
     test -d "$INST_DIR"/ || fail "Could not locate dir '$INST_DIR'"
-    cat >"$INST_DIR"/version-info.sh <<.
+    cat >"$INST_DIR/version-info.sh" <<.
 RT_CH_VERSION=$RT_CH_VERSION
 RT_PS_VERSION=$RT_VERSION
-RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
 RT_PS_LT_VERSION=$LT_VERSION
+RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
 RT_PS_CARES_VERSION=$CARES_VERSION
 RT_PS_CURL_VERSION=$CURL_VERSION
 RT_PS_XMLRPC_REV=$XMLRPC_REV
@@ -455,46 +455,54 @@ symlink_binary() { # Symlink binary
 }
 
 check() { # Print some diagnostic success indicators
-    for i in "$BIN_DIR"/rtorrent{,-ps-ch-$RT_CH_VERSION-$RT_VERSION}; do
-        echo $i "->" $(readlink $i) | sed -e "s:$HOME:~:g"
-    done
+    if [ "$1" == "$HOME" ]; then
+        for i in "$BIN_DIR"/rtorrent{,-ps-ch-$RT_CH_VERSION-$RT_VERSION}; do
+            echo $i "->" $(readlink $i) | sed -e "s:$1:~:g"
+        done
+    else
+        echo "$1/rtorrent" "->" $(readlink $1/rtorrent)
+    fi
 
     # This first selects the rpath dependencies, and then filters out libs found in the install dirs.
     # If anything is left, we have an external dependency that sneaked in.
     echo
     echo -n "Check that static linking worked: "
-    libs=$(ldd "$BIN_DIR"/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
-    if test "$(echo "$libs" | egrep -v "$INST_DIR" | wc -l)" -eq 0; then
+    if [ "$1" == "$HOME" ]; then
+        libs=$(ldd "$BIN_DIR"/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+    else
+        libs=$(ldd "$1/rtorrent/bin/rtorrent" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+    fi
+    if test "$(echo "$libs" | egrep -v "$2" | egrep -v "cares" | wc -l)" -eq 0; then
         echo OK; echo
     else
         echo FAIL; echo; echo "Suspicious library paths are:"
-        echo "$libs" | egrep -v "$INST_DIR" || :
+        echo "$libs" | egrep -v "$2" || :
         echo
     fi
+
     echo "Dependency library paths:"
-    echo "$libs" | sed -e "s:$HOME:~:g"
+    [[ "$1" == "$HOME" ]] && echo "$libs" | sed -e "s:$1:~:g" || echo "$libs"
 }
 
 install() { # Install to $PKG_INST_DIR
-    export INST_DIR="$PKG_INST_DIR"
-    test -d "$INST_DIR"/. || mkdir -p "$INST_DIR"/
-    rm -rf "$INST_DIR"/* || :
-    test "$(echo $INST_DIR/*)" = "$INST_DIR/*" || fail "Could not clean install dir '$INST_DIR'"
-    add_version_info
+    [[ ! -f "$INST_DIR/version-info.sh" ]] && fail "Compilation hasn't been finished, try it again."
+    [[ -d "$PKG_INST_DIR" ]] && [[ -f "$PKG_INST_DIR/bin/rtorrent" ]] && fail "Could not clean install into dir '$PKG_INST_DIR', dir already exists."
 
-    clean_all; prep; download;
-    set_build_env; build_deps; extend
-    #check
-    ln -nfs "$INST_DIR" "$ROOT_SYMLINK_DIR"
+    cp -r "$INST_DIR" /opt/ || fail "Could not copy into dir '$PKG_INST_DIR', have you tried with 'sudo'?"
+    chmod -R a+rX "$PKG_INST_DIR/"
+
+    ln -nfs "$PKG_INST_DIR" "$ROOT_SYMLINK_DIR"
+    check "/opt" "$ROOT_SYMLINK_DIR/bin"
 }
 
 package_prep() { # make $PACKAGE_ROOT lean and mean
     test -n "$DEBFULLNAME" || fail "You MUST set DEBFULLNAME in your environment"
     test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
 
+    [[ -d "$PKG_INST_DIR" ]] && [[ -f "$PKG_INST_DIR/bin/rtorrent" ]] || fail "Could not package '$PKG_INST_DIR', it has to be 'install'-ed first."
+
     DIST_DIR="/tmp/rt-ps-ch-dist"
     rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
-    chmod -R a+rX "$PKG_INST_DIR/"
 
     . "$PKG_INST_DIR"/version-info.sh
 }
@@ -566,7 +574,7 @@ case "$1" in
                 patch_n_build
                 add_version_info
                 symlink_binary
-                check
+                check "$HOME" "$INST_DIR"
                 ;;
     install)    ## Install current $(sed -e s:$HOME/:~/: <<<$INST_DIR) compilation into $PKG_INST_DIR
                 install ;;
@@ -583,7 +591,8 @@ case "$1" in
     download)   clean_all; prep; download ;;
     patch)      NOBUILD=true; patch_n_build ;;
     patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build ;;
-    check)      check ;;
+    check-home) check "$HOME" "$INST_DIR" ;;
+    check-inst) check "/opt" "$ROOT_SYMLINK_DIR" ;;
     *)
         echo >&2 "${BOLD}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git])$OFF"
         echo >&2 "Build rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
