@@ -598,8 +598,9 @@ case "$1" in
     clean)      clean ;;
     clean_all)  clean_all ;;
     env)        prep; set +x; set_build_env echo '"' ;;
-    deps)       prep; set_build_env; build_deps ;;
     download)   clean_all; prep; download ;;
+    deps)       prep; set_build_env; build_deps ;;
+    patchbuild) set_build_env; patch_n_build ;;
     patch)      NOBUILD=true; patch_n_build ;;
     patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build ;;
     check-home) check "$HOME" "$INST_DIR" ;;
