@@ -119,8 +119,8 @@ unset LC_ALL
 export LC_ALL
 
 # Select build tools (prefer 'g' variants if there)
-command which gmake && export MAKE=gmake || export MAKE=make
-command which glibtoolize && export LIBTOOLIZE=glibtoolize || export LIBTOOLIZE=libtoolize
+command which gmake >/dev/null && export MAKE=gmake || export MAKE=make
+command which glibtoolize >/dev/null && export LIBTOOLIZE=glibtoolize || export LIBTOOLIZE=libtoolize
 
 # Platform magic
 export SED_I="sed -i -e"
@@ -545,7 +545,8 @@ pkg2deb() { # Package current $PKG_INST_DIR installation for APT [needs fpm]
     fpm_iteration="$RT_PS_REVISION~"$(lsb_release -cs)
     fpm_license="GPL v2"
     deps=$(ldd "$PKG_INST_DIR"/bin/rtorrent | cut -f2 -d'>' | cut -f2 -d' ' | egrep '^/lib/|^/usr/lib/' \
-        | xargs -i+ dpkg -S "+" | cut -f1 -d: | sort -u | xargs -i+ echo -d "+")
+        | sed -r -e 's:^/lib.+:&\n/usr&:' | xargs -n1 dpkg 2>/dev/null -S \
+        | cut -f1 -d: | sort -u | xargs -n1 echo '-d')
 
     ( cd "$DIST_DIR" && call_fpm -t deb --category "net" $deps )
 
