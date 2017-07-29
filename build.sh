@@ -297,11 +297,11 @@ prep() { # Check dependency and create basic directories
 }
 
 download() { # Download and unpack sources
-    [[ -d tarballs ]] && [[ -f tarballs/DONE ]] && rm -f tarballs/DONE >/dev/null
+    [[ -d $SRC_DIR/tarballs ]] && [[ -f $SRC_DIR/tarballs/DONE ]] && rm -f $SRC_DIR/tarballs/DONE >/dev/null
 
     if $XMLRPC_SVN; then
         test -d xmlrpc-c-advanced-$XMLRPC_REV || ( echo "Getting xmlrpc-c r$XMLRPC_REV" && \
-            svn -q checkout "$XMLRPC_URL" xmlrpc-c-advanced-$XMLRPC_REV )
+            svn -q checkout "$XMLRPC_URL" xmlrpc-c-advanced-$XMLRPC_REV || fail "xmlrpc-c-advanced-$XMLRPC_REV could not be checked out from SVN.")
     fi
     for url in "${TARBALLS[@]}"; do
         url_base=${url##*/}
@@ -311,8 +311,7 @@ download() { # Download and unpack sources
         tarball_dir=${url_base%.tar.gz}
         tarball_dir=${tarball_dir%-src.tgz}
         test -f tarballs/${url_base} || ( echo "Getting $url_base" && command cd tarballs && curl -O $CURL_OPTS $url )
-        test -d $tarball_dir || ( echo "Unpacking ${url_base}" && tar xfz tarballs/${url_base} )
-        test -d $tarball_dir || fail "Tarball ${url_base} could not be unpacked"
+        test -d $tarball_dir || ( echo "Unpacking ${url_base}" && tar xfz tarballs/${url_base} || fail "Tarball ${url_base} could not be unpacked." )
     done
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
@@ -322,15 +321,14 @@ download() { # Download and unpack sources
         #bump_git_versions
     fi
 
-    touch tarballs/DONE
+    touch $SRC_DIR/tarballs/DONE
 }
 
 download_git() { # Download from GitHub
     owner="$1"; repo="$2"; repo_ver="$3";
     url="https://github.com/$owner/$repo/archive/$repo_ver.tar.gz"
     test -f tarballs/$repo-$repo_ver.tar.gz || ( echo "Getting $repo-$repo_ver.tar.gz" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.tar.gz $url )
-    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.tar.gz" && tar xfz tarballs/$repo-$repo_ver.tar.gz )
-    test -d $repo-$repo_ver* || fail "Tarball $repo-$repo_ver.tar.gz could not be unpacked"
+    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.tar.gz" && tar xfz tarballs/$repo-$repo_ver.tar.gz || fail "Tarball $repo-$repo_ver.tar.gz could not be unpacked.")
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
 }
 
@@ -346,29 +344,40 @@ automagic() { # Perform varios autotools optimization
 
 build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
     test -e $SRC_DIR/tarballs/DONE || fail "You need to '$0 download' first!"
+    [[ -d $INST_DIR/lib ]] && [[ -f $INST_DIR/lib/DEPS-DONE ]] && rm -f $INST_DIR/lib/DEPS-DONE >/dev/null
 
-    ( cd c-ares-$CARES_VERSION && ./configure && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building c-ares   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    ( cd c-ares-$CARES_VERSION && ./configure && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail " during building 'c-ares'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
-    ( cd curl-$CURL_VERSION && ./configure --enable-ares && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building curl   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    ( cd curl-$CURL_VERSION && ./configure --enable-ares && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail " during building 'curl'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building xmlrpc-c   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
     ( cd xmlrpc-c-advanced-$XMLRPC_REV \
         && ./configure --prefix=$INST_DIR --with-libwww-ssl \
             --disable-wininet-client --disable-curl-client --disable-libwww-client --disable-abyss-server --disable-cgi-server \
-        && $MAKE $MAKE_OPTS && $MAKE install )
+        && $MAKE $MAKE_OPTS && $MAKE install \
+        || fail " during building 'xmlrpc-c'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/bin/xmlrpc-c-config
 
     touch $INST_DIR/lib/DEPS-DONE
 }
 
 build_rt_lt() { # Build rTorrent and libTorrent
-    test -e $INST_DIR/lib/DEPS-DONE || fail "You need to '$0 build' first!"
+    test -e $INST_DIR/lib/DEPS-DONE || fail "You need to '$0 build_deps' first!"
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
         cd libtorrent-$LT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && \
-        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
+        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
+        || fail " during building 'libtorrent'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -376,7 +385,8 @@ build_rt_lt() { # Build rTorrent and libTorrent
     ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
         cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
-        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install )
+        $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
+        || fail " during building 'rtorrent'!" )
 }
 
 patch_n_build() { # Patch libTorrent and rTorrent and build them
@@ -385,6 +395,8 @@ patch_n_build() { # Patch libTorrent and rTorrent and build them
     $SED_I "s:\\(AC_DEFINE(HAVE_CONFIG_H.*\\):\1  AC_DEFINE(RT_HEX_VERSION, $RT_HEX_VERSION, for CPP if checks):" rtorrent-$RT_VERSION/configure.ac
     grep "AC_DEFINE.*API_VERSION" rtorrent-$RT_VERSION/configure.ac >/dev/null || \
         $SED_I "s:\\(AC_DEFINE(HAVE_CONFIG_H.*\\):\1  AC_DEFINE(API_VERSION, 0, api version):" rtorrent-$RT_VERSION/configure.ac
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     # Patch libTorrent
     pushd libtorrent-$LT_VERSION
@@ -398,7 +410,7 @@ patch_n_build() { # Patch libTorrent and rTorrent and build them
     done
 
     popd
-    bold "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     # Patch rTorrent
     pushd rtorrent-$RT_VERSION
@@ -426,7 +438,6 @@ patch_n_build() { # Patch libTorrent and rTorrent and build them
     ${NOPYROP:-false} || $SED_I "s%rTorrent \\\" VERSION \\\"/\\\"%rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION - \\\"%" src/ui/download_list.cc
     ${NOPYROP:-false} || $SED_I "s%std::string(torrent::version()) + \\\" - \\\" +%%" src/ui/download_list.cc
     popd
-    bold "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
     # Build it
     ${NOBUILD:-false} || build_rt_lt
