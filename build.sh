@@ -113,9 +113,6 @@ if command which dpkg-architecture >/dev/null && dpkg-architecture -earmhf; then
     GCC_TYPE="Raspbian"
 elif command which gcc >/dev/null; then
     GCC_TYPE=$(gcc --version | head -n1 | tr -s '()' ' ' | cut -f2 -d' ')	#'
-    # Fix libtorrent bug with gcc version >= 6 and set CXXFLAGS env var
-    GCC_MAIN_VER=$(gcc --version | head -n1 | cut -d' ' -f4 | cut -d'.' -f1)
-    [[ -z "$GCC_MAIN_VER" ]] || [[ $GCC_MAIN_VER -gt 5 ]] && export FIX_LT_GCC_BUG="yes"
 else
     GCC_TYPE=none
 fi
@@ -151,7 +148,6 @@ esac
 
 set_build_env() { # Set final build related env vars
     export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
-    export CFLAGS="${CFLAGS}"
     export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
     export LDFLAGS="-L$INST_DIR/lib -Wl,-rpath,'\$\$ORIGIN/../lib'${LDFLAGS:+ }${LDFLAGS}"
     export LIBS="${LIBS}"
@@ -378,8 +374,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
-        cd libtorrent-$LT_VERSION && automagic && \
+    ( set +x ; cd libtorrent-$LT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
         || fail "during building 'libtorrent'!" )
@@ -387,8 +382,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; [[ -n "$FIX_LT_GCC_BUG" ]] &&  unset CXXFLAGS ; \
-        cd rtorrent-$RT_VERSION && automagic && \
+    ( set +x ; cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
         || fail "during building 'rtorrent'!" )

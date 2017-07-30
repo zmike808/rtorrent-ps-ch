@@ -129,18 +129,13 @@ Over latest upstream ``rtorrent-ps``:
 -  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
 -  `git version support <https://github.com/chros73/rtorrent-ps/issues/78>`_
 
+
 Notes
 -----
 
 Only git version is supported from now on. If earlier version is required - for whatever reason -, use tag `1.4.6-0.9.6 <https://github.com/chros73/rtorrent-ps/releases>`_.
 
 Client versions (rtorrent/libtorrent) are untouched. That means client still report the latest release version (e.g. ``0.9.6``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.7``).
-
-
-Known issues
-------------
-
-- Current ``libTorrent`` has a bug using ``CXXFLAGS`` with ``gcc v6.x`` compilers, hence ``CXXFLAGS`` enviroment variable is disabled when such a compiler is used.
 
 
 Compiling instructions

@@ -1,0 +1,29 @@
+--- scripts/rak_compiler.m4	2016-12-12 08:49:18.000000000 +0000
++++ scripts/rak_compiler.m4	2017-07-30 12:09:32.287760663 +0100
+@@ -1,3 +1,16 @@
++AC_DEFUN([RAK_CHECK_CXXFLAGS], [
++
++  AC_MSG_CHECKING([for user-defined CXXFLAGS])
++
++  if test -n "$CXXFLAGS"; then
++    AC_MSG_RESULT([user-defined "$CXXFLAGS"])
++  else
++    CXXFLAGS="-O2"
++    AC_MSG_RESULT([default "$CXXFLAGS"])
++  fi
++])
++
++
+ AC_DEFUN([RAK_ENABLE_DEBUG], [
+   AC_ARG_ENABLE(debug,
+     AC_HELP_STRING([--enable-debug], [enable debug information [[default=yes]]]),
+--- configure.ac	2016-12-12 08:49:18.000000000 +0000
++++ configure.ac	2017-07-30 11:58:47.481253880 +0100
+@@ -28,6 +28,7 @@ AC_C_BIGENDIAN(
+     AC_MSG_ERROR([Could not determine endianness])
+ )
+ 
++RAK_CHECK_CXXFLAGS
+ RAK_ENABLE_DEBUG
+ RAK_ENABLE_EXTRA_DEBUG
+ RAK_ENABLE_WERROR
