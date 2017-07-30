@@ -9,31 +9,13 @@ RT_CH_MAJOR_VERSION=1.6
 RT_CH_MINOR_RELEASE=0
 RT_CH_MINOR_GIT=0
 
-export RT_MAJOR=0.9
-export LT_MAJOR=0.13
-export RT_MINOR=6
+RT_MAJOR=0.9
+LT_MAJOR=0.13
+RT_MINOR=6
 
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
 export GIT_RT="226e670"  # 2016-10-23
 export GIT_LT="c167c5a"  # 2016-12-12
-
-
-
-export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_RELEASE
-export LT_VERSION=$LT_MAJOR.$RT_MINOR;
-export RT_VERSION=$RT_MAJOR.$RT_MINOR;
-
-# let's fake the version number of the git version to be compatible with our patching system
-export GIT_MINOR=$[$RT_MINOR + 1]
-
-set_git_env_vars() { # Reset RT/LT env vars if git is used
-    export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
-    export LT_VERSION=$LT_MAJOR.$GIT_MINOR
-    export RT_VERSION=$RT_MAJOR.$GIT_MINOR
-}
-
-# Only support git version or dealing with optional 2nd "git" argument: update necessary variables
-[[ $ONLYSUPPORTGITVERSION = true ]] || [[ $2 = "git" ]] && set_git_env_vars
 
 
 
@@ -45,6 +27,9 @@ export CARES_VERSION=1.13.0 # 2017-06
 export CURL_VERSION=7.54.1  # 2017-06 ; WARNING: see rT issue #457 regarding curl configure options
 export XMLRPC_TREE=stable   # [super-stable | stable | advaced]
 export XMLRPC_REV=2912      # Release 1.43.06 2016-12
+
+# Extra options handling (set overridable defaults)
+: ${MAKE_OPTS:=}
 
 # Distro specifics
 case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
@@ -78,6 +63,24 @@ esac
 # HERE BE DRAGONS!
 #
 
+export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_RELEASE
+export LT_VERSION=$LT_MAJOR.$RT_MINOR;
+export RT_VERSION=$RT_MAJOR.$RT_MINOR;
+
+# let's fake the version number of the git version to be compatible with our patching system
+export GIT_MINOR=$[$RT_MINOR + 1]
+
+set_git_env_vars() { # Reset RT/LT env vars if git is used
+    export RT_CH_VERSION=$RT_CH_MAJOR_VERSION.$RT_CH_MINOR_GIT
+    export LT_VERSION=$LT_MAJOR.$GIT_MINOR
+    export RT_VERSION=$RT_MAJOR.$GIT_MINOR
+}
+
+# Only support git version or dealing with optional 2nd "git" argument: update necessary variables
+[[ $ONLYSUPPORTGITVERSION = true ]] || [[ $2 = "git" ]] && set_git_env_vars
+
+
+
 # Extra options handling (set overridable defaults)
 : ${INSTALL_ROOT:=$HOME}
 export ROOT_SYMLINK_DIR="/opt/rtorrent"
@@ -85,7 +88,6 @@ export PKG_INST_DIR="$ROOT_SYMLINK_DIR-ps-ch-$RT_CH_VERSION-$RT_VERSION"
 export INST_DIR="$INSTALL_ROOT/lib/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
 export BIN_DIR="$INSTALL_ROOT/bin"
 : ${CURL_OPTS:=-sLS}
-: ${MAKE_OPTS:=}
 : ${CFG_OPTS:=}
 : ${CFG_OPTS_LT:=}
 : ${CFG_OPTS_RT:=}
