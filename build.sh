@@ -105,6 +105,7 @@ command which gmake >/dev/null && export MAKE=gmake || export MAKE=make
 command which glibtoolize >/dev/null && export LIBTOOLIZE=glibtoolize || export LIBTOOLIZE=libtoolize
 
 
+
 # Try this when you get configure errors regarding xmlrpc-c
 #   on a Intel PC type system with certain types of CPUs:
 #     export CFLAGS="$CFLAGS -march=i586"
@@ -166,6 +167,7 @@ set_build_env() { # Set final build related env vars
     printf "export PKG_CONFIG_PATH=%q\n"    "${PKG_CONFIG_PATH}"
     printf "export FIX_LT_GCC_BUG=%q\n"     "${FIX_LT_GCC_BUG}"
 }
+
 
 
 # Sources
@@ -295,6 +297,7 @@ check_deps() { # Check command and package dependency
 
 prep() { # Check dependency and create basic directories
     check_deps
+    mkdir -p "$BIN_DIR"
     mkdir -p $INST_DIR/{bin,include,lib,man,share}
     mkdir -p tarballs
 }
@@ -351,12 +354,12 @@ build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building c-ares   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( cd c-ares-$CARES_VERSION && ./configure && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail " during building 'c-ares'!" )
+    ( cd c-ares-$CARES_VERSION && ./configure && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail "during building 'c-ares'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building curl   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( cd curl-$CURL_VERSION && ./configure --enable-ares && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail " during building 'curl'!" )
+    ( cd curl-$CURL_VERSION && ./configure --enable-ares && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install || fail "during building 'curl'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building xmlrpc-c   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -364,7 +367,7 @@ build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
     ( cd xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV \
         && ./configure --with-libwww-ssl --disable-wininet-client --disable-curl-client --disable-libwww-client --disable-abyss-server --disable-cgi-server \
         && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
-        || fail " during building 'xmlrpc-c'!" )
+        || fail "during building 'xmlrpc-c'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/bin/xmlrpc-c-config
 
     touch $INST_DIR/lib/DEPS-DONE
@@ -379,7 +382,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
         cd libtorrent-$LT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
-        || fail " during building 'libtorrent'!" )
+        || fail "during building 'libtorrent'!" )
     $SED_I s:/usr/local:$INST_DIR: $INST_DIR/lib/pkgconfig/*.pc $INST_DIR/lib/*.la
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -388,7 +391,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
         cd rtorrent-$RT_VERSION && automagic && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
-        || fail " during building 'rtorrent'!" )
+        || fail "during building 'rtorrent'!" )
 }
 
 patch_n_build() { # Patch libTorrent and rTorrent and build them
@@ -462,10 +465,24 @@ RT_PS_XMLRPC_REV=$XMLRPC_REV
 .
 }
 
-symlink_binary() { # Symlink binary
-    mkdir -p "$BIN_DIR"
-    ln -nfs "$INST_DIR/bin/rtorrent" "$BIN_DIR/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
-    ln -nfs "$BIN_DIR/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "$BIN_DIR/rtorrent"
+symlink_binary_home() { # Symlink binary in HOME
+    [[ ! -f "$INST_DIR/bin/rtorrent" ]] && fail "Compilation hasn't been finished, try it again."
+
+    cd "$BIN_DIR"
+    ln -nfs "..${INST_DIR#${INSTALL_ROOT}}/bin/rtorrent" "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
+    ln -nfs "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "rtorrent"
+    cd "$SRC_DIR"
+}
+
+symlink_binary_inst() { # Symlink binary after it's installed into /opt dir
+    [[ ! -f "$PKG_INST_DIR/bin/rtorrent" ]] && fail "Installation hasn't been finished, try it again."
+    [[ -f "/usr/local/bin/rtorrent" ]] && [[ ! -L "/usr/local/bin/rtorrent" ]] && fail "Could not create symlink 'rtorrent' in '/usr/local/bin/'"
+    ( [[ -d "$ROOT_SYMLINK_DIR" ]] || [[ -f "$ROOT_SYMLINK_DIR" ]] ) && [[ ! -L "$ROOT_SYMLINK_DIR" ]] && fail "Could not create symlink 'rtorrent' in '/opt/'"
+
+    ln -nfs "$ROOT_SYMLINK_DIR/bin/rtorrent" "/usr/local/bin/rtorrent"
+    cd "/opt"
+    ln -nfs "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "rtorrent"
+    cd "$SRC_DIR"
 }
 
 check() { # Print some diagnostic success indicators
@@ -498,15 +515,12 @@ check() { # Print some diagnostic success indicators
     [[ "$1" == "$HOME" ]] && echo "$libs" | sed -e "s:$1:~:g" || echo "$libs"
 }
 
-install() { # Install to $PKG_INST_DIR
+install() { # Install (copy) to $PKG_INST_DIR
     [[ ! -f "$INST_DIR/version-info.sh" ]] && fail "Compilation hasn't been finished, try it again."
     [[ -d "$PKG_INST_DIR" ]] && [[ -f "$PKG_INST_DIR/bin/rtorrent" ]] && fail "Could not clean install into dir '$PKG_INST_DIR', dir already exists."
 
     cp -r "$INST_DIR" /opt/ || fail "Could not copy into dir '$PKG_INST_DIR', have you tried with 'sudo'?"
     chmod -R a+rX "$PKG_INST_DIR/"
-
-    ln -nfs "$PKG_INST_DIR" "$ROOT_SYMLINK_DIR"
-    check "/opt" "$ROOT_SYMLINK_DIR/bin"
 }
 
 package_prep() { # make $PACKAGE_ROOT lean and mean
@@ -587,11 +601,14 @@ case "$1" in
                 build_deps
                 patch_n_build
                 add_version_info
-                symlink_binary
+                symlink_binary_home
                 check "$HOME" "$INST_DIR"
                 ;;
     install)    ## Install current $(sed -e s:$HOME/:~/: <<<$INST_DIR) compilation into $PKG_INST_DIR
-                install ;;
+                install
+                symlink_binary_inst
+                check "/opt" "$ROOT_SYMLINK_DIR/bin"
+                ;;
     pkg2deb)    ## Package current $PKG_INST_DIR installation for APT [needs fpm]
                 pkg2deb ;;
     pkg2pacman) ## Package current $PKG_INST_DIR installation for PACMAN [needs fpm]
@@ -601,11 +618,13 @@ case "$1" in
     clean)      clean ;;
     clean_all)  clean_all ;;
     env)        prep; set +x; set_build_env echo '"' ;;
-    download)   clean_all; prep; download ;;
+    download)   prep; download ;;
     deps)       prep; set_build_env; build_deps ;;
-    patchbuild) set_build_env; patch_n_build ;;
-    patch)      NOBUILD=true; patch_n_build ;;
-    patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build ;;
+    patchbuild) set_build_env; patch_n_build; add_version_info ;;
+    patch)      NOBUILD=true; patch_n_build; add_version_info ;;
+    patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build; add_version_info ;;
+    sm-home)    symlink_binary_home ;;
+    sm-inst)    symlink_binary_inst ;;
     check-home) check "$HOME" "$INST_DIR" ;;
     check-inst) check "/opt" "$ROOT_SYMLINK_DIR" ;;
     *)
