@@ -131,6 +131,7 @@ esac
 
 # Platform magic
 export SED_I="sed -i -e"
+
 case "$(uname -s)" in
     FreeBSD)
         export CFLAGS="-pipe -O2 -pthread${CFLAGS:+ }${CFLAGS}"
@@ -146,22 +147,41 @@ case "$(uname -s)" in
 esac
 
 
-set_build_env() { # Set final build related env vars
-    export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
+# Set final compiler flags
+export CPPFLAGS="-I $INST_DIR/include${CPPFLAGS:+ }${CPPFLAGS}"
+[[ -z "${CXXFLAGS+x}" ]] && [[ -z "${CFLAGS+x}" ]] || \
     export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
-    export LDFLAGS="-L$INST_DIR/lib -Wl,-rpath,'\$\$ORIGIN/../lib'${LDFLAGS:+ }${LDFLAGS}"
+export LDFLAGS="-L$INST_DIR/lib -Wl,-rpath,'\$\$ORIGIN/../lib'${LDFLAGS:+ }${LDFLAGS}"
+[[ -z "${LIBS+x}" ]] || \
     export LIBS="${LIBS}"
-    export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
+export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
 
-    echo "!!! Building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR !!!"; echo
 
+
+display_env_vars() { # Display env vars
+    echo "${BOLD}Env for building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR$OFF"
+    echo
     printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
-    printf "export CFLAGS=%q\n"             "${CFLAGS}"
-    printf "export CXXFLAGS=%q\n"           "${CXXFLAGS}"
+    [[ -z "${CFLAGS+x}" ]] || \
+        printf "export CFLAGS=%q\n"         "${CFLAGS}"
+    [[ -z "${CXXFLAGS+x}" ]] || \
+        printf "export CXXFLAGS=%q\n"       "${CXXFLAGS}"
     printf "export LDFLAGS=%q\n"            "${LDFLAGS}"
-    printf "export LIBS=%q\n"               "${LIBS}"
+    [[ -z "${LIBS+x}" ]] || \
+        printf "export LIBS=%q\n"           "${LIBS}"
     printf "export PKG_CONFIG_PATH=%q\n"    "${PKG_CONFIG_PATH}"
-    printf "export FIX_LT_GCC_BUG=%q\n"     "${FIX_LT_GCC_BUG}"
+    echo
+    printf 'export INSTALL_ROOT=%q\n'       "$INSTALL_ROOT"
+    printf 'export INST_DIR=%q\n'           "$INST_DIR"
+    printf 'export BIN_DIR=%q\n'            "$BIN_DIR"
+    printf 'export PKG_INST_DIR=%q\n'       "$PKG_INST_DIR"
+    echo
+    printf 'export CURL_OPTS=%q\n'          "$CURL_OPTS"
+    printf 'export MAKE_OPTS=%q\n'          "$MAKE_OPTS"
+    printf 'export CFG_OPTS=%q\n'           "$CFG_OPTS"
+    printf 'export CFG_OPTS_LT=%q\n'        "$CFG_OPTS_LT"
+    printf 'export CFG_OPTS_RT=%q\n'        "$CFG_OPTS_RT"
+    echo
 }
 
 
@@ -229,20 +249,6 @@ bold() { # Display bold message
 fail() { # Display bold message and exit immediately
     bold "ERROR: $@"
     exit 1
-}
-
-display_env_vars() { # Display env vars
-    echo "${BOLD}Env for building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION$OFF"
-    printf 'export INSTALL_ROOT=%q\n'   "$INSTALL_ROOT"
-    printf 'export INST_DIR=%q\n'       "$INST_DIR"
-    printf 'export BIN_DIR=%q\n'        "$BIN_DIR"
-    printf 'export PKG_INST_DIR=%q\n'   "$PKG_INST_DIR"
-    printf 'export CURL_OPTS=%q\n'      "$CURL_OPTS"
-    printf 'export MAKE_OPTS=%q\n'      "$MAKE_OPTS"
-    printf 'export CFG_OPTS=%q\n'       "$CFG_OPTS"
-    printf 'export CFG_OPTS_LT=%q\n'    "$CFG_OPTS_LT"
-    printf 'export CFG_OPTS_RT=%q\n'    "$CFG_OPTS_RT"
-    echo
 }
 
 clean() { # Clean up generated files in directory of packages
@@ -320,7 +326,6 @@ download() { # Download and unpack sources
         # getting rtorrent and libtorrent from GitHub
         download_git rakshasa rtorrent $GIT_RT
         download_git rakshasa libtorrent $GIT_LT
-        #bump_git_versions
     fi
 
     touch $SRC_DIR/tarballs/DONE
@@ -497,7 +502,7 @@ check() { # Print some diagnostic success indicators
     else
         libs=$(ldd "$1/rtorrent/bin/rtorrent" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
     fi
-    if test "$(echo "$libs" | egrep -v "$2" | egrep -v "cares" | wc -l)" -eq 0; then
+    if test "$(echo "$libs" | egrep -v "$2" | wc -l)" -eq 0; then
         echo OK; echo
     else
         echo FAIL; echo; echo "Suspicious library paths are:"
@@ -591,10 +596,10 @@ case "$1" in
                 clean_all
                 prep
                 download
-                set_build_env
                 build_deps
                 patch_n_build
                 add_version_info
+                display_env_vars
                 symlink_binary_home
                 check "$HOME" "$INST_DIR"
                 ;;
@@ -611,12 +616,11 @@ case "$1" in
     # Dev related actions
     clean)      clean ;;
     clean_all)  clean_all ;;
-    env)        prep; set +x; set_build_env echo '"' ;;
     download)   prep; download ;;
-    deps)       prep; set_build_env; build_deps ;;
-    patchbuild) set_build_env; patch_n_build; add_version_info ;;
-    patch)      NOBUILD=true; patch_n_build; add_version_info ;;
-    patch-dev)  NOPYROP=true; NOBUILD=true; patch_n_build; add_version_info ;;
+    deps)       prep; display_env_vars; build_deps ;;
+    patchbuild) display_env_vars; patch_n_build; add_version_info ;;
+    patch)      NOBUILD=true; display_env_vars; patch_n_build; add_version_info ;;
+    patch-dev)  NOPYROP=true; NOBUILD=true; display_env_vars; patch_n_build; add_version_info ;;
     sm-home)    symlink_binary_home ;;
     sm-inst)    symlink_binary_inst ;;
     check-home) check "$HOME" "$INST_DIR" ;;
