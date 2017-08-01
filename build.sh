@@ -196,8 +196,8 @@ TARBALLS=(
 
 XMLRPC_SVN=true
 case $XMLRPC_REV in
-    2775|2366|2626)
-        TARBALLS+=( "https://bintray.com/artifact/download/pyroscope/rtorrent-ps/xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV-src.tgz" )
+    2912|2775)
+        TARBALLS+=( "https://dl.bintray.com/chros73/rtorrent-ps-ch/pool/x/xmlrpc-c-$XMLRPC_TREE/xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV-src.tgz" )
         XMLRPC_SVN=false
         ;;
 esac
