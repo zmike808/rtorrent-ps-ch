@@ -157,8 +157,8 @@ export LDFLAGS="-L$INST_DIR/lib -Wl,-rpath,'\$\$ORIGIN/../lib'${LDFLAGS:+ }${LDF
 export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
 
 
-
 display_env_vars() { # Display env vars
+    echo
     echo "${BOLD}Env for building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR$OFF"
     echo
     printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
@@ -339,16 +339,6 @@ download_git() { # Download from GitHub
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
 }
 
-automagic() { # Perform varios autotools optimization
-    aclocal
-    rm -f ltmain.sh scripts/{libtool,lt*}.m4
-    $LIBTOOLIZE --automake --force --copy
-    aclocal
-    autoconf
-    automake --add-missing
-    ./autogen.sh
-}
-
 build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
     test -e $SRC_DIR/tarballs/DONE || fail "You need to '$0 download' first!"
     [[ -d $INST_DIR/lib ]] && [[ -f $INST_DIR/lib/DEPS-DONE ]] && rm -f $INST_DIR/lib/DEPS-DONE >/dev/null
@@ -379,7 +369,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; cd libtorrent-$LT_VERSION && automagic && \
+    ( set +x ; cd libtorrent-$LT_VERSION && ./autogen.sh && \
         ./configure $CFG_OPTS $CFG_OPTS_LT && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
         || fail "during building 'libtorrent'!" )
@@ -387,7 +377,7 @@ build_rt_lt() { # Build rTorrent and libTorrent
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-    ( set +x ; cd rtorrent-$RT_VERSION && automagic && \
+    ( set +x ; cd rtorrent-$RT_VERSION && ./autogen.sh && \
         ./configure $CFG_OPTS $CFG_OPTS_RT --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config && \
         $MAKE clean && $MAKE $MAKE_OPTS && $MAKE DESTDIR=$INST_DIR prefix= install \
         || fail "during building 'rtorrent'!" )
