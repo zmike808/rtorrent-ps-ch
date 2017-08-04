@@ -14,8 +14,8 @@ LT_MAJOR=0.13
 RT_MINOR=6
 
 # specify git branch/commit for rtorrent and libtorrent to compile from: [master|15e64bd]
-export GIT_RT="226e670"  # 2016-10-23
-export GIT_LT="c167c5a"  # 2016-12-12
+export GIT_RT="226e670"  # 2016-10-23 master
+export GIT_LT="c167c5a"  # 2016-12-12 master
 
 
 # Debian-like deps, see below for other distros
@@ -46,8 +46,6 @@ case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') 
     *-precise|*-trusty|*-utopic|*-wheezy)
         ;;
     *-jessie)
-        export CARES_VERSION=1.10.0
-        export CURL_VERSION=7.38.0
         ;;
     *-vivid|*-wily|*-xenial|*-yakkety)
         ;;
