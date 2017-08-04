@@ -18,7 +18,6 @@ export GIT_RT="226e670"  # 2016-10-23
 export GIT_LT="c167c5a"  # 2016-12-12
 
 
-
 # Debian-like deps, see below for other distros
 BUILD_PKG_DEPS=( libncurses5-dev libncursesw5-dev libssl-dev zlib1g-dev libcppunit-dev locales )
 
@@ -27,6 +26,17 @@ export CARES_VERSION=1.13.0 # 2017-06
 export CURL_VERSION=7.54.1  # 2017-06 ; WARNING: see rT issue #457 regarding curl configure options
 export XMLRPC_TREE=stable   # [super-stable | stable | advaced]
 export XMLRPC_REV=2912      # Release 1.43.06 2016-12
+
+# Source package md5 hashes
+SRC_PKG_HASHES=$(cat <<.
+c-ares-1.13.0.tar.gz:d2e010b43537794d8bedfb562ae6bba2
+curl-7.54.1.tar.gz:21a6e5658fd55103a90b11de7b2a8a8c
+xmlrpc-c-stable-2912-src.tgz:d6336bc1ff6d5ba705438bed72268701
+libtorrent-c167c5a.tar.gz:58448dbefe92616f6ad19ac41315feed
+rtorrent-226e670.tar.gz:a0138f4739d4313d5dfad0432cabef5c
+.
+)
+
 
 # Extra options handling (set overridable defaults)
 : ${MAKE_OPTS:=}
@@ -216,6 +226,7 @@ SUBDIRS="c-ares-*[0-9] curl-*[0-9] xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV libtorrent-
 
 # Command dependency
 BUILD_CMD_DEPS=$(cat <<.
+coreutils:md5sum
 curl:curl
 subversion:svn
 build-essential:$MAKE
@@ -304,6 +315,18 @@ prep() { # Check dependency and create basic directories
     mkdir -p tarballs
 }
 
+check_hash() { # md5 hashcheck downloaded packages
+    for srchash in ${SRC_PKG_HASHES[@]}; do
+        pkg=${srchash%%:*}
+        hash=${srchash##*:}
+
+        if [ "$1" == "$pkg" ]; then
+            echo "$hash  $SRC_DIR/tarballs/$pkg" | md5sum -c --status 2>/dev/null && break
+            rm -f "$SRC_DIR/tarballs/$pkg" && fail "Checksum failed for $pkg"
+        fi
+    done
+}
+
 download() { # Download and unpack sources
     [[ -d $SRC_DIR/tarballs ]] && [[ -f $SRC_DIR/tarballs/DONE ]] && rm -f $SRC_DIR/tarballs/DONE >/dev/null
 
@@ -319,7 +342,7 @@ download() { # Download and unpack sources
         tarball_dir=${url_base%.tar.gz}
         tarball_dir=${tarball_dir%-src.tgz}
         test -f tarballs/${url_base} || ( echo "Getting $url_base" && command cd tarballs && curl -O $CURL_OPTS $url )
-        test -d $tarball_dir || ( echo "Unpacking ${url_base}" && tar xfz tarballs/${url_base} || fail "Tarball ${url_base} could not be unpacked." )
+        test -d $tarball_dir || ( check_hash "${url_base}" && echo "Unpacking ${url_base}" && tar xfz tarballs/${url_base} || fail "Tarball ${url_base} could not be unpacked." )
     done
 
     if [ "$RT_VERSION" = "$RT_MAJOR.$GIT_MINOR" ]; then
@@ -335,7 +358,7 @@ download_git() { # Download from GitHub
     owner="$1"; repo="$2"; repo_ver="$3";
     url="https://github.com/$owner/$repo/archive/$repo_ver.tar.gz"
     test -f tarballs/$repo-$repo_ver.tar.gz || ( echo "Getting $repo-$repo_ver.tar.gz" && command cd tarballs && curl $CURL_OPTS -o $repo-$repo_ver.tar.gz $url )
-    test -d $repo-$repo_ver* || ( echo "Unpacking $repo-$repo_ver.tar.gz" && tar xfz tarballs/$repo-$repo_ver.tar.gz || fail "Tarball $repo-$repo_ver.tar.gz could not be unpacked.")
+    test -d $repo-$repo_ver* || ( check_hash "$repo-$repo_ver.tar.gz" && echo "Unpacking $repo-$repo_ver.tar.gz" && tar xfz tarballs/$repo-$repo_ver.tar.gz || fail "Tarball $repo-$repo_ver.tar.gz could not be unpacked.")
     [ $repo == "rtorrent" ] && mv $repo-$repo_ver* $repo-$RT_VERSION || mv $repo-$repo_ver* $repo-$LT_VERSION
 }
 
