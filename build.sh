@@ -38,34 +38,6 @@ rtorrent-226e670.tar.gz:a0138f4739d4313d5dfad0432cabef5c
 )
 
 
-# Extra options handling (set overridable defaults)
-: ${MAKE_OPTS:=}
-
-# Distro specifics
-case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
-    *-precise|*-trusty|*-utopic|*-wheezy)
-        ;;
-    *-jessie)
-        ;;
-    *-vivid|*-wily|*-xenial|*-yakkety)
-        ;;
-    *-stretch|*-zesty)
-        ;;
-    Arch-*) # 0.9.[46] only!
-        BUILD_PKG_DEPS=( ncurses openssl cppunit )
-        source /etc/makepkg.conf 2>/dev/null
-        MAKE_OPTS="${MAKEFLAGS}${MAKE_OPTS:+ }${MAKE_OPTS}"
-        ;;
-    NonLSB)
-        # Place tests for MacOSX etc. here
-        BUILD_PKG_DEPS=( )
-        echo
-        echo "*** Build dependencies are NOT pre-checked on this platform! ***"
-        echo
-        ;;
-esac
-
-
 
 #
 # HERE BE DRAGONS!
@@ -99,7 +71,9 @@ export BIN_DIR="$INSTALL_ROOT/bin"
 : ${CFG_OPTS:=}
 : ${CFG_OPTS_LT:=}
 : ${CFG_OPTS_RT:=}
-export INSTALL_ROOT CURL_OPTS MAKE_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT
+: ${OPTIMIZE_BUILD:=yes}
+[[ "$OPTIMIZE_BUILD" = yes ]] && : ${MAKE_OPTS:=-j4}
+export INSTALL_ROOT CURL_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT MAKE_OPTS
 
 export SRC_DIR=$(cd $(dirname $0) && pwd)
 
@@ -113,6 +87,33 @@ command which gmake >/dev/null && export MAKE=gmake || export MAKE=make
 command which glibtoolize >/dev/null && export LIBTOOLIZE=glibtoolize || export LIBTOOLIZE=libtoolize
 
 
+# Distro specifics
+case $(echo -n "$(lsb_release -sic 2>/dev/null || echo NonLSB)" | tr ' \n' '-') in	#"
+    *-precise|*-trusty|*-utopic|*-wheezy)
+        ;;
+    *-jessie)
+        ;;
+    *-vivid|*-wily|*-xenial|*-yakkety)
+        ;;
+    *-stretch|*-zesty)
+        ;;
+    Arch-*) # 0.9.[46] only!
+        BUILD_PKG_DEPS=( ncurses openssl cppunit )
+        source /etc/makepkg.conf 2>/dev/null
+        MAKE_OPTS="${MAKEFLAGS}${MAKE_OPTS:+ }${MAKE_OPTS}"
+        ;;
+    NonLSB)
+        # Place tests for MacOSX etc. here
+        BUILD_PKG_DEPS=( )
+        echo
+        echo "*** Build dependencies are NOT pre-checked on this platform! ***"
+        echo
+        ;;
+esac
+
+
+# Platform magic
+export SED_I="sed -i -e"
 
 # Try this when you get configure errors regarding xmlrpc-c
 #   on a Intel PC type system with certain types of CPUs:
@@ -137,20 +138,17 @@ case "$GCC_TYPE" in
 esac
 
 
-# Platform magic
-export SED_I="sed -i -e"
-
+# gcc optimization
 case "$(uname -s)" in
     FreeBSD)
-        export CFLAGS="-pipe -O2 -pthread${CFLAGS:+ }${CFLAGS}"
-        export LDFLAGS="-s -lpthread${LDFLAGS:+ }${LDFLAGS}"
+        [[ "$OPTIMIZE_BUILD" = yes ]] && export CFLAGS="-pipe -O2 -pthread${CFLAGS:+ }${CFLAGS}"
+        [[ "$OPTIMIZE_BUILD" = yes ]] && export LDFLAGS="-s -lpthread${LDFLAGS:+ }${LDFLAGS}"
         export SED_I="sed -i '' -e"
         ;;
     Linux)
-        # gcc optimization, possible "-march" values: https://gcc.gnu.org/onlinedocs/gcc-4.8.4/gcc/i386-and-x86-64-Options.html
-#        export CFLAGS="-march=core2 -pipe -O2 -fomit-frame-pointer${CFLAGS:+ }${CFLAGS}"
-        export CPPFLAGS="-pthread${CPPFLAGS:+ }${CPPFLAGS}"
-        export LIBS="-lpthread${LIBS:+ }${LIBS}"
+        [[ "$OPTIMIZE_BUILD" = yes ]] && export CFLAGS="-march=native -pipe -O2 -fomit-frame-pointer${CFLAGS:+ }${CFLAGS}"
+        [[ "$OPTIMIZE_BUILD" = yes ]] && export CPPFLAGS="-pthread${CPPFLAGS:+ }${CPPFLAGS}"
+        [[ "$OPTIMIZE_BUILD" = yes ]] && export LIBS="-lpthread${LIBS:+ }${LIBS}"
         ;;
 esac
 
@@ -169,6 +167,7 @@ display_env_vars() { # Display env vars
     echo
     echo "${BOLD}Env for building rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR$OFF"
     echo
+    printf "export OPTIMIZE_BUILD=%q\n"     "${OPTIMIZE_BUILD}"
     printf "export CPPFLAGS=%q\n"           "${CPPFLAGS}"
     [[ -z "${CFLAGS+x}" ]] || \
         printf "export CFLAGS=%q\n"         "${CFLAGS}"
@@ -450,7 +449,8 @@ patch_n_build() { # Patch libTorrent and rTorrent and build them
             test ! -e "$uipyropatch" || { bold "$(basename $uipyropatch)"; patch -uNp1 -i "$uipyropatch"; }
     done
 
-    ${NOPYROP:-false} || $SED_I "s%rTorrent \\\" VERSION \\\"/\\\"%rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION - \\\"%" src/ui/download_list.cc
+    [[ "$OPTIMIZE_BUILD" = yes ]] && CH_SEPARATOR="+" || CH_SEPARATOR="-"
+    ${NOPYROP:-false} || $SED_I "s%rTorrent \\\" VERSION \\\"/\\\"%rTorrent-PS-CH $RT_CH_VERSION $RT_VERSION/$LT_VERSION $CH_SEPARATOR \\\"%" src/ui/download_list.cc
     ${NOPYROP:-false} || $SED_I "s%std::string(torrent::version()) + \\\" - \\\" +%%" src/ui/download_list.cc
     popd
 
@@ -538,6 +538,7 @@ package_prep() { # make $PACKAGE_ROOT lean and mean
     test -n "$DEBEMAIL" || fail "You MUST set DEBEMAIL in your environment"
 
     [[ -d "$PKG_INST_DIR" ]] && [[ -f "$PKG_INST_DIR/bin/rtorrent" ]] || fail "Could not package '$PKG_INST_DIR', it has to be 'install'-ed first."
+    [[ "$OPTIMIZE_BUILD" = yes ]] && fail "Could not package optimized build, it has to be compiled with 'OPTIMIZE_BUILD=no ./build.sh ch' first."
 
     DIST_DIR="/tmp/rt-ps-ch-dist"
     rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
