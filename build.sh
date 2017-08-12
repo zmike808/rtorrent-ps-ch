@@ -145,7 +145,7 @@ esac
 
 # Set final compiler flags
 export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
-export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib'$RT_CH_DIRNAME/lib'${LDFLAGS:+ }${LDFLAGS}"
+export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -Wl,-rpath,'\$\$ORIGIN/../lib/$RT_CH_DIRNAME/lib'${LDFLAGS:+ }${LDFLAGS}"
 [[ -z "${CXXFLAGS+x}" ]] && [[ -z "${CFLAGS+x}" ]] || \
     export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
 
@@ -218,6 +218,7 @@ automake:aclocal
 autoconf:autoconf
 automake:automake
 pkg-config:pkg-config
+chrpath:chrpath
 .
 )
 
@@ -383,6 +384,7 @@ build_curl() { # Build direct dependency: curl
              --disable-smb --disable-imap --disable-pop3 --disable-tftp --disable-telnet --disable-dict --disable-rtsp --disable-ldap --disable-ftp \
         && $MAKE $MAKE_OPTS \
         && $MAKE install \
+        && chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/lib/libcurl.so" \
         || fail "during building 'curl'!" )
 
     touch $TARBALLS_DIR/DONE-curl
@@ -434,6 +436,7 @@ build_rt() { # Build rTorrent
         && ./configure --prefix=$INST_DIR $CFG_OPTS $CFG_OPTS_RT --with-ncursesw --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config \
         && $MAKE $MAKE_OPTS \
         && $MAKE install \
+        && chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/bin/rtorrent" \
         || fail "during building 'rtorrent'!" )
 
     touch $TARBALLS_DIR/DONE-rtorrent
@@ -527,48 +530,52 @@ OPTIMIZED_BUILD=$OPTIMIZE_BUILD
 
 symlink_binary_home() { # Symlink binary in HOME
     [[ ! -f "$INST_DIR/bin/rtorrent" ]] && fail "Compilation hasn't been finished, try it again."
-    cd "$BIN_DIR"
-    ln -nfs "..${INST_DIR#${INSTALL_ROOT}}/bin/rtorrent" "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION"
-    ln -nfs "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "rtorrent"
+
+    cd "$INSTALL_ROOT/lib"
+    ln -nfs "$RT_CH_DIRNAME-$RT_CH_VERSION-$RT_VERSION" "$RT_CH_DIRNAME"
+    cd "$INSTALL_ROOT/bin"
+    ln -nfs "../lib/$RT_CH_DIRNAME/bin/rtorrent" "rtorrent"
     cd "$SRC_DIR"
 }
 
-symlink_binary_inst() { # Symlink binary after it's installed into /opt dir
+symlink_binary_inst() { # Symlink binary after it's installed into $ROOT_PKG_DIR dir
     [[ ! -f "$PKG_INST_DIR/bin/rtorrent" ]] && fail "Installation hasn't been finished, try it again."
-    [[ -f "/usr/local/bin/rtorrent" ]] && [[ ! -L "/usr/local/bin/rtorrent" ]] && fail "Could not create symlink 'rtorrent' in '/usr/local/bin/'"
-    ( [[ -d "$ROOT_SYMLINK_DIR" ]] || [[ -f "$ROOT_SYMLINK_DIR" ]] ) && [[ ! -L "$ROOT_SYMLINK_DIR" ]] && fail "Could not create symlink 'rtorrent' in '/opt/'"
-    ln -nfs "$ROOT_SYMLINK_DIR/bin/rtorrent" "/usr/local/bin/rtorrent"
-    cd "/opt"
-    ln -nfs "rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION" "rtorrent"
+    [[ -f "$ROOT_SYS_DIR/bin/rtorrent" ]] && [[ ! -L "$ROOT_SYS_DIR/bin/rtorrent" ]] && fail "Could not create symlink 'rtorrent' in '$ROOT_SYS_DIR/bin/'"
+    [[ -d "$ROOT_SYS_DIR/lib/$RT_CH_DIRNAME" || -f "$ROOT_SYS_DIR/lib/$RT_CH_DIRNAME" ]] && [[ ! -L "$ROOT_SYS_DIR/lib/$RT_CH_DIRNAME" ]] && fail "Could not create symlink '$RT_CH_DIRNAME' in '$ROOT_SYS_DIR/lib/'"
+    [[ -d "$ROOT_SYMLINK_DIR" || -f "$ROOT_SYMLINK_DIR" ]] && [[ ! -L "$ROOT_SYMLINK_DIR" ]] && fail "Could not create symlink '$RT_CH_DIRNAME' in '$ROOT_PKG_DIR/'"
+
+    ln -nfs "$ROOT_SYMLINK_DIR" "$ROOT_SYS_DIR/lib/$RT_CH_DIRNAME"
+    ln -nfs "$ROOT_SYMLINK_DIR/bin/rtorrent" "$ROOT_SYS_DIR/bin/rtorrent"
+    cd "$ROOT_PKG_DIR"
+    ln -nfs "$RT_CH_DIRNAME-$RT_CH_VERSION-$RT_VERSION" "$RT_CH_DIRNAME"
     cd "$SRC_DIR"
 }
 
 check() { # Print some diagnostic success indicators
     if [ "$1" == "$HOME" ]; then
-        for i in "$BIN_DIR"/rtorrent{,-ps-ch-$RT_CH_VERSION-$RT_VERSION}; do
-            echo $i "->" $(readlink $i) | sed -e "s:$1:~:g"
-        done
+        echo "$1/lib/$RT_CH_DIRNAME" "->" $(readlink $1/lib/$RT_CH_DIRNAME) | sed -e "s:$1:~:g"
+        echo "$1/bin/rtorrent" "->" $(readlink $1/bin/rtorrent) | sed -e "s:$1:~:g"
     else
-        echo "$1/rtorrent" "->" $(readlink $1/rtorrent)
+        echo "$ROOT_SYMLINK_DIR" "->" $(readlink $ROOT_SYMLINK_DIR)
+        echo "$1/lib/$RT_CH_DIRNAME" "->" $(readlink $1/lib/$RT_CH_DIRNAME)
+        echo "$1/bin/rtorrent" "->" $(readlink $1/bin/rtorrent)
     fi
+
     # This first selects the rpath dependencies, and then filters out libs found in the install dirs.
     # If anything is left, we have an external dependency that sneaked in.
     echo
     echo -n "Check that static linking worked: "
-    if [ "$1" == "$HOME" ]; then
-        libs=$(ldd "$BIN_DIR"/rtorrent-ps-ch-$RT_CH_VERSION-$RT_VERSION | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
-    else
-        libs=$(ldd "$1/rtorrent/bin/rtorrent" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
-    fi
-    if test "$(echo "$libs" | egrep -v "$2" | wc -l)" -eq 0; then
+        libs=$(ldd "$1/bin/rtorrent" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+    if [[ "$(echo "$libs" | egrep -v "$1/bin" | wc -l)" -eq 0 ]]; then
         echo OK; echo
     else
         echo FAIL; echo; echo "Suspicious library paths are:"
-        echo "$libs" | egrep -v "$2" || :
+        echo "$libs" | egrep -v "$1/bin" || :
         echo
     fi
+
     echo "Dependency library paths:"
-    [[ "$1" == "$HOME" ]] && echo "$libs" | sed -e "s:$1:~:g" || echo "$libs"
+    echo "$libs" | sed -e "s:$1/bin/::g"
 }
 
 install() { # Install (copy) to $PKG_INST_DIR
