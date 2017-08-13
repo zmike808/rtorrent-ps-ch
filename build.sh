@@ -75,6 +75,14 @@ TARBALLS_DIR="$SRC_DIR/tarballs"
 : ${VER_INFO_FILENAME:=version-info.sh}
 export INSTALL_ROOT INST_DIR CURL_OPTS CFG_OPTS CFG_OPTS_LT CFG_OPTS_RT MAKE_OPTS TARBALLS_DIR
 
+
+reset_vanilla_env_vars() { # Reset necessary vars for vanilla build
+    VANILLA_POSTFIX="-vanilla"
+    RT_CH_DIRNAME="$RT_CH_DIRNAME${VANILLA_POSTFIX}"
+    INST_DIR="$INSTALL_ROOT/lib/$RT_CH_DIRNAME-$RT_CH_VERSION-$RT_VERSION"
+}
+
+
 # Fix people's broken systems
 [[ "$(tr A-Z a-z <<<${LANG/*.})" = "utf-8" ]] || export LANG=en_US.UTF-8
 unset LC_ALL
@@ -143,16 +151,17 @@ case "$GCC_TYPE" in
 esac
 
 
-# Set final compiler flags
-export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
-export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -Wl,-rpath,'\$\$ORIGIN/../lib/$RT_CH_DIRNAME/lib'${LDFLAGS:+ }${LDFLAGS}"
-[[ -z "${CXXFLAGS+x}" ]] && [[ -z "${CFLAGS+x}" ]] || \
-    export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
+set_compiler_flags() { # Set final compiler flags
+    export PKG_CONFIG_PATH="$INST_DIR/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
+    export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -Wl,-rpath,'\$\$ORIGIN/../lib/$RT_CH_DIRNAME/lib'${LDFLAGS:+ }${LDFLAGS}"
+    [[ -z "${CXXFLAGS+x}" ]] && [[ -z "${CFLAGS+x}" ]] || \
+        export CXXFLAGS="${CFLAGS}${CXXFLAGS:+ }${CXXFLAGS}"
+}
 
 
 display_env_vars() { # Display env vars
     echo
-    echo "${BOLD}Env for building $RT_CH_TITLE $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR$OFF"
+    echo "${BOLD}Env for building $RT_CH_TITLE${VANILLA_POSTFIX} $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $INST_DIR$OFF"
     echo
     printf "export OPTIMIZE_BUILD=%q\n"     "${OPTIMIZE_BUILD}"
     printf "export PKG_CONFIG_PATH=%q\n"    "${PKG_CONFIG_PATH}"
@@ -447,8 +456,40 @@ build_lt_rt() { # Build libTorrent and rTorrent
     build_rt
 }
 
+patch_lt_vanilla() { # Patch vanilla libTorrent
+    [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -d libtorrent-$LT_VERSION ]] || fail "You need to '$0 download' first!"
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching vanilla libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    # Patch vanilla libTorrent
+    pushd libtorrent-$LT_VERSION
+
+    for vanilla in $SRC_DIR/patches/vanilla_{*${LT_VERSION%-svn}*,all}_*.patch; do
+        [[ ! -e "$vanilla" ]] || { bold "$(basename $vanilla)"; patch -uNp0 -i "$vanilla"; }
+    done
+
+    popd
+}
+
+patch_rt_vanilla() { # Patch vanilla rTorrent
+    [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -d rtorrent-$RT_VERSION ]] || fail "You need to '$0 download' first!"
+
+    bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching vanilla rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+    # Patch vanilla rTorrent
+    pushd rtorrent-$RT_VERSION
+
+    for vanilla in $SRC_DIR/patches/vanilla_{*${RT_VERSION%-svn}*,all}_*.patch; do
+        [[ ! -e "$vanilla" ]] || { bold "$(basename $vanilla)"; patch -uNp0 -i "$vanilla"; }
+    done
+
+    popd
+}
+
 patch_lt() { # Patch libTorrent
     [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -d libtorrent-$LT_VERSION ]] || fail "You need to '$0 download' first!"
+
+    patch_lt_vanilla
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -468,6 +509,8 @@ patch_lt() { # Patch libTorrent
 
 patch_rt() { # Patch rTorrent
     [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -d rtorrent-$RT_VERSION ]] || fail "You need to '$0 download' first!"
+
+    patch_rt_vanilla
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Patching rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -504,6 +547,11 @@ patch_rt() { # Patch rTorrent
     popd
 }
 
+patch_lt_rt_vanilla() { # Patch vanilla libTorrent and rTorrent
+    patch_lt_vanilla
+    patch_rt_vanilla
+}
+
 patch_lt_rt() { # Patch libTorrent and rTorrent
     patch_lt
     patch_rt
@@ -516,7 +564,7 @@ clean_up() { # Remove unnecessary files from compilation dir
 add_version_info() { # Display version info
     [[ -d "$INST_DIR/" ]] || fail "Could not locate dir '$INST_DIR'"
     cat >"$INST_DIR/$VER_INFO_FILENAME" <<.
-RT_CH_VERSION=$RT_CH_VERSION
+RT_CH_VERSION=$RT_CH_VERSION${VANILLA_POSTFIX}
 RT_PS_VERSION=$RT_VERSION
 RT_PS_LT_VERSION=$LT_VERSION
 RT_PS_REVISION=$(date +'%Y%m%d')-$(git rev-parse --short HEAD)
@@ -534,7 +582,7 @@ symlink_binary_home() { # Symlink binary in HOME
     cd "$INSTALL_ROOT/lib"
     ln -nfs "$RT_CH_DIRNAME-$RT_CH_VERSION-$RT_VERSION" "$RT_CH_DIRNAME"
     cd "$INSTALL_ROOT/bin"
-    ln -nfs "../lib/$RT_CH_DIRNAME/bin/rtorrent" "rtorrent"
+    ln -nfs "../lib/$RT_CH_DIRNAME/bin/rtorrent" "rtorrent${VANILLA_POSTFIX}"
     cd "$SRC_DIR"
 }
 
@@ -554,7 +602,7 @@ symlink_binary_inst() { # Symlink binary after it's installed into $ROOT_PKG_DIR
 check() { # Print some diagnostic success indicators
     if [ "$1" == "$HOME" ]; then
         echo "$1/lib/$RT_CH_DIRNAME" "->" $(readlink $1/lib/$RT_CH_DIRNAME) | sed -e "s:$1:~:g"
-        echo "$1/bin/rtorrent" "->" $(readlink $1/bin/rtorrent) | sed -e "s:$1:~:g"
+        echo "$1/bin/rtorrent${VANILLA_POSTFIX}" "->" $(readlink $1/bin/rtorrent${VANILLA_POSTFIX}) | sed -e "s:$1:~:g"
     else
         echo "$ROOT_SYMLINK_DIR" "->" $(readlink $ROOT_SYMLINK_DIR)
         echo "$1/lib/$RT_CH_DIRNAME" "->" $(readlink $1/lib/$RT_CH_DIRNAME)
@@ -565,7 +613,7 @@ check() { # Print some diagnostic success indicators
     # If anything is left, we have an external dependency that sneaked in.
     echo
     echo -n "Check that static linking worked: "
-        libs=$(ldd "$1/bin/rtorrent" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
+        libs=$(ldd "$1/bin/rtorrent${VANILLA_POSTFIX}" | egrep "lib(cares|curl|xmlrpc|torrent)")		#"
     if [[ "$(echo "$libs" | egrep -v "$1/bin" | wc -l)" -eq 0 ]]; then
         echo OK; echo
     else
@@ -659,6 +707,7 @@ pkg2pacman() { # Package current $PKG_INST_DIR installation for PACMAN [needs fp
 cd "$SRC_DIR"
 case "$1" in
     ch)         ## Build all components into $(sed -e s:$HOME/:~/: <<<$INST_DIR)
+                set_compiler_flags
                 display_env_vars
                 clean_all
                 prep
@@ -681,25 +730,41 @@ case "$1" in
                 pkg2deb ;;
     pkg2pacman) ## Package $PKG_INST_DIR installation for PACMAN [needs fpm]
                 pkg2pacman ;;
+    vanilla)    ## Build all vanilla components into $(sed -e s:$HOME/:~/: <<<$INSTALL_ROOT/lib/$RT_CH_DIRNAME-vanilla-$RT_CH_VERSION-$RT_VERSION)
+                reset_vanilla_env_vars
+                set_compiler_flags
+                display_env_vars
+                clean_all
+                prep
+                download
+                build_deps
+                patch_lt_rt_vanilla
+                build_lt_rt
+                clean_up
+                add_version_info
+                display_env_vars
+                symlink_binary_home
+                check "$HOME"
+                ;;
 
     # Dev related actions
-    env-vars)   display_env_vars ;;
+    env-vars)   set_compiler_flags; display_env_vars ;;
     clean)      clean ;;
     clean_all)  clean_all ;;
     download)   prep; download ;;
-    build-ares) prep; display_env_vars; clean_all "c-ares-$CARES_VERSION"; download "c-ares-$CARES_VERSION"; build_cares ;;
-    build-curl) display_env_vars; clean_all "curl-$CURL_VERSION"; download "curl-$CURL_VERSION"; build_curl ;;
-    build-xrpc) display_env_vars; clean_all "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; download "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; build_xmlrpc ;;
-    deps)       prep; display_env_vars; build_deps ;;
+    build-ares) set_compiler_flags; display_env_vars; prep; clean_all "c-ares-$CARES_VERSION"; download "c-ares-$CARES_VERSION"; build_cares ;;
+    build-curl) set_compiler_flags; display_env_vars; prep; clean_all "curl-$CURL_VERSION"; download "curl-$CURL_VERSION"; build_curl ;;
+    build-xrpc) set_compiler_flags; display_env_vars; prep; clean_all "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; download "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; build_xmlrpc ;;
+    deps)       set_compiler_flags; display_env_vars; prep; build_deps ;;
     patch-d-lt) NOPYROP=true; display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; patch_lt ;;
     patch-d-rt) NOPYROP=true; display_env_vars; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_rt ;;
     patch-lt)   display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; patch_lt ;;
     patch-rt)   display_env_vars; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_rt ;;
     patch-ltrt) display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_lt_rt ;;
-    build-lt)   display_env_vars; build_lt ;;
-    build-rt)   display_env_vars; build_rt ;;
-    build-ltrt) display_env_vars; build_lt_rt ;;
-    patchbuild) display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_lt_rt; build_lt_rt; add_version_info ;;
+    build-lt)   set_compiler_flags; display_env_vars; build_lt ;;
+    build-rt)   set_compiler_flags; display_env_vars; build_rt ;;
+    build-ltrt) set_compiler_flags; display_env_vars; build_lt_rt ;;
+    patchbuild) set_compiler_flags; display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_lt_rt; build_lt_rt; add_version_info ;;
     clean-up)   clean_up ;;
     ver-info)   add_version_info ;;
     sm-home)    symlink_binary_home ;;
@@ -707,7 +772,7 @@ case "$1" in
     check-home) check "$HOME" ;;
     check-inst) check "$ROOT_SYS_DIR" ;;
     *)
-        echo >&2 "${BOLD}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git])$OFF"
+        echo >&2 "${BOLD}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git] | vanilla [git])$OFF"
         echo >&2 "Build $RT_CH_TITLE $RT_CH_VERSION $RT_VERSION/$LT_VERSION into $(sed -e s:$HOME/:~/: <<<$INST_DIR)"
         echo >&2
         echo >&2 "Custom environment variables:"
