@@ -244,16 +244,16 @@ OFF="$ESC[0m"
 # HELPERS
 #
 
-bold() { # Display bold message
+bold() { # [message] : Display bold message
     echo "$BOLD$1$OFF"
 }
 
-fail() { # Display bold message and exit immediately
+fail() { # [message] : Display bold message and exit immediately
     bold "ERROR: $@"
     exit 1
 }
 
-clean() { # Clean up generated files in directory of packages
+clean() { # [package-version] : Clean up generated files in directory of packages
     for i in $SUBDIRS; do
         [[ -n "$1" && ! "$i" = "$1" ]] && continue
         sdir=${i%%-*}
@@ -261,7 +261,7 @@ clean() { # Clean up generated files in directory of packages
     done
 }
 
-clean_all() { # Remove all created directories in the working directory
+clean_all() { # [package-version] : Remove all created directories in the working directory
     [[ -d $TARBALLS_DIR ]] && [[ -f $TARBALLS_DIR/DONE-PKG ]] && rm -f $TARBALLS_DIR/DONE-PKG >/dev/null
     for i in $SUBDIRS; do
         [[ -n "$1" && ! "$i" = "$1" ]] && continue
@@ -310,7 +310,7 @@ prep() { # Check dependency and create basic directories
     mkdir -p $TARBALLS_DIR
 }
 
-check_hash() { # md5 hashcheck downloaded packages
+check_hash() { # [package-version.tar.gz] : md5 hashcheck downloaded packages
     for srchash in ${SRC_PKG_HASHES[@]}; do
         pkg=${srchash%%:*}
         hash=${srchash##*:}
@@ -322,7 +322,7 @@ check_hash() { # md5 hashcheck downloaded packages
     done
 }
 
-download() { # Download and unpack sources
+download() { # [package-version] : Download and unpack sources
     [[ -d $TARBALLS_DIR ]] && [[ -f $TARBALLS_DIR/DONE-PKG ]] && rm -f $TARBALLS_DIR/DONE-PKG >/dev/null
 
     if [ -n "$XMLRPC_SVN_URL" ]; then
@@ -360,7 +360,7 @@ download() { # Download and unpack sources
     touch $TARBALLS_DIR/DONE-PKG
 }
 
-download_git() { # Download from GitHub
+download_git() { # owner project commit|branch : Download from GitHub
     owner="$1"; repo="$2"; repo_ver="$3";
     url="https://github.com/$owner/$repo/archive/$repo_ver.tar.gz"
     [[ -f $TARBALLS_DIR/$repo-$repo_ver.tar.gz ]] || ( echo "Getting $repo-$repo_ver.tar.gz" && command cd $TARBALLS_DIR && curl $CURL_OPTS -o $repo-$repo_ver.tar.gz $url )
@@ -599,7 +599,7 @@ symlink_binary_inst() { # Symlink binary after it's installed into $ROOT_PKG_DIR
     cd "$SRC_DIR"
 }
 
-check() { # Print some diagnostic success indicators
+check() { # root_dir : Print some diagnostic success indicators
     if [ "$1" == "$HOME" ]; then
         echo "$1/lib/$RT_CH_DIRNAME" "->" $(readlink $1/lib/$RT_CH_DIRNAME) | sed -e "s:$1:~:g"
         echo "$1/bin/rtorrent${VANILLA_POSTFIX}" "->" $(readlink $1/bin/rtorrent${VANILLA_POSTFIX}) | sed -e "s:$1:~:g"
@@ -649,7 +649,7 @@ package_prep() { # make $PACKAGE_ROOT lean and mean
     rm -rf "$DIST_DIR" && mkdir -p "$DIST_DIR"
 }
 
-call_fpm() { # Helper function for pkg2* functions
+call_fpm() { # command_line_params : Helper function for pkg2* functions
     fpm -s dir -n "${fpm_pkg_name:-$RT_CH_DIRNAME}" \
         -v "$RT_CH_VERSION-$RT_PS_VERSION" --iteration "$fpm_iteration" \
         -m "\"$DEBFULLNAME\" <$DEBEMAIL>" \
