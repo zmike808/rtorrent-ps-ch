@@ -139,6 +139,10 @@ You should run these under your normal user account:
    cd ~ && mkdir -p ~/bin ~/.local
    git clone "https://github.com/pyroscope/pyrocore.git" ~/.local/pyroscope
    ~/.local/pyroscope/update-to-head.sh
+   touch ~/.bash_completion
+   grep /\.pyroscope/ ~/.bash_completion >/dev/null || \
+       echo >>.bash_completion ". ~/.pyroscope/bash-completion.default"
+   . /etc/bash_completion
 
 You can check whether all went well with:
 
