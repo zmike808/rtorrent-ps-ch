@@ -17,7 +17,7 @@ Installing build dependencies
 
 First, you need to install a few **required** packages — **and no, this is not optional in any way**. They require about ``300 MB`` disk space. These steps must be performed by the ``root`` user (i.e. in a root shell, or by writing ``sudo`` before the actual command):
 
-.. code-block::
+.. code-block:: shell
 
    apt-get update
    apt-get install sudo tmux coreutils binutils build-essential subversion git time \
@@ -32,7 +32,7 @@ Note about ``tmux``
 
 After that all you need is to place a `.tmux.conf <https://raw.githubusercontent.com/chros73/rtorrent-ps_setup/master/ubuntu-14.04/home/chros73/.tmux.conf>`_ like that in your home directory (can be ``root`` or a regular user) and you can already run ``tmux``: 
 
-.. code-block::
+.. code-block:: shell
 
    cd ~; curl -sLSO https://raw.githubusercontent.com/chros73/rtorrent-ps_setup/master/ubuntu-14.04/home/chros73/.tmux.conf
    tmux
@@ -54,7 +54,7 @@ It has to be compiled this way first. Build script creates local CPU optimized c
 
 It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rtorrent-ps-ch*`` directory and create symlink to it in ``~/bin/`` directory.
 
-.. code-block::
+.. code-block:: shell
 
    mkdir -p ~/src/; cd ~/src/
    git clone https://github.com/chros73/rtorrent-ps-ch.git
@@ -63,7 +63,7 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rt
 
 If you want to turn off optimization for some reason (e.g. packaging the build) it can be done by rebuilding it with:
 
-.. code-block::
+.. code-block:: shell
 
    OPTIMIZE_BUILD=no time nice -n 19 ./build.sh ch
 
@@ -75,7 +75,7 @@ You need ``root access`` for this.
 
 It installs (copies) the compiled ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent-ps-ch*`` directory and creates  symlink to it in ``/usr/local/bin/`` directory.
 
-.. code-block::
+.. code-block:: shell
 
    sudo ./build.sh install
 
@@ -85,7 +85,7 @@ Creating deb package
 
 You can even ``create a package`` of an unoptimized, installed build with ``fpm`` if you like (so you can distribute it later):
 
-.. code-block::
+.. code-block:: shell
 
    DEBFULLNAME="yourname" DEBEMAIL="youremailaddress" ./build.sh pkg2deb
 
@@ -97,7 +97,7 @@ Creating Arch Linux package
 
 You can even ``create a package`` of an unoptimized, installed build with ``pacman`` (``fpm`` from the AUR should be used!) if you like (so you can distribute it later):
 
-.. code-block::
+.. code-block:: shell
 
    DEBFULLNAME="yourname" DEBEMAIL="youremailaddress" ./build.sh pkg2pacman
 
@@ -111,7 +111,7 @@ You can even build an optimized version of vanilla ``rtorrent`` (only including 
 
 It will build the binary including some libraries into ``~/lib/rtorrent-ps-ch-vanilla*`` directory and create symlink to it in ``~/bin/`` directory. (Note that installing, packaging a vanilla build is not supported.)
 
-.. code-block::
+.. code-block:: shell
 
    time nice -n 19 ./build.sh vanilla
 
@@ -123,7 +123,7 @@ Check the result by running ``rtorrent`` (you don't need a config file for this)
 
 You can delete the ``~/src/rtorrent-ps-ch/`` directory later if all went well with:
 
-.. code-block::
+.. code-block:: shell
 
    cd ~ && [ -d ~/src/rtorrent-ps-ch/ ] && rm -rf ~/src/rtorrent-ps-ch/
 
@@ -134,7 +134,7 @@ Install ``pyrocore`` utils for regular user
 
 You should run these under your normal user account:
 
-.. code-block::
+.. code-block:: shell
 
    cd ~ && mkdir -p ~/bin ~/.local
    git clone "https://github.com/pyroscope/pyrocore.git" ~/.local/pyroscope
@@ -146,13 +146,13 @@ You should run these under your normal user account:
 
 You can check whether all went well with:
 
-.. code-block::
+.. code-block:: shell
 
    pyroadmin --version
 
 If you want to update ``pyrocore`` utils later:
 
-.. code-block::
+.. code-block:: shell
 
    cd ~/.local && tar -czf pyroscope-$(date +'%Y-%m-%d').tar.gz pyroscope    # make backup first
    cd ~ && ~/.local/pyroscope/update-to-head.sh                              # update it
