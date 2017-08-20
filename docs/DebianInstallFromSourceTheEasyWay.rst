@@ -73,7 +73,7 @@ Install it into system
 
 You need ``root access`` for this.
 
-It installs (copies) the compiled ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent-ps-ch*`` directory and creates  symlink to it in ``/usr/local/bin/`` directory.
+It installs (copies) the compiled ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent-ps-ch*`` directory and creates  symlink to it in ``/usr/local/bin/`` directory. (More `hint <https://wiki.debian.org/sudo>`_ about ``sudo`` for Debian.)
 
 .. code-block:: shell
 
