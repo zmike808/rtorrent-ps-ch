@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.6.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.6.1-0.9.7) (2017-12-10)
+**Implemented enhancements:**
+
+- IPv4 filter enhancement [\#112](https://github.com/chros73/rtorrent-ps-ch/issues/112)
+
 ## [1.6.0-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.6.0-0.9.7) (2017-08-20)
 **Implemented enhancements:**
 
