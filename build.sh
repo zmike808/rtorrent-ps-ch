@@ -166,6 +166,7 @@ esac
 
 
 set_compiler_flags() { # Set final compiler flags
+    export CPPFLAGS="-I $build_dir/include${CPPFLAGS:+ }${CPPFLAGS}"	# required by libtorrent with libcurl
     export PKG_CONFIG_PATH="$build_dir/lib/pkgconfig${PKG_CONFIG_PATH:+:}${PKG_CONFIG_PATH}"
     export LDFLAGS="-Wl,-rpath,'\$\$ORIGIN/../lib' -Wl,-rpath,'\$\$ORIGIN/../lib/$rt_ps_ch_dirname/lib'${LDFLAGS:+ }${LDFLAGS}"
     [[ -z "${CXXFLAGS+x}" ]] && [[ -z "${CFLAGS+x}" ]] || \
@@ -179,6 +180,7 @@ display_env_vars() { # Display env vars
     echo
     printf 'optimize_build="%s"\n'            "${optimize_build}"
     printf 'export PKG_CONFIG_PATH="%s"\n'    "${PKG_CONFIG_PATH}"
+    printf 'export CPPFLAGS="%s"\n'           "${CPPFLAGS}"
     printf 'export LDFLAGS="%s"\n'            "${LDFLAGS}"
     [[ -z "${CFLAGS+x}" ]] || \
         printf 'export CFLAGS="%s"\n'         "${CFLAGS}"
@@ -421,14 +423,15 @@ build_curl() { # Build direct dependency: curl
 
     bold '~~~~~~~~~~~~~~~~~~~~~~~~   Building curl   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     ( set +x ; cd "curl-$curl_version" \
-        && ./configure --prefix="$build_dir" --enable-ares="$build_dir" --with-ssl --without-nss --without-libssh2 --without-librtmp --without-libidn2 \
-             --disable-ntlm-wb --disable-sspi --disable-threaded-resolver --disable-libcurl-option --disable-manual --disable-gopher --disable-smtp --disable-file \
-             --disable-smb --disable-imap --disable-pop3 --disable-tftp --disable-telnet --disable-dict --disable-rtsp --disable-ldap --disable-ftp \
+        && ./configure --prefix="$build_dir" --enable-ares="$build_dir" --with-ssl \
         && $make_bin $make_opts \
         && $make_bin install \
         || fail "during building 'curl'!" )
 
     touch "$tarballs_dir/DONE-curl"
+#        && ./configure --prefix="$build_dir" --enable-ares="$build_dir" --with-ssl --without-nss --without-libssh2 --without-librtmp --without-libidn2 \
+#             --disable-ntlm-wb --disable-sspi --disable-threaded-resolver --disable-libcurl-option --disable-manual --disable-gopher --disable-smtp --disable-file \
+#             --disable-smb --disable-imap --disable-pop3 --disable-tftp --disable-telnet --disable-dict --disable-rtsp --disable-ldap --disable-ftp \
 }
 
 build_xmlrpc() { # Build direct dependency: xmlrpc-c
