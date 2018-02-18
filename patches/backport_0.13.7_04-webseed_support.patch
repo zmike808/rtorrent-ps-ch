@@ -1,0 +1,921 @@
+--- configure.ac	2018-02-18 12:27:25.642011761 +0000
++++ configure.ac	2018-02-18 12:30:38.740965654 +0000
+@@ -21,6 +21,7 @@ AM_INIT_AUTOMAKE
+ AC_CONFIG_HEADERS(config.h)
+ 
+ AC_PROG_CXX
++AC_PROG_LIBTOOL
+ 
+ AC_C_BIGENDIAN(
+     AC_DEFINE(IS_BIG_ENDIAN, 1, Big endian),
+@@ -62,10 +63,11 @@ AX_PTHREAD
+ AX_CHECK_ZLIB
+ 
+ PKG_CHECK_MODULES([CPPUNIT], [cppunit],, [no_cppunit="yes"])
++PKG_CHECK_MODULES([DEPENDENCIES], [libcurl >= 7.15.4])
+ 
+-CFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CFLAGS"
+-CXXFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
+-LIBS="$PTHREAD_LIBS $CPPUNIT_LIBS $LIBS"
++CFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $DEPENDENCIES_CFLAGS $CFLAGS"
++CXXFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $DEPENDENCIES_CXXFLAGS $CXXFLAGS"
++LIBS="$PTHREAD_LIBS $CPPUNIT_LIBS $DEPENDENCIES_LIBS $LIBS"
+ 
+ TORRENT_ARG_OPENSSL
+ TORRENT_ARG_CYRUS_RC4
+@@ -84,9 +86,6 @@ TORRENT_DISABLE_INSTRUMENTATION
+ LIBTORRENT_LIBS="-ltorrent"
+ AC_SUBST(LIBTORRENT_LIBS)
+ 
+-LIBTORRENT_CFLAGS=""
+-AC_SUBST(LIBTORRENT_CFLAGS)
+-
+ AC_DEFINE(HAVE_CONFIG_H, 1, true if config.h was included)
+ 
+ CC_ATTRIBUTE_UNUSED(
+--- libtorrent.pc.in	2018-02-18 12:04:25.129490639 +0000
++++ libtorrent.pc.in	2018-02-18 11:34:46.692458593 +0000
+@@ -7,4 +7,5 @@ Name: libtorrent
+ Description: A BitTorrent library
+ Version: @VERSION@
+ Libs: -L${libdir} -ltorrent
++Libs.private: -lcurl
+ Cflags: -I${includedir}
+--- src/download/download_constructor.cc
++++ src/download/download_constructor.cc
+@@ -48,6 +48,7 @@
+ #include "torrent/object.h"
+ #include "torrent/tracker_controller.h"
+ #include "torrent/tracker_list.h"
++#include "torrent/webseed_controller.h"
+ #include "torrent/data/file.h"
+ #include "torrent/data/file_list.h"
+ 
+@@ -209,6 +210,11 @@ DownloadConstructor::parse_tracker(const Object& b) {
+     std::for_each(b.get_key_list("nodes").begin(), b.get_key_list("nodes").end(),
+                   rak::make_mem_fun(this, &DownloadConstructor::add_dht_node));
+ 
++  if (b.has_key_list("url-list"))
++  {
++    std::for_each(b.get_key_list("url-list").begin(), b.get_key_list("url-list").end(), rak::make_mem_fun(this, &DownloadConstructor::add_webseed_url));
++  }
++
+   m_download->main()->tracker_list()->randomize_group_entries();
+ }
+ 
+@@ -248,6 +254,17 @@ DownloadConstructor::add_dht_node(const Object& b) {
+   manager->dht_manager()->add_node(host, el->as_value());
+ }
+ 
++void
++DownloadConstructor::add_webseed_url(const Object& b) {
++  if (!b.is_string())
++    return;
++
++  std::string url = b.as_string();
++  m_download->main()->webseed_controller()->add_url(url);
++  m_download->main()->tracker_list()->insert_url(m_download->main()->tracker_list()->size_group(), "webseed:" + url);
++}
++
++
+ bool
+ DownloadConstructor::is_valid_path_element(const Object& b) {
+   return
+--- src/download/download_constructor.h
++++ src/download/download_constructor.h
+@@ -69,6 +69,7 @@ class DownloadConstructor {
+   void                add_tracker_group(const Object& b);
+   void                add_tracker_single(const Object& b, int group);
+   void                add_dht_node(const Object& b);
++  void                add_webseed_url(const Object& b);
+ 
+   static bool         is_valid_path_element(const Object& b);
+   static bool         is_invalid_path_element(const Object& b) { return !is_valid_path_element(b); }
+--- src/download/download_main.cc
++++ src/download/download_main.cc
+@@ -57,6 +57,7 @@
+ #include "torrent/peer/peer_info.h"
+ #include "torrent/tracker_controller.h"
+ #include "torrent/tracker_list.h"
++#include "torrent/webseed_controller.h"
+ #include "torrent/utils/log.h"
+ 
+ #include "available_list.h"
+@@ -105,6 +106,8 @@ DownloadMain::DownloadMain() :
+   m_tracker_list = new TrackerList();
+   m_tracker_controller = new TrackerController(m_tracker_list);
+ 
++  m_webseed_controller = new WebseedController(this);
++
+   m_tracker_list->slot_success() = std::bind(&TrackerController::receive_success, m_tracker_controller, std::placeholders::_1, std::placeholders::_2);
+   m_tracker_list->slot_failure() = std::bind(&TrackerController::receive_failure, m_tracker_controller, std::placeholders::_1, std::placeholders::_2);
+   m_tracker_list->slot_scrape_success() = std::bind(&TrackerController::receive_scrape, m_tracker_controller, std::placeholders::_1);
+--- src/download/download_main.h
++++ src/download/download_main.h
+@@ -64,6 +64,7 @@ class DownloadWrapper;
+ class HandshakeManager;
+ class TrackerController;
+ class TrackerList;
++class WebseedController;
+ class DownloadInfo;
+ class ThrottleList;
+ class InitialSeeding;
+@@ -89,6 +90,8 @@ class DownloadMain {
+   TrackerController*  tracker_controller()                       { return m_tracker_controller; }
+   TrackerList*        tracker_list()                             { return m_tracker_list; }
+ 
++  WebseedController*  webseed_controller()                       { return m_webseed_controller; }
++
+   DownloadInfo*       info()                                     { return m_info; }
+ 
+   // Only retrieve writable chunks when the download is active.
+@@ -174,6 +177,8 @@ class DownloadMain {
+   TrackerController*  m_tracker_controller;
+   TrackerList*        m_tracker_list;
+ 
++  WebseedController*  m_webseed_controller;
++
+   class choke_group*  m_choke_group;
+ 
+   group_entry         m_up_group_entry;
+--- src/torrent/Makefile.am
++++ src/torrent/Makefile.am
+@@ -56,7 +56,9 @@ libsub_torrent_la_SOURCES = \
+ 	tracker_controller.cc \
+ 	tracker_controller.h \
+ 	tracker_list.cc \
+-	tracker_list.h
++	tracker_list.h \
++        webseed_controller.cc \
++        webseed_controller.h
+ 
+ AM_CPPFLAGS = -I$(srcdir) -I$(srcdir)/.. -I$(top_srcdir)
+ 
+@@ -88,4 +90,5 @@ libtorrentinclude_HEADERS = \
+ 	torrent.h \
+ 	tracker.h \
+ 	tracker_controller.h \
+-	tracker_list.h
++	tracker_list.h \
++        webseed_controller.h
+--- src/torrent/data/file_list.h
++++ src/torrent/data/file_list.h
+@@ -62,6 +62,7 @@ class LIBTORRENT_EXPORT FileList : private std::vector<File*> {
+   friend class DownloadMain;
+   friend class DownloadWrapper;
+   friend class Handshake;
++  friend class WebseedController;
+ 
+   typedef std::vector<File*>            base_type;
+   typedef std::vector<std::string>      path_list;
+--- src/torrent/download.cc
++++ src/torrent/download.cc
+@@ -58,6 +58,7 @@
+ #include "torrent/data/file.h"
+ #include "torrent/peer/connection_list.h"
+ #include "torrent/tracker_controller.h"
++#include "torrent/webseed_controller.h"
+ #include "torrent/tracker_list.h"
+ #include "torrent/utils/log.h"
+ 
+@@ -171,6 +172,8 @@ Download::start(int flags) {
+ 
+   if (!(flags & start_skip_tracker))
+     m_ptr->main()->tracker_controller()->send_start_event();
++
++  m_ptr->main()->webseed_controller()->start();
+ }
+ 
+ void
+@@ -186,6 +189,8 @@ Download::stop(int flags) {
+     m_ptr->main()->tracker_controller()->send_stop_event();
+ 
+   m_ptr->main()->tracker_controller()->disable();
++
++  m_ptr->main()->webseed_controller()->stop();
+ }
+ 
+ bool
+--- src/torrent/tracker.h
++++ src/torrent/tracker.h
+@@ -55,6 +55,7 @@ class LIBTORRENT_EXPORT Tracker {
+     TRACKER_HTTP,
+     TRACKER_UDP,
+     TRACKER_DHT,
++    TRACKER_WEBSEED
+   } Type;
+ 
+   enum tracker_event {
+--- src/torrent/tracker_list.cc
++++ src/torrent/tracker_list.cc
+@@ -46,6 +46,7 @@
+ #include "tracker/tracker_dht.h"
+ #include "tracker/tracker_http.h"
+ #include "tracker/tracker_udp.h"
++#include "tracker/tracker_webseed.h"
+ 
+ #include "globals.h"
+ #include "exceptions.h"
+@@ -203,6 +204,9 @@ TrackerList::insert_url(unsigned int group, const std::string& url, bool extra_t
+   } else if (std::strncmp("dht://", url.c_str(), 6) == 0 && TrackerDht::is_allowed()) {
+     tracker = new TrackerDht(this, url, flags);
+ 
++  } else if (std::strncmp("webseed:", url.c_str(), 8) == 0) {
++    tracker = new TrackerWebseed(this, url, flags);
++
+   } else {
+     LT_LOG_TRACKER(WARN, "could find matching tracker protocol (url:%s)", url.c_str());
+ 
+--- /dev/null
++++ src/torrent/webseed_controller.cc
+@@ -0,0 +1,244 @@
++// libTorrent - BitTorrent library
++// Copyright (C) 2005-2011, Jari Sundell
++//
++// This program is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++// 
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++// 
++// You should have received a copy of the GNU General Public License
++// along with this program; if not, write to the Free Software
++// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++//
++// In addition, as a special exception, the copyright holders give
++// permission to link the code of portions of this program with the
++// OpenSSL library under certain conditions as described in each
++// individual source file, and distribute linked combinations
++// including the two.
++//
++// You must obey the GNU General Public License in all respects for
++// all of the code used other than OpenSSL.  If you modify file(s)
++// with this exception, you may extend this exception to your version
++// of the file(s), but you are not obligated to do so.  If you do not
++// wish to do so, delete this exception statement from your version.
++// If you delete this exception statement from all source files in the
++// program, then also delete it here.
++//
++// Contact:  Jari Sundell <jaris@ifi.uio.no>
++//
++//           Skomakerveien 33
++//           3185 Skoppum, NORWAY
++
++#include "webseed_controller.h"
++
++#include "config.h"
++
++#include <cstring>
++#include <algorithm>
++
++#include <curl/curl.h>
++
++#include "utils/log.h"
++#include "torrent/utils/log.h"
++#include "protocol/peer_chunks.h"
++#include "download/download_main.h"
++#include "download/chunk_selector.h"
++#include "torrent/data/file_list.h"
++#include "torrent/data/block.h"
++#include "torrent/data/block_list.h"
++#include "torrent/throttle.h"
++#include "data/chunk_list.h"
++#include "data/hash_chunk.h"
++#include "protocol/request_list.h"
++#include "manager.h"
++#include "torrent/download/download_manager.h"
++#include "download/download_wrapper.h"
++
++namespace torrent {
++
++WebseedController::WebseedController(DownloadMain* download) : m_download(download), m_allChunks(new PeerChunks)
++{
++}
++
++WebseedController::~WebseedController() {
++  m_thread_stop = true;
++  if (m_thread.joinable()) m_thread.join();
++}
++
++void WebseedController::add_url(const url_type& url) {
++  m_url_list.push_back(url);
++}
++
++void WebseedController::start()
++{
++  if(!url_list()->empty()) {
++    m_thread_stop = false;
++    m_thread = std::thread(&WebseedController::doWebseed, this);
++  }
++}
++
++void WebseedController::stop()
++{
++  m_thread_stop = true;
++  if (m_thread.joinable()) m_thread.join();
++}
++
++void WebseedController::doWebseed()
++{
++  lt_log_print(LOG_INFO, "webseed: thread started for %s", m_download->info()->name().c_str());
++
++  //webseeds have all chunks
++  m_allChunks->bitfield()->copy(*m_download->file_list()->bitfield());
++  m_allChunks->bitfield()->set_all();
++
++  m_working_url_list = m_url_list;
++  std::random_shuffle(m_working_url_list.begin(), m_working_url_list.end());
++
++  uint32_t chunk_index;
++  while (!m_thread_stop &&
++         !m_working_url_list.empty() &&  
++         (chunk_index = m_download->chunk_selector()->find(&(*m_allChunks), false)) != Piece::invalid_index)
++  {
++    std::string url = m_working_url_list.front();
++
++    bool success = download_chunk(chunk_index, url);
++
++    if (!success)
++    {
++      m_working_url_list.erase(m_working_url_list.begin());
++    }
++  }
++}
++
++bool WebseedController::download_chunk(const uint32_t chunk_index, const std::string& url_base)
++{
++  uint32_t chunk_size = m_download->file_list()->chunk_index_size(chunk_index);
++  Piece piece(chunk_index, 0, chunk_size);
++
++  static const int chunk_flags = ChunkList::get_writable;
++  ChunkHandle chunk_handle = m_download->chunk_list()->get(chunk_index, chunk_flags);
++
++  TransferList::iterator blockListItr = m_download->delegator()->transfer_list()->insert(piece, Delegator::block_size);
++
++  lt_log_print(LOG_DEBUG, "webseed: getting chunk_index %u size %u", chunk_index, chunk_size);
++  
++  bool success = true;
++  std::for_each(chunk_handle.chunk()->begin(), chunk_handle.chunk()->end(),
++                [&](const ChunkPart& part){ success &= download_chunk_part(part, url_base); });
++
++  m_download->delegator()->transfer_list()->erase(blockListItr);
++
++  if (success)
++  {
++    DownloadWrapper* wrapper = *manager->download_manager()->find(m_download->info());
++
++    char hash[HashString::size_data];
++    HashChunk hash_chunk(chunk_handle);
++    hash_chunk.perform(hash_chunk.remaining(), false);
++    hash_chunk.hash_c(&hash[0]);
++    lt_log_print(LOG_DEBUG, "webseed: chunk hash check. should be %s was %s",
++      hash_string_to_hex_str(*HashString::cast_from(wrapper->chunk_hash(chunk_handle.index()))).c_str(),
++      hash_string_to_hex_str(*HashString::cast_from(hash)).c_str());
++
++    if (std::memcmp(hash, wrapper->chunk_hash(chunk_index), HashString::size_data) == 0)
++      m_download->file_list()->mark_completed(chunk_index);
++    else
++      success = false;
++
++    if (m_download->file_list()->is_done())
++      if (!m_download->delay_download_done().is_queued())
++        priority_queue_insert(&taskScheduler, &m_download->delay_download_done(), cachedTime);
++  }
++
++  m_download->chunk_list()->release(&chunk_handle, chunk_flags);
++
++  return success;
++}
++
++bool WebseedController::download_chunk_part(const ChunkPart& chunk_part, const std::string& url_base)
++{
++  const std::string& absolute_file_path = chunk_part.file()->frozen_path();
++  const std::string& root_dir = m_download->file_list()->root_dir();
++  std::string relative_file_path = absolute_file_path;
++  relative_file_path.replace(relative_file_path.find(root_dir),root_dir.length(),"");
++
++  lt_log_print(LOG_DEBUG, "webseed: chunk_part mapped to file %s offset %u length %u",
++                          relative_file_path.c_str(), chunk_part.file_offset(), chunk_part.size());
++
++  std::string http_url = url_base + m_download->info()->name() + relative_file_path;
++  int success = download_to_buffer(chunk_part.chunk().begin(), http_url, chunk_part.file_offset(), chunk_part.size());
++
++  m_download->info()->mutable_down_rate()->insert(chunk_part.size());
++  m_download->download_throttle()->node_used(m_allChunks->download_throttle(), chunk_part.size());
++
++  return success;
++} 
++
++bool WebseedController::download_to_buffer
++(
++  char* buffer,
++  const std::string& url,
++  const int offset,
++  const int length
++)
++{
++  bool success = false;
++
++  int end = offset + length - 1;
++  std::string range_str = std::to_string(offset) + "-" + std::to_string(end);
++
++  lt_log_print(LOG_DEBUG, "webseed: curl %s %s", url.c_str(), range_str.c_str());
++
++  WebseedDownloadBuffer downloadBuffer(buffer, length);
++
++  CURL* curl = curl_easy_init();
++  if (!curl) {
++    lt_log_print(LOG_ERROR, "webseed: curl init failed");
++  } else {
++    curl_easy_setopt(curl, CURLOPT_RANGE, range_str.c_str());
++    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
++    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
++
++    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &WebseedDownloadBuffer::receiveBytesCallback);
++    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&downloadBuffer);
++
++    CURLcode res = curl_easy_perform(curl);
++
++    if(res != CURLE_OK) {
++      lt_log_print(LOG_ERROR, "webseed: curl failed to retreive %s: %s", url.c_str(), curl_easy_strerror(res));
++    } else {
++      lt_log_print(LOG_DEBUG, "webseed: curl received %u bytes", downloadBuffer.getBytesWritten());
++      success = true;
++    }
++
++    curl_easy_cleanup(curl);
++  }
++
++  return success;
++}
++
++
++WebseedDownloadBuffer::WebseedDownloadBuffer(char* buffer, size_t size) :
++  m_buffer(buffer), m_buffer_size(size), m_position(0)
++{ }
++
++size_t WebseedDownloadBuffer::receiveBytesCallback(void *contents, size_t size, size_t nmemb, void *userp) {
++  WebseedDownloadBuffer* downloadBuffer = (WebseedDownloadBuffer*)userp;
++  return downloadBuffer->receiveBytes(contents, size * nmemb);
++}
++
++size_t WebseedDownloadBuffer::receiveBytes(void* contents, size_t realsize)
++{
++  if (m_position + realsize > m_buffer_size) return 0;
++
++  memcpy(&(m_buffer[m_position]), contents, realsize);
++  m_position += realsize;
++  return realsize;
++}
++
++}
+--- /dev/null
++++ src/torrent/webseed_controller.h
+@@ -0,0 +1,111 @@
++// libTorrent - BitTorrent library
++// Copyright (C) 2005-2011, Jari Sundell
++//
++// This program is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++// 
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++// 
++// You should have received a copy of the GNU General Public License
++// along with this program; if not, write to the Free Software
++// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++//
++// In addition, as a special exception, the copyright holders give
++// permission to link the code of portions of this program with the
++// OpenSSL library under certain conditions as described in each
++// individual source file, and distribute linked combinations
++// including the two.
++//
++// You must obey the GNU General Public License in all respects for
++// all of the code used other than OpenSSL.  If you modify file(s)
++// with this exception, you may extend this exception to your version
++// of the file(s), but you are not obligated to do so.  If you do not
++// wish to do so, delete this exception statement from your version.
++// If you delete this exception statement from all source files in the
++// program, then also delete it here.
++//
++// Contact:  Jari Sundell <jaris@ifi.uio.no>
++//
++//           Skomakerveien 33
++//           3185 Skoppum, NORWAY
++
++#ifndef LIBTORRENT_WEBSEED_CONTROLLER_H
++#define LIBTORRENT_WEBSEED_CONTROLLER_H
++
++#include <string>
++#include <thread>
++#include <vector>
++#include <atomic>
++#include <memory>
++
++#include <torrent/common.h>
++
++class WebseedControllerTest;
++
++namespace torrent {
++
++class ChunkPart;
++class PeerChunks;
++
++class WebseedDownloadBuffer {
++public:
++  WebseedDownloadBuffer(char* buffer, size_t size);
++  static size_t receiveBytesCallback(void *contents, size_t size, size_t nmemb, void *userp);
++  size_t getBytesWritten() { return m_position; }
++
++private:
++  size_t receiveBytes(void* contents, size_t realsize);
++
++  char* m_buffer;
++  size_t m_buffer_size;
++  size_t m_position;
++};
++
++class LIBTORRENT_EXPORT WebseedController {
++  friend WebseedControllerTest;
++
++public:
++  typedef std::string url_type;
++  typedef std::vector<url_type> url_list_type;
++
++  WebseedController(DownloadMain* download);
++  ~WebseedController();
++
++  void add_url(const url_type& url);
++  const url_list_type* url_list() const { return &m_url_list; }
++
++  void start();
++  void stop();
++
++  void doWebseed();
++
++private:
++  bool download_to_buffer
++  (
++    char* buffer,
++    const std::string& url,
++    const int offset,
++    const int length
++  );
++
++  bool download_chunk_part(const ChunkPart& chunk_part, const std::string& url_base);
++  bool download_chunk(const uint32_t chunk_index, const std::string& url_base);
++
++  DownloadMain*    m_download;
++  url_list_type    m_url_list;
++  url_list_type    m_working_url_list;
++
++  std::atomic_bool m_thread_stop;
++  std::thread      m_thread;
++
++  std::unique_ptr<PeerChunks> m_allChunks;
++};
++
++}
++
++#endif
+--- src/tracker/Makefile.am
++++ src/tracker/Makefile.am
+@@ -6,6 +6,8 @@ libsub_tracker_la_SOURCES = \
+ 	tracker_http.cc \
+ 	tracker_http.h \
+ 	tracker_udp.cc \
+-	tracker_udp.h
++	tracker_udp.h \
++        tracker_webseed.cc \
++        tracker_webseed.h
+ 
+ AM_CPPFLAGS = -I$(srcdir) -I$(srcdir)/.. -I$(top_srcdir)
+--- /dev/null
++++ src/tracker/tracker_webseed.cc
+@@ -0,0 +1,109 @@
++// libTorrent - BitTorrent library
++// Copyright (C) 2005-2011, Jari Sundell
++//
++// This program is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++// 
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++// 
++// You should have received a copy of the GNU General Public License
++// along with this program; if not, write to the Free Software
++// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++//
++// In addition, as a special exception, the copyright holders give
++// permission to link the code of portions of this program with the
++// OpenSSL library under certain conditions as described in each
++// individual source file, and distribute linked combinations
++// including the two.
++//
++// You must obey the GNU General Public License in all respects for
++// all of the code used other than OpenSSL.  If you modify file(s)
++// with this exception, you may extend this exception to your version
++// of the file(s), but you are not obligated to do so.  If you do not
++// wish to do so, delete this exception statement from your version.
++// If you delete this exception statement from all source files in the
++// program, then also delete it here.
++//
++// Contact:  Jari Sundell <jaris@ifi.uio.no>
++//
++//           Skomakerveien 33
++//           3185 Skoppum, NORWAY
++
++#include "config.h"
++
++#include <sstream>
++#include <cstdio>
++
++#include "dht/dht_router.h"
++#include "torrent/connection_manager.h"
++#include "torrent/download_info.h"
++#include "torrent/dht_manager.h"
++#include "torrent/exceptions.h"
++#include "torrent/tracker_list.h"
++#include "torrent/utils/log.h"
++
++#include "tracker_webseed.h"
++
++#include "globals.h"
++#include "manager.h"
++
++namespace torrent {
++
++const char* TrackerWebseed::states[] = { "Idle", "Downloading" };
++
++TrackerWebseed::TrackerWebseed(TrackerList* parent, const std::string& url, int flags) :
++  Tracker(parent, url, flags),
++  m_state(state_idle) {
++}
++
++TrackerWebseed::~TrackerWebseed() {
++}
++
++bool
++TrackerWebseed::is_busy() const {
++  return m_state != state_idle;
++}
++
++bool
++TrackerWebseed::is_usable() const {
++  return true; 
++}
++
++void
++TrackerWebseed::send_state(int state) {
++  if (m_parent == NULL)
++    throw internal_error("TrackerWebseed::send_state(...) does not have a valid m_parent.");
++
++  m_latest_event = state;
++
++  if (state == DownloadInfo::STOPPED)
++    return;
++
++}
++
++void
++TrackerWebseed::close() {
++}
++
++void
++TrackerWebseed::disown() {
++  close();
++}
++
++TrackerWebseed::Type
++TrackerWebseed::type() const {
++  return TRACKER_WEBSEED;
++}
++
++void
++TrackerWebseed::get_status(char* buffer, int length) {
++  if (!is_busy())
++    throw internal_error("TrackerWebseed::get_status called while not busy.");
++}
++
++}
+--- /dev/null
++++ src/tracker/tracker_webseed.h
+@@ -0,0 +1,75 @@
++// libTorrent - BitTorrent library
++// Copyright (C) 2005-2011, Jari Sundell
++//
++// This program is free software; you can redistribute it and/or modify
++// it under the terms of the GNU General Public License as published by
++// the Free Software Foundation; either version 2 of the License, or
++// (at your option) any later version.
++// 
++// This program is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++// 
++// You should have received a copy of the GNU General Public License
++// along with this program; if not, write to the Free Software
++// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++//
++// In addition, as a special exception, the copyright holders give
++// permission to link the code of portions of this program with the
++// OpenSSL library under certain conditions as described in each
++// individual source file, and distribute linked combinations
++// including the two.
++//
++// You must obey the GNU General Public License in all respects for
++// all of the code used other than OpenSSL.  If you modify file(s)
++// with this exception, you may extend this exception to your version
++// of the file(s), but you are not obligated to do so.  If you do not
++// wish to do so, delete this exception statement from your version.
++// If you delete this exception statement from all source files in the
++// program, then also delete it here.
++//
++// Contact:  Jari Sundell <jaris@ifi.uio.no>
++//
++//           Skomakerveien 33
++//           3185 Skoppum, NORWAY
++
++#ifndef LIBTORRENT_TRACKER_TRACKER_WEBSEED_H
++#define LIBTORRENT_TRACKER_TRACKER_WEBSEED_H
++
++#include "net/address_list.h"
++#include "torrent/object.h"
++#include "torrent/tracker.h"
++
++namespace torrent {
++
++class TrackerWebseed : public Tracker {
++public:
++  TrackerWebseed(TrackerList* parent, const std::string& url, int flags);
++  ~TrackerWebseed();
++
++  typedef enum {
++    state_idle,
++    state_downloading,
++  } state_type;
++
++  static const char* states[];
++  
++  virtual bool        is_busy() const;
++  virtual bool        is_usable() const;
++
++  virtual void        send_state(int state);
++  virtual void        close();
++  virtual void        disown();
++
++  virtual Type        type() const;
++
++  virtual void        get_status(char* buffer, int length);
++
++private:
++  state_type m_state;
++};
++
++}
++
++#endif
+--- test/Makefile.am
++++ test/Makefile.am
+@@ -66,6 +66,8 @@ LibTorrentTest_SOURCES = \
+ 	torrent/object_static_map_test.h \
+ 	torrent/object_stream_test.cc \
+ 	torrent/object_stream_test.h \
++        torrent/webseed_controller_test.cc \
++        torrent/webseed_controller_test.h \
+ 	torrent/tracker_controller_test.cc \
+ 	torrent/tracker_controller_test.h \
+ 	torrent/tracker_controller_features.cc \
+@@ -80,6 +82,8 @@ LibTorrentTest_SOURCES = \
+ 	torrent/tracker_timeout_test.h \
+ 	tracker/tracker_http_test.cc \
+ 	tracker/tracker_http_test.h \
++        tracker/tracker_webseed_test.cc \
++        tracker/tracker_webseed_test.h \
+ 	main.cc
+ 
+ LibTorrentTest_CXXFLAGS = $(CPPUNIT_CFLAGS)
+--- /dev/null
++++ test/torrent/webseed_controller_test.cc
+@@ -0,0 +1,35 @@
++#include "config.h"
++
++#include "webseed_controller_test.h"
++
++#include "torrent/webseed_controller.h"
++
++CPPUNIT_TEST_SUITE_REGISTRATION(WebseedControllerTest);
++
++void
++WebseedControllerTest::setUp() {
++}
++
++void
++WebseedControllerTest::tearDown() {
++}
++
++
++namespace torrent{
++  class Manager {};
++ 
++  Manager manager;
++}
++
++void
++WebseedControllerTest::test_basic() {
++  torrent::WebseedController controller(NULL);
++
++  CPPUNIT_ASSERT(controller.url_list()->size() == 0);
++  controller.add_url("http://test/test");
++  CPPUNIT_ASSERT(controller.url_list()->size() == 1);
++
++  char* buffer = (char*)malloc(1000);
++  controller.download_to_buffer(buffer, "file://blah", 0, 1000);
++  free(buffer);
++}
+--- /dev/null
++++ test/torrent/webseed_controller_test.h
+@@ -0,0 +1,13 @@
++#include <cppunit/extensions/HelperMacros.h>
++
++class WebseedControllerTest : public CppUnit::TestFixture {
++  CPPUNIT_TEST_SUITE(WebseedControllerTest);
++  CPPUNIT_TEST(test_basic);
++  CPPUNIT_TEST_SUITE_END();
++
++public:
++  void setUp();
++  void tearDown();
++
++  void test_basic();
++};
+--- /dev/null
++++ test/tracker/tracker_webseed_test.cc
+@@ -0,0 +1,35 @@
++#include "config.h"
++
++#include "tracker_webseed_test.h"
++
++#include "tracker/tracker_webseed.h"
++#include "torrent/tracker_list.h"
++
++CPPUNIT_TEST_SUITE_REGISTRATION(TrackerWebseedTest);
++
++void
++TrackerWebseedTest::setUp() {
++}
++
++void
++TrackerWebseedTest::tearDown() {
++}
++
++void
++TrackerWebseedTest::test_basic() {
++
++  torrent::TrackerList parent;
++  std::string url;
++  int flags;
++
++  torrent::TrackerWebseed tracker(&parent, url, flags);
++
++  CPPUNIT_ASSERT(tracker.is_busy() == false);
++  CPPUNIT_ASSERT(tracker.is_usable() == true);
++
++  tracker.close();
++  tracker.disown();
++
++  CPPUNIT_ASSERT(tracker.type() == torrent::Tracker::TRACKER_WEBSEED);
++
++}
+--- /dev/null
++++ test/tracker/tracker_webseed_test.h
+@@ -0,0 +1,15 @@
++#include <cppunit/extensions/HelperMacros.h>
++
++#include "tracker/tracker_webseed.h"
++
++class TrackerWebseedTest : public CppUnit::TestFixture {
++  CPPUNIT_TEST_SUITE(TrackerWebseedTest);
++  CPPUNIT_TEST(test_basic);
++  CPPUNIT_TEST_SUITE_END();
++
++public:
++  void setUp();
++  void tearDown();
++
++  void test_basic();
++};
