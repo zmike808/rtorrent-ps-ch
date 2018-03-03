@@ -1,11 +1,12 @@
 --- src/command_ui.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/command_ui.cc	2017-06-04 11:35:46.912217665 +0100
-@@ -759,6 +759,9 @@ initialize_command_ui() {
++++ src/command_ui.cc	2018-03-03 10:01:59.591031275 +0000
+@@ -759,6 +759,10 @@ initialize_command_ui() {
    CMD2_ANY_LIST  ("ui.status.throttle.up.set",   std::bind(&cmd_status_throttle_names, true, std::placeholders::_2));
    CMD2_ANY_LIST  ("ui.status.throttle.down.set", std::bind(&cmd_status_throttle_names, false, std::placeholders::_2));
  
++  CMD2_ANY         ("ui.input.history.size",     std::bind(&ui::Root::get_input_history_size, control->ui()));
 +  CMD2_ANY_VALUE_V ("ui.input.history.size.set", std::bind(&ui::Root::set_input_history_size, control->ui(), std::placeholders::_2));
-+  CMD2_ANY_V       ("ui.input.history.clear", std::bind(&ui::Root::clear_input_history, control->ui()));
++  CMD2_ANY_V       ("ui.input.history.clear",    std::bind(&ui::Root::clear_input_history, control->ui()));
 +
    // TODO: Add 'option_string' for rtorrent-specific options.
    CMD2_VAR_STRING("ui.torrent_list.layout", "full");
@@ -160,7 +161,7 @@
  
    DownloadList();
 --- src/ui/root.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/root.cc	2017-06-04 13:16:28.699486493 +0100
++++ src/ui/root.cc	2018-03-03 10:02:40.287477470 +0000
 @@ -36,11 +36,14 @@
  
  #include "config.h"
@@ -190,7 +191,7 @@
    m_windowInput(NULL),
 -  m_windowStatusbar(NULL) {
 +  m_windowStatusbar(NULL),
-+  m_input_history_length(30),
++  m_input_history_length(99),
 +  m_input_history_pointer_get(0),
 +  m_input_history_last_input("") {
 +
@@ -445,7 +446,7 @@
 +
  }
 --- src/ui/root.h	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/root.h	2017-06-04 11:41:22.440399953 +0100
++++ src/ui/root.h	2018-03-03 10:04:59.230058087 +0000
 @@ -39,6 +39,7 @@
  
  #include <inttypes.h>
@@ -465,7 +466,7 @@
    Root();
  
    void                init(Control* c);
-@@ -96,11 +101,18 @@ public:
+@@ -96,11 +101,19 @@ public:
    void                set_status_throttle_up_names(const ThrottleNameList& throttle_list)      { m_throttle_up_names = throttle_list; }
    void                set_status_throttle_down_names(const ThrottleNameList& throttle_list)    { m_throttle_down_names = throttle_list; }
  
@@ -475,6 +476,7 @@
  
    input::TextInput*   current_input();
  
++  int                 get_input_history_size()                { return m_input_history_length; }
 +  void                set_input_history_size(int size);
 +  void                add_to_input_history(ui::DownloadList::Input type, std::string item);
 +
@@ -485,7 +487,7 @@
  private:
    void                setup_keys();
  
-@@ -116,6 +128,17 @@ private:
+@@ -116,6 +129,17 @@ private:
  
    ThrottleNameList   m_throttle_up_names;
    ThrottleNameList   m_throttle_down_names;
