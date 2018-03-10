@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.6.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.6.2-0.9.7) (2018-03-10)
+**Implemented enhancements:**
+
+- Small input history enhancement [\#114](https://github.com/chros73/rtorrent-ps-ch/issues/114)
+
+**Fixed bugs:**
+
+- Fix bug with selected\_size\_bytes and save it into session [\#116](https://github.com/chros73/rtorrent-ps-ch/issues/116)
+- Fix error message in as\_vector method [\#115](https://github.com/chros73/rtorrent-ps-ch/issues/115)
+
 ## [1.6.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.6.1-0.9.7) (2017-12-10)
 **Implemented enhancements:**
 
