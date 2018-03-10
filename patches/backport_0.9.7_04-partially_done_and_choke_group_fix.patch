@@ -45,12 +45,11 @@
    CMD2_DL         ("d.hashing_failed",     std::bind(&core::Download::is_hash_failed, std::placeholders::_1));
    CMD2_DL_VALUE_V ("d.hashing_failed.set", std::bind(&core::Download::set_hash_failed, std::placeholders::_1, std::placeholders::_2));
  
-@@ -820,6 +798,8 @@ initialize_command_download() {
+@@ -820,6 +797,7 @@ initialize_command_download() {
    CMD2_DL         ("d.free_diskspace", CMD2_ON_FL(free_diskspace));
  
    CMD2_DL         ("d.size_files",     CMD2_ON_FL(size_files));
 +  CMD2_DL         ("d.selected_size_bytes",    CMD2_ON_FL(selected_size_bytes));
-+  CMD2_DL_V       ("d.set_selected_size_bytes",CMD2_ON_FL(set_selected_size_bytes));
    CMD2_DL         ("d.size_bytes",     CMD2_ON_FL(size_bytes));
    CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
    CMD2_DL         ("d.chunk_size",     CMD2_ON_FL(chunk_size));
@@ -276,12 +275,15 @@
      torrent::download_set_priority(m_download, p * p);
 --- src/core/download_factory.cc	2016-10-23 05:33:00.000000000 +0100
 +++ src/core/download_factory.cc	2017-04-30 21:35:27.000000000 +0100
-@@ -421,6 +421,9 @@ DownloadFactory::initialize_rtorrent(Dow
+@@ -421,6 +421,12 @@ DownloadFactory::initialize_rtorrent(Dow
    if (rtorrent->has_key_value("total_downloaded"))
      download->info()->mutable_down_rate()->set_total(rtorrent->get_key_value("total_downloaded"));
  
 +  if (rtorrent->has_key_value("total_skipped"))
 +    download->info()->mutable_skip_rate()->set_total(rtorrent->get_key_value("total_skipped"));
++
++  if (rtorrent->has_key_value("size_selected"))
++    download->file_list()->set_selected_size_bytes(rtorrent->get_key_value("size_selected"));
 +
    if (rtorrent->has_key_value("chunks_done") && rtorrent->has_key_value("chunks_wanted"))
      download->download()->set_chunks_done(rtorrent->get_key_value("chunks_done"), rtorrent->get_key_value("chunks_wanted"));
@@ -500,11 +502,12 @@
  };
 --- src/core/download_store.cc	2016-10-23 05:33:00.000000000 +0100
 +++ src/core/download_store.cc	2017-04-30 21:35:27.000000000 +0100
-@@ -141,6 +141,7 @@ DownloadStore::save(Download* d, int fla
+@@ -141,6 +141,8 @@ DownloadStore::save(Download* d, int fla
    rtorrent_base->insert_key("chunks_wanted",  d->download()->data()->wanted_chunks());
    rtorrent_base->insert_key("total_uploaded", d->info()->up_rate()->total());
    rtorrent_base->insert_key("total_downloaded", d->info()->down_rate()->total());
 +  rtorrent_base->insert_key("total_skipped",  d->info()->skip_rate()->total());
++  rtorrent_base->insert_key("size_selected",  d->download()->file_list()->selected_size_bytes());
  
    // Don't save for completed torrents when we've cleared the uncertain_pieces.
    torrent::resume_save_progress(*d->download(), *resume_base);

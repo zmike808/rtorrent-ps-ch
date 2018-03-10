@@ -100,7 +100,7 @@
  }
  
  bool
-@@ -193,6 +195,60 @@ FileList::set_max_file_size(uint64_t siz
+@@ -193,6 +195,65 @@ FileList::set_max_file_size(uint64_t siz
    m_maxFileSize = size;
  }
  
@@ -109,7 +109,12 @@
 +// Its purpose is to replace size_bytes() with selected_size_bytes()
 +// by taking into account partial downloads.
 +void
-+FileList::set_selected_size_bytes() {
++FileList::set_selected_size_bytes(uint64_t bytes) {
++  if (bytes > 0) {
++    m_selectedSize = bytes;
++    return;
++  }
++
 +  if (is_done()) {
 +    m_selectedSize = m_torrentSize;
 +    return;
@@ -184,7 +189,7 @@
    uint32_t            size_chunks() const                             { return bitfield()->size_bits(); }
  
 +  uint64_t            selected_size_bytes() const                     { return m_selectedSize; }
-+  void                set_selected_size_bytes();
++  void                set_selected_size_bytes(uint64_t bytes = 0);
 +
    uint32_t            completed_chunks() const                        { return bitfield()->size_set(); }
    uint64_t            completed_bytes() const;
