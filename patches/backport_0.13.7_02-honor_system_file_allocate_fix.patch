@@ -134,7 +134,7 @@
    void                set_flags(int flags);
 --- src/torrent/data/file_list.cc	2017-04-30 21:15:43.000000000 +0100
 +++ src/torrent/data/file_list.cc	2017-04-30 22:06:19.000000000 +0100
-@@ -254,9 +254,9 @@ FileList::set_selected_size_bytes() {
+@@ -259,9 +259,9 @@ FileList::set_selected_size_bytes() {
  uint64_t
  FileList::free_diskspace() const {
    uint64_t freeDiskspace = std::numeric_limits<uint64_t>::max();
@@ -145,7 +145,7 @@
  
      if (!stat.update(*itr))
        continue;
-@@ -264,9 +264,74 @@ FileList::free_diskspace() const {
+@@ -269,9 +269,74 @@ FileList::free_diskspace() const {
      freeDiskspace = std::min<uint64_t>(freeDiskspace, stat.bytes_avail());
    }
  
@@ -220,7 +220,7 @@
  FileList::iterator_range
  FileList::split(iterator position, split_type* first, split_type* last) {
    if (is_open())
-@@ -637,7 +702,12 @@ FileList::open_file(File* node, const Pa
+@@ -642,7 +707,12 @@ FileList::open_file(File* node, const Pa
      return false;
    }
  

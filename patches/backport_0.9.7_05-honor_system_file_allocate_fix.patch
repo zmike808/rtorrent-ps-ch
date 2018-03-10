@@ -31,7 +31,7 @@
  
    CMD2_DL_STRING_V("add_peer",   std::bind(&apply_d_add_peer, std::placeholders::_1, std::placeholders::_2));
  
-@@ -792,15 +800,17 @@ initialize_command_download() {
+@@ -792,14 +799,16 @@ initialize_command_download() {
    CMD2_DL         ("d.throttle_name",     std::bind(&download_get_variable, std::placeholders::_1, "rtorrent", "throttle_name"));
    CMD2_DL_STRING_V("d.throttle_name.set", std::bind(&core::Download::set_throttle_name, std::placeholders::_1, std::placeholders::_2));
  
@@ -47,7 +47,6 @@
  
    CMD2_DL         ("d.size_files",     CMD2_ON_FL(size_files));
    CMD2_DL         ("d.selected_size_bytes",    CMD2_ON_FL(selected_size_bytes));
-   CMD2_DL_V       ("d.set_selected_size_bytes",CMD2_ON_FL(set_selected_size_bytes));
    CMD2_DL         ("d.size_bytes",     CMD2_ON_FL(size_bytes));
 +  CMD2_DL         ("d.allocatable_size_bytes", CMD2_ON_FL(allocatable_size_bytes));
    CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
