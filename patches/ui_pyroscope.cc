@@ -541,13 +541,14 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //    if (canvas->width() > TRACKER_LABEL_WIDTH) {
     const torrent::Object::map_type& column_defs = control->object_storage()->get_str("ui.column.render").as_map();
     // x_base value depends on the static headers below! (x_base = 2 + number of chars in header)
-    int pos = 1, x_base = 36, column = x_base;
+    int pos = 1, x_base = 31, column = x_base;
 
-    canvas->print(2, pos, " ⊘ ⊕ ⣿ ⚡ ☯ ⚑  ↺  ⤴  ⤵  ⌚ ≀∆  ⌚ ≀∇ ");
+    canvas->print(2, pos, " ⣿ ⚡ ☯ ⚑  ↺  ⤴  ⤵ ⌚ ≀∆ ⌚ ≀∇ ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
-        canvas->print(canvas->width() - 14, 1, "Tracker Domain");
+//        canvas->print(canvas->width() - 14, 1, "Tracker Domain");
+        canvas->print(canvas->width() - 7, 1, "Tracker");
     }
     canvas->set_attr(0, pos, -1, attr_map[ps::COL_LABEL], ps::COL_LABEL);
 
@@ -625,29 +626,29 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 
 //        const char* prios[] = {"✖ ", "⇣ ", "  ", "⇡ "};
 
-        char throttle_str[3] = "  ";
-        std::string throttlename = "";
-        if (!d->bencode()->get_key("rtorrent").get_key_string("throttle_name").empty()) {
-            throttlename = rpc::call_command_string("d.throttle_name", rpc::make_target(d)).c_str();
-            sprintf(throttle_str, "%c ", throttlename[0]);
-        }
+//        char throttle_str[3] = "  ";
+//        std::string throttlename = "";
+//        if (!d->bencode()->get_key("rtorrent").get_key_string("throttle_name").empty()) {
+//            throttlename = rpc::call_command_string("d.throttle_name", rpc::make_target(d)).c_str();
+//            sprintf(throttle_str, "%c ", throttlename[0]);
+//        }
 
 //        const char* unsafe_data[] = {"  ", "⊘ ", "⊗ "};
 
-        char dir_str[3] = "  ";
-        std::string directory_str = rpc::call_command_string("d.directory", rpc::make_target(d)).c_str();
-        if (rpc::call_command_value("d.is_multi_file", rpc::make_target(d)) == 0) {
-            std::string dirletter = directory_str.substr(directory_str.find_last_of("\\/") + 1,1);
-            if (!dirletter.empty()) {
-                sprintf(dir_str, "%c ", dirletter[0]);
-            }
-        } else {
-            std::string dirpath = directory_str.substr(0, directory_str.find_last_of("\\/"));
-            std::string dirletter = dirpath.substr(dirpath.find_last_of("\\/") + 1,1);
-            if (!dirletter.empty()) {
-                sprintf(dir_str, "%c ", dirletter[0]);
-            }
-        }
+//        char dir_str[3] = "  ";
+//        std::string directory_str = rpc::call_command_string("d.directory", rpc::make_target(d)).c_str();
+//        if (rpc::call_command_value("d.is_multi_file", rpc::make_target(d)) == 0) {
+//            std::string dirletter = directory_str.substr(directory_str.find_last_of("\\/") + 1,1);
+//            if (!dirletter.empty()) {
+//                sprintf(dir_str, "%c ", dirletter[0]);
+//            }
+//        } else {
+//            std::string dirpath = directory_str.substr(0, directory_str.find_last_of("\\/"));
+//            std::string dirletter = dirpath.substr(dirpath.find_last_of("\\/") + 1,1);
+//            if (!dirletter.empty()) {
+//                sprintf(dir_str, "%c ", dirletter[0]);
+//            }
+//        }
 
         int connected_peers = d->connection_list()->size();
 
@@ -670,15 +671,16 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         }
 
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
-        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
+//        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
+        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
             range.first == view->focus() ? "»" : " ",
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
 //            rpc::call_command_value("d.ignore_commands", rpc::make_target(d)) == 0 ? "⚒ " : "◌ ",
 //            prios[d->priority() % 4],
-            !throttlename.empty() ? throttlename == "NULL" ? "∞ " : throttle_str : "  ",
+//            !throttlename.empty() ? throttlename == "NULL" ? "∞ " : throttle_str : "  ",
 //            unsafe_data[get_custom_long(d, "unsafe_data") % 3],
-            dir_str,
+//            dir_str,
             d->is_done() ? "✔ " : progress_style == 0 ? progress_str : progress[progress_style][
                 item->file_list()->completed_chunks() * PROGRESS_STEPS
                 / item->file_list()->size_chunks()],
@@ -733,7 +735,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             canvas->width() - x_name - 1).c_str());
 
 //        int x_scrape = 3 + 11*2 + 1; // lead, 11 status columns, gap
-        int x_scrape = 3 + 7*2 + 1; // lead, 7 status columns, gap
+        int x_scrape = 3 + 5*2 + 1; // lead, 7 status columns, gap
 //        int x_rate = x_scrape + 4*3; // skip 4 scrape columns
         int x_rate = x_scrape + 3*3; // skip 3 scrape columns
 //        int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
@@ -1021,11 +1023,17 @@ void initialize_command_ui_pyroscope() {
         "method.set_key = ui.column.render, \"120:1:⌘ \", ((if, ((d.ignore_commands)), ((cat, \"◌ \")), ((cat, \"⚒ \"))))\n"
         "method.set_key = ui.column.render, \"130:1:✰ \", ((string.map, ((cat, ((d.priority)))), {0, \"✖ \"}, {1, \"⇣ \"}, {2, \"  \"}, {3, \"⇡ \"}))\n"
 
+        // First character of throttle name (⊘)
+        "method.set_key = ui.column.render, \"140:1:⊘ \", \"branch=((equal, ((d.throttle_name)), ((cat,NULL)))), ((cat, \\\"∞ \\\")), ((d.throttle_name))\"\n"
+
         // Unsafe data (◎)
         "method.set_key = ui.column.render, \"160:1:◎ \", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, \"  \"}, {1, \"⊘ \"}, {2, \"⊗ \"}))\n"
 
+        // First character of parent directory (⊕)
+        "method.set_key = ui.column.render, \"170:1:⊕ \", ((d.parent_dir))\n"
+
         // Number of connected peers (↻)
-        "method.set_key = ui.column.render, \"170:2:↻ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"440:2:↻ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Uploaded data (⊼)
         "method.set_key = ui.column.render, \"900:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"

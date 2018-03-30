@@ -224,6 +224,19 @@ std::string get_active_tracker_domain(torrent::Download* item) {
 }
 
 
+// return the name of the parent directory of the given download item
+std::string get_parent_dir(core::Download* item) {
+    std::string dir;
+    std::string path = rpc::call_command_string("d.directory", rpc::make_target(item)).c_str();
+
+    if (rpc::call_command_value("d.is_multi_file", rpc::make_target(item)) == 1) {
+        path = path.substr(0, path.find_last_of("\\/"));
+    }
+
+    return path.substr(path.find_last_of("\\/") + 1);
+}
+
+
 /*  @DOC
     `compare = <order>, <sort_key>=[, ...]`
 
@@ -646,6 +659,11 @@ torrent::Object cmd_d_tracker_domain(core::Download* download) {
 }
 
 
+torrent::Object cmd_d_parent_dir(core::Download* download) {
+    return get_parent_dir(download);
+}
+
+
 #if RT_HEX_VERSION <= 0x000906
 // https://github.com/rakshasa/rtorrent/commit/1f5e4d37d5229b63963bb66e76c07ec3e359ecba
 torrent::Object cmd_system_env(const torrent::Object::string_type& arg) {
@@ -699,6 +717,7 @@ void initialize_command_pyroscope() {
     CMD2_ANY("ui.bind_key", &apply_ui_bind_key);
     CMD2_VAR_VALUE("ui.bind_key.verbose", 1);
     CMD2_DL("d.tracker_domain", _cxxstd_::bind(&cmd_d_tracker_domain, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.parent_dir",     _cxxstd_::bind(&cmd_d_parent_dir, _cxxstd_::placeholders::_1));
     CMD2_ANY_STRING("log.messages", _cxxstd_::bind(&cmd_log_messages, _cxxstd_::placeholders::_2));
     CMD2_ANY("ui.focus.home", _cxxstd_::bind(&cmd_ui_focus_home));
     CMD2_ANY("ui.focus.end", _cxxstd_::bind(&cmd_ui_focus_end));
