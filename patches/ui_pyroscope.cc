@@ -542,9 +542,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     const torrent::Object::map_type& column_defs = control->object_storage()->get_str("ui.column.render").as_map();
     // x_base value depends on the static headers below! (x_base = 2 + number of chars in header)
 //    int pos = 1, x_base = 31, column = x_base;
-    int pos = 1, x_base = 22, column = x_base;
+    int pos = 1, x_base = 20, column = x_base;
 
-    canvas->print(2, pos, " ⣿ ⚡ ☯ ⚑ ⌚ ≀∆ ⌚ ≀∇ ");
+    canvas->print(2, pos, " ⣿ ☯ ⚑ ⌚ ≀∆ ⌚ ≀∇ ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
@@ -674,7 +674,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
 //        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
-        canvas->print(0, pos, "%s  %s%s%s%s %s%s %s%s ",
+        canvas->print(0, pos, "%s  %s%s%s %s%s %s%s ",
             range.first == view->focus() ? "»" : " ",
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
@@ -686,9 +686,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             d->is_done() ? "✔ " : progress_style == 0 ? progress_str : progress[progress_style][
                 item->file_list()->completed_chunks() * PROGRESS_STEPS
                 / item->file_list()->size_chunks()],
-            D_INFO(item)->down_rate()->rate() ?
-                (D_INFO(item)->up_rate()->rate() ? "⇅ " : "↡ ") :
-                (D_INFO(item)->up_rate()->rate() ? "↟ " : "  "),
+//            D_INFO(item)->down_rate()->rate() ?
+//                (D_INFO(item)->up_rate()->rate() ? "⇅ " : "↡ ") :
+//                (D_INFO(item)->up_rate()->rate() ? "↟ " : "  "),
             ying_yang_style == 0 ? ying_yang_str :
                 ratio >= YING_YANG_STEPS * 1000 ? "⊛ " : ying_yang[ying_yang_style][ratio / 1000],
             has_msg ? has_alert ? alert : "♺ " : is_tagged ? "⚑ " : "  ",
@@ -737,7 +737,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             canvas->width() - x_name - 1).c_str());
 
 //        int x_scrape = 3 + 11*2 + 1; // lead, 11 status columns, gap
-        int x_scrape = 3 + 5*2 + 1; // lead, 7 status columns, gap
+        int x_scrape = 3 + 3*2 + 1; // lead, 3 status columns, gap
 //        int x_rate = x_scrape + 4*3; // skip 4 scrape columns
         int x_rate = x_scrape; // skip 0 scrape columns
 //        int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
@@ -1033,6 +1033,9 @@ void initialize_command_ui_pyroscope() {
 
         // First character of parent directory (⊕)
         "method.set_key = ui.column.render, \"170:1:⊕ \", ((d.parent_dir))\n"
+
+        // Transfer direction (⚡)
+        "method.set_key = ui.column.render, \"190:1:⚡ \", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, \"⇅ \")),((cat, \"↡ \")))), ((if,((d.up.rate)),((cat, \"↟ \")),((cat, \"  \")))) ))\n"
 
         // Scrape info (↺ ⤴ ⤵)
         "method.set_key = ui.column.render, \"410:2: ↺ \", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
