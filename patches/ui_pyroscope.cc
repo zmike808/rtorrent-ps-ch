@@ -541,9 +541,10 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //    if (canvas->width() > TRACKER_LABEL_WIDTH) {
     const torrent::Object::map_type& column_defs = control->object_storage()->get_str("ui.column.render").as_map();
     // x_base value depends on the static headers below! (x_base = 2 + number of chars in header)
-    int pos = 1, x_base = 31, column = x_base;
+//    int pos = 1, x_base = 31, column = x_base;
+    int pos = 1, x_base = 22, column = x_base;
 
-    canvas->print(2, pos, " ⣿ ⚡ ☯ ⚑  ↺  ⤴  ⤵ ⌚ ≀∆ ⌚ ≀∇ ");
+    canvas->print(2, pos, " ⣿ ⚡ ☯ ⚑ ⌚ ≀∆ ⌚ ≀∇ ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
@@ -592,7 +593,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     while (range.first != range.second) {
         core::Download* d = *range.first;
         core::Download* item = d;
-        torrent::Tracker* tracker = get_active_tracker((*range.first)->download());
+//        torrent::Tracker* tracker = get_active_tracker((*range.first)->download());
         int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
         bool has_msg = !d->message().empty();
         bool has_alert = has_msg && d->message().find("Tried all trackers") == std::string::npos;
@@ -672,7 +673,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
-        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
+//        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
+        canvas->print(0, pos, "%s  %s%s%s%s %s%s %s%s ",
             range.first == view->focus() ? "»" : " ",
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
@@ -690,9 +692,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             ying_yang_style == 0 ? ying_yang_str :
                 ratio >= YING_YANG_STEPS * 1000 ? "⊛ " : ying_yang[ying_yang_style][ratio / 1000],
             has_msg ? has_alert ? alert : "♺ " : is_tagged ? "⚑ " : "  ",
-            tracker ? num2(tracker->scrape_downloaded()).c_str() : "  ",
-            tracker ? num2(tracker->scrape_complete()).c_str() : "  ",
-            tracker ? num2(tracker->scrape_incomplete()).c_str() : "  ",
+//            tracker ? num2(tracker->scrape_downloaded()).c_str() : "  ",
+//            tracker ? num2(tracker->scrape_complete()).c_str() : "  ",
+//            tracker ? num2(tracker->scrape_incomplete()).c_str() : "  ",
 //            num2(connected_peers).c_str(),
             !up_rate ?  "" : " ",
             !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(d, "last_active")).c_str()) :
@@ -737,7 +739,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //        int x_scrape = 3 + 11*2 + 1; // lead, 11 status columns, gap
         int x_scrape = 3 + 5*2 + 1; // lead, 7 status columns, gap
 //        int x_rate = x_scrape + 4*3; // skip 4 scrape columns
-        int x_rate = x_scrape + 3*3; // skip 3 scrape columns
+        int x_rate = x_scrape; // skip 0 scrape columns
 //        int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
         decorate_download_title(window, canvas, view, pos, range);
         canvas->set_attr(2, pos, x_name-2, attr_map[col_active + offset], col_active + offset);
@@ -1032,11 +1034,17 @@ void initialize_command_ui_pyroscope() {
         // First character of parent directory (⊕)
         "method.set_key = ui.column.render, \"170:1:⊕ \", ((d.parent_dir))\n"
 
+        // Scrape info (↺ ⤴ ⤵)
+        "method.set_key = ui.column.render, \"410:2: ↺ \", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
+        "method.set_key = ui.column.render, \"420:2: ⤴ \", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
+        "method.set_key = ui.column.render, \"430:2: ⤵ \", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
+
         // Number of connected peers (↻)
-        "method.set_key = ui.column.render, \"440:2:↻ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"440:2: ↻ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Uploaded data (⊼)
         "method.set_key = ui.column.render, \"900:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
+
 #if RT_HEX_VERSION < 0x000907
         // Data size (✇)
         "method.set_key = ui.column.render, \"910:4: ✇  \", ((convert.human_size, ((d.size_bytes)) ))\n"
