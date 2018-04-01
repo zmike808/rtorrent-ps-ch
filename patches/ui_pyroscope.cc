@@ -419,7 +419,7 @@ int render_columns(bool headers, rpc::target_type target,
             std::string header_str(header_text);
             column_pos[header_str] = column + 1;
 
-            canvas->print(column, pos, " %s", header_text);
+            canvas->print(column, pos, " %s", u8_chop(header_text, header_len).c_str());
         } else {
             std::string text = rpc::call_object_nothrow(cols_itr->second, target).as_string();
             //std::string text = rpc::call_command_string(cols_itr->second.as_string().c_str(), target);
