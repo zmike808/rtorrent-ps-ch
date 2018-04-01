@@ -568,12 +568,14 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //    int pos = 1, x_base = 31, column = x_base;
 //    int pos = 1, x_base = 18, column = x_base;
 //    int pos = 1, x_base = 14, column = x_base;
-    int pos = 1, x_base = 8, column = x_base;
+//    int pos = 1, x_base = 8, column = x_base;
+    int pos = 1, x_base = 2, column = x_base;
 
     // clear all column positions before they will be updated (columns can be removed)
     column_pos.clear();
 //    canvas->print(2, pos, " ⣿ ☯ ⌚ ≀∆ ⌚ ≀∇ ");
-    canvas->print(2, pos, "  ⌬ ≀∇ ");
+//    canvas->print(2, pos, "  ⌬ ≀∇ ");
+    canvas->print(2, pos, " ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
@@ -676,8 +678,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
 //        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
-        canvas->print(0, pos, "%s  %s%s ",
-            range.first == view->focus() ? "»" : " ",
+//        canvas->print(0, pos, "%s  %s%s ",
+        canvas->print(0, pos, "%s  ",
+            range.first == view->focus() ? "»" : " "
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
 //            rpc::call_command_value("d.ignore_commands", rpc::make_target(d)) == 0 ? "⚒ " : "◌ ",
@@ -707,15 +710,15 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //                human_size(D_INFO(item)->up_rate()->total(), 0).c_str() :
 //                num2(D_INFO(item)->up_rate()->total()).c_str(),
 //            D_INFO(item)->up_rate()->total() ? "" : "  ",
-#if RT_HEX_VERSION < 0x000907
-            d->is_done() || !down_rate ? "" : " ",
-            d->is_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
-#else
-            d->data()->is_partially_done() || !down_rate ? "" : " ",
-            d->data()->is_partially_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
-#endif
-                !down_rate ? elapsed_time(get_custom_long(d, "tm_loaded")).c_str() :
-                           human_size(down_rate, 2 | 8).c_str()
+//#if RT_HEX_VERSION < 0x000907
+//            d->is_done() || !down_rate ? "" : " ",
+//            d->is_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
+//#else
+//            d->data()->is_partially_done() || !down_rate ? "" : " ",
+//            d->data()->is_partially_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
+//#endif
+//                !down_rate ? elapsed_time(get_custom_long(d, "tm_loaded")).c_str() :
+//                           human_size(down_rate, 2 | 8).c_str()
 //                           human_size(down_rate, 2 | 8).c_str(),
 //#if RT_HEX_VERSION < 0x000907
 //            human_size(item->file_list()->size_bytes(), 2).c_str(),
@@ -764,7 +767,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             canvas->set_attr(column_pos["☯ "], pos, 2, attr_map[rcol + offset], rcol + offset);
         }
 
-        // color up rates / time of uprate_tm column exists
+        // color up rates / time if uprate_tm column exists
         if (column_pos.find(" ⌬ ≀∆") != column_pos.end()) {
             if (!up_rate) {
                 // time display
@@ -776,23 +779,22 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             }
         }
 
-        // color down rates / time
+        // color down rates / time if downrate_tm column exists
+        if (column_pos.find(" ⌬ ≀∇") != column_pos.end()) {
 #if RT_HEX_VERSION < 0x000907
-        if (d->is_done() || !down_rate) {
+            if (d->is_done() || !down_rate) {
+                int tm_color = (d->is_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
 #else
-        if (d->data()->is_partially_done() || !down_rate) {
+            if (d->data()->is_partially_done() || !down_rate) {
+                int tm_color = (d->data()->is_partially_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
 #endif
-            // time display
-#if RT_HEX_VERSION < 0x000907
-            int tm_color = (d->is_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
-#else
-            int tm_color = (d->data()->is_partially_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
-#endif
-            canvas->set_attr(x_rate+6+7+1, pos, 1, attr_map[tm_color], tm_color);
-            canvas->set_attr(x_rate+6+7+4, pos, 1, attr_map[tm_color], tm_color);
-        } else {
-            // down rate
-            canvas->set_attr(x_rate+6+7, pos, 5, attr_map[ps::COL_LEECHING + offset], ps::COL_LEECHING + offset);
+                // time display
+                canvas->set_attr(column_pos[" ⌬ ≀∇"]+1, pos, 1, attr_map[tm_color], tm_color);
+                canvas->set_attr(column_pos[" ⌬ ≀∇"]+4, pos, 1, attr_map[tm_color], tm_color);
+            } else {
+                // down rate
+                canvas->set_attr(column_pos[" ⌬ ≀∇"], pos, 5, attr_map[ps::COL_LEECHING + offset], ps::COL_LEECHING + offset);
+            }
         }
 
         // is this the item in focus?
@@ -911,13 +913,29 @@ std::string get_ui_ratio(core::Download* item) {
 }
 
 
-// return uprate of approximate time since last active state of the given download item
+// return uprate or approximate time since last active state of the given download item
 std::string get_ui_uprate_tm(core::Download* item) {
     uint32_t up_rate = D_INFO(item)->up_rate()->rate();
     int connected_peers = item->connection_list()->size();
 
     return !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(item, "last_active"))) :
                " " + human_size(up_rate, 2 | 8);
+}
+
+
+// return downrate or approximate time since completion of the given download item
+std::string get_ui_downrate_tm(core::Download* item) {
+    uint32_t down_rate = D_INFO(item)->down_rate()->rate();
+
+    return
+#if RT_HEX_VERSION < 0x000907
+            item->is_done() ?
+#else
+            item->data()->is_partially_done() ?
+#endif
+                elapsed_time(get_custom_long(item, "tm_completed")) :
+                !down_rate ? elapsed_time(get_custom_long(item, "tm_loaded")) :
+                        " " + human_size(down_rate, 2 | 8);
 }
 
 
@@ -1083,6 +1101,11 @@ torrent::Object cmd_d_ui_uprate_tm(core::Download* download) {
 }
 
 
+torrent::Object cmd_d_ui_downrate_tm(core::Download* download) {
+    return display::get_ui_downrate_tm(download);
+}
+
+
 // register our commands
 void initialize_command_ui_pyroscope() {
     #define PS_VARIABLE_COLOR(key, value) \
@@ -1142,6 +1165,7 @@ void initialize_command_ui_pyroscope() {
     CMD2_DL("d.ui.completion",             _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.ratio",                  _cxxstd_::bind(&cmd_d_ui_ratio, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.uprate_tm",              _cxxstd_::bind(&cmd_d_ui_uprate_tm, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.downrate_tm",            _cxxstd_::bind(&cmd_d_ui_downrate_tm, _cxxstd_::placeholders::_1));
 
     rpc::parse_command_multiple(
         rpc::make_target(),
@@ -1187,6 +1211,9 @@ void initialize_command_ui_pyroscope() {
 
         // Uploaded data (⊼)
         "method.set_key = ui.column.render, \"810:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
+
+        // Downrate or approximate time since completion (⌬ ≀∇)
+        "method.set_key = ui.column.render, \"820:5: ⌬ ≀∇\", ((d.ui.downrate_tm))\n"
 
 #if RT_HEX_VERSION < 0x000907
         // Data size (✇)
