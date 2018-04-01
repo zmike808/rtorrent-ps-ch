@@ -54,6 +54,7 @@ extern std::string get_active_tracker_domain(torrent::Download* item);
 
 
 #define TRACKER_LABEL_WIDTH 20U
+#define PROGRESS_STEPS 9
 #define YING_YANG_STEPS 11
 
 // definition from display/window_download_list.cc that is not in the header file
@@ -66,6 +67,13 @@ static unsigned long attr_map[3 * ps::COL_MAX] = {0};
 int ratio_col[] = {
     ps::COL_PROGRESS0, ps::COL_PROGRESS20, ps::COL_PROGRESS40, ps::COL_PROGRESS60, ps::COL_PROGRESS80,
     ps::COL_PROGRESS100, ps::COL_PROGRESS120,
+};
+
+// progress indicators
+static const char* progress[3][PROGRESS_STEPS] = {
+    {},
+    {"⠀ ", "⠁ ", "⠉ ", "⠋ ", "⠛ ", "⠟ ", "⠿ ", "⡿ ", "⣿ "},
+    {"⠀ ", "▁ ", "▂ ", "▃ ", "▄ ", "▅ ", "▆ ", "▇ ", "█ "},
 };
 
 // ying-yang ratio indicators
@@ -559,12 +567,12 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     // x_base value depends on the static headers below! (x_base = 1 + number of chars in header)
 //    int pos = 1, x_base = 31, column = x_base;
 //    int pos = 1, x_base = 18, column = x_base;
-    int pos = 1, x_base = 16, column = x_base;
+    int pos = 1, x_base = 14, column = x_base;
 
     // clear all column positions before they will be updated (columns can be removed)
     column_pos.clear();
 //    canvas->print(2, pos, " ⣿ ☯ ⌚ ≀∆ ⌚ ≀∇ ");
-    canvas->print(2, pos, " ⣿  ⌬ ≀∆  ⌬ ≀∇ ");
+    canvas->print(2, pos, "  ⌬ ≀∆  ⌬ ≀∇ ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
@@ -585,15 +593,6 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         canvas->set_attr(0, pos+1, -1, attr_map[ps::COL_LEECHING], ps::COL_LEECHING);
     }
 
-    // Styles
-    #define PROGRESS_STEPS 9
-    const char* progress[3][PROGRESS_STEPS] = {
-        {},
-        {"⠀ ", "⠁ ", "⠉ ", "⠋ ", "⠛ ", "⠟ ", "⠿ ", "⡿ ", "⣿ "},
-        {"⠀ ", "▁ ", "▂ ", "▃ ", "▄ ", "▅ ", "▆ ", "▇ ", "█ "},
-    };
-    unsigned int progress_style = std::min<unsigned int>(rpc::call_command_value("ui.style.progress"), 2);
-
     // define iterator range
     Range range = rak::advance_bidirectional(
             view->begin_visible(),
@@ -606,7 +605,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         core::Download* d = *range.first;
         core::Download* item = d;
 //        torrent::Tracker* tracker = get_active_tracker((*range.first)->download());
-        int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
+//        int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
         bool has_msg = !d->message().empty();
         bool has_alert = has_msg && d->message().find("Tried all trackers") == std::string::npos;
         int offset = row_offset(view, range);
@@ -673,16 +672,10 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         char* last = buffer + canvas->width() - 2 + 1;
         print_download_title(buffer, last, d);
 
-        char progress_str[6] = "##";
-        if (progress_style == 0) {
-            sprintf(progress_str, item->file_list()->completed_chunks() ? "%2.2d" : "--",
-                item->file_list()->completed_chunks() * 100 / item->file_list()->size_chunks());
-        }
-
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
 //        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
-        canvas->print(0, pos, "%s  %s%s%s %s%s ",
+        canvas->print(0, pos, "%s  %s%s %s%s ",
             range.first == view->focus() ? "»" : " ",
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
@@ -691,9 +684,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //            !throttlename.empty() ? throttlename == "NULL" ? "∞ " : throttle_str : "  ",
 //            unsafe_data[get_custom_long(d, "unsafe_data") % 3],
 //            dir_str,
-            d->is_done() ? "✔ " : progress_style == 0 ? progress_str : progress[progress_style][
-                item->file_list()->completed_chunks() * PROGRESS_STEPS
-                / item->file_list()->size_chunks()],
+//            d->is_done() ? "✔ " : progress_style == 0 ? progress_str : progress[progress_style][
+//                item->file_list()->completed_chunks() * PROGRESS_STEPS
+//                / item->file_list()->size_chunks()],
 //            D_INFO(item)->down_rate()->rate() ?
 //                (D_INFO(item)->up_rate()->rate() ? "⇅ " : "↡ ") :
 //                (D_INFO(item)->up_rate()->rate() ? "↟ " : "  "),
@@ -745,7 +738,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             canvas->width() - x_name - 1).c_str());
 
 //        int x_scrape = 3 + 11*2 + 1; // lead, 11 status columns, gap
-        int x_scrape = 3 + 1*2 + 1; // lead, 1 status columns, gap
+        int x_scrape = 3 + 0*2 + 1; // lead, 0 status columns, gap
 //        int x_rate = x_scrape + 4*3; // skip 4 scrape columns
         int x_rate = x_scrape; // skip 0 scrape columns
 ////        int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
@@ -757,12 +750,15 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         if (has_alert && column_pos.find("⚑ ") != column_pos.end())
             canvas->set_attr(column_pos["⚑ "], pos, 2, attr_map[ps::COL_ALARM + offset], ps::COL_ALARM + offset);
 
-        // apply progress color to completion indicator
-        int pcol = ratio_color(item->file_list()->completed_chunks() * 1000 / item->file_list()->size_chunks());
-        canvas->set_attr(x_scrape-9, pos, 2, attr_map[pcol + offset], pcol + offset);
+        // apply progress color to completion indicator if completion column exists
+        if (column_pos.find("⣿ ") != column_pos.end()) {
+            int pcol = ratio_color(item->file_list()->completed_chunks() * 1000 / item->file_list()->size_chunks());
+            canvas->set_attr(column_pos["⣿ "], pos, 2, attr_map[pcol + offset], pcol + offset);
+        }
 
         // show ratio progress by color if ratio column exists
         if (column_pos.find("☯ ") != column_pos.end()) {
+            int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
             int rcol = ratio_color(ratio);
             canvas->set_attr(column_pos["☯ "], pos, 2, attr_map[rcol + offset], rcol + offset);
         }
@@ -866,7 +862,30 @@ std::string get_ui_message(core::Download* item) {
 }
 
 
-// return the colorized icon of ratio of the given download item
+// return the icon of completion status of the given download item
+std::string get_ui_completion(core::Download* item) {
+    std::string completion_str = "  ";
+    unsigned int progress_style = std::min<unsigned int>(rpc::call_command_value("ui.style.progress"), 2);
+
+    if (item->is_done()) {
+        completion_str = "✔ ";
+    } else if (progress_style == 0) {
+        char progress_str[6] = "##";
+        sprintf(progress_str, item->file_list()->completed_chunks() ? "%2.2d" : "--",
+            item->file_list()->completed_chunks() * 100 / item->file_list()->size_chunks());
+
+        completion_str = std::string(progress_str);
+    } else {
+        completion_str = std::string(progress[progress_style][
+                                        item->file_list()->completed_chunks() * PROGRESS_STEPS
+                                        / item->file_list()->size_chunks()]);
+    }
+
+    return completion_str;
+}
+
+
+// return the icon of ratio of the given download item
 std::string get_ui_ratio(core::Download* item) {
     std::string ratio_str = "  ";
     int ratio = rpc::call_command_value("d.ratio", rpc::make_target(item));
@@ -1036,6 +1055,11 @@ torrent::Object cmd_d_ui_message(core::Download* download) {
 }
 
 
+torrent::Object cmd_d_ui_completion(core::Download* download) {
+    return display::get_ui_completion(download);
+}
+
+
 torrent::Object cmd_d_ui_ratio(core::Download* download) {
     return display::get_ui_ratio(download);
 }
@@ -1097,6 +1121,7 @@ void initialize_command_ui_pyroscope() {
     CMD2_ANY_LIST("convert.magnitude",          _cxxstd_::bind(&apply_magnitude, _cxxstd_::placeholders::_2));
 
     CMD2_DL("d.ui.message",                _cxxstd_::bind(&cmd_d_ui_message, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.completion",             _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.ratio",                  _cxxstd_::bind(&cmd_d_ui_ratio, _cxxstd_::placeholders::_1));
 
     rpc::parse_command_multiple(
@@ -1117,6 +1142,9 @@ void initialize_command_ui_pyroscope() {
 
         // First character of parent directory (⊕)
         "method.set_key = ui.column.render, \"170:1:⊕\", ((d.parent_dir))\n"
+
+        // Completion status (⣿)
+        "method.set_key = ui.column.render, \"180:2:⣿ \", ((d.ui.completion))\n"
 
         // Transfer direction (⋮)
         "method.set_key = ui.column.render, \"190:1:⋮\", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, \"⇅ \")),((cat, \"↡ \")))), ((if,((d.up.rate)),((cat, \"↟ \")),((cat, \"  \")))) ))\n"
