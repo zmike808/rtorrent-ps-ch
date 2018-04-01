@@ -567,12 +567,13 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     // x_base value depends on the static headers below! (x_base = 1 + number of chars in header)
 //    int pos = 1, x_base = 31, column = x_base;
 //    int pos = 1, x_base = 18, column = x_base;
-    int pos = 1, x_base = 14, column = x_base;
+//    int pos = 1, x_base = 14, column = x_base;
+    int pos = 1, x_base = 8, column = x_base;
 
     // clear all column positions before they will be updated (columns can be removed)
     column_pos.clear();
 //    canvas->print(2, pos, " ⣿ ☯ ⌚ ≀∆ ⌚ ≀∇ ");
-    canvas->print(2, pos, "  ⌬ ≀∆  ⌬ ≀∇ ");
+    canvas->print(2, pos, "  ⌬ ≀∇ ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
@@ -662,7 +663,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //            }
 //        }
 
-        int connected_peers = d->connection_list()->size();
+//        int connected_peers = d->connection_list()->size();
 
         std::string displayname = get_custom_string(d, "displayname");
 //        int is_tagged = rpc::commands.call_command_d("d.views.has", d, torrent::Object("tagged")).as_value() == 1;
@@ -675,7 +676,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
 //        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
 //        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
-        canvas->print(0, pos, "%s  %s%s %s%s ",
+        canvas->print(0, pos, "%s  %s%s ",
             range.first == view->focus() ? "»" : " ",
 //            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
 //            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
@@ -697,9 +698,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 //            tracker ? num2(tracker->scrape_complete()).c_str() : "  ",
 //            tracker ? num2(tracker->scrape_incomplete()).c_str() : "  ",
 //            num2(connected_peers).c_str(),
-            !up_rate ?  "" : " ",
-            !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(d, "last_active")).c_str()) :
-                   human_size(up_rate, 2 | 8).c_str(),
+//            !up_rate ?  "" : " ",
+//            !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(d, "last_active")).c_str()) :
+//                   human_size(up_rate, 2 | 8).c_str(),
 //            // d.up.total
 //            D_INFO(item)->up_rate()->total() ? "" : "  ",
 //            D_INFO(item)->up_rate()->total() ?
@@ -763,14 +764,16 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             canvas->set_attr(column_pos["☯ "], pos, 2, attr_map[rcol + offset], rcol + offset);
         }
 
-        // color up rates / time
-        if (!up_rate) {
-            // time display
-            canvas->set_attr(x_rate+0+1, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
-            canvas->set_attr(x_rate+0+4, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
-        } else {
-            // up rate
-            canvas->set_attr(x_rate+0, pos, 5, attr_map[ps::COL_SEEDING + offset], ps::COL_SEEDING + offset);
+        // color up rates / time of uprate_tm column exists
+        if (column_pos.find(" ⌬ ≀∆") != column_pos.end()) {
+            if (!up_rate) {
+                // time display
+                canvas->set_attr(column_pos[" ⌬ ≀∆"]+1, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
+                canvas->set_attr(column_pos[" ⌬ ≀∆"]+4, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
+            } else {
+                // up rate
+                canvas->set_attr(column_pos[" ⌬ ≀∆"], pos, 5, attr_map[ps::COL_SEEDING + offset], ps::COL_SEEDING + offset);
+            }
         }
 
         // color down rates / time
@@ -905,6 +908,16 @@ std::string get_ui_ratio(core::Download* item) {
     }
 
     return ratio_str;
+}
+
+
+// return uprate of approximate time since last active state of the given download item
+std::string get_ui_uprate_tm(core::Download* item) {
+    uint32_t up_rate = D_INFO(item)->up_rate()->rate();
+    int connected_peers = item->connection_list()->size();
+
+    return !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(item, "last_active"))) :
+               " " + human_size(up_rate, 2 | 8);
 }
 
 
@@ -1065,6 +1078,11 @@ torrent::Object cmd_d_ui_ratio(core::Download* download) {
 }
 
 
+torrent::Object cmd_d_ui_uprate_tm(core::Download* download) {
+    return display::get_ui_uprate_tm(download);
+}
+
+
 // register our commands
 void initialize_command_ui_pyroscope() {
     #define PS_VARIABLE_COLOR(key, value) \
@@ -1123,6 +1141,7 @@ void initialize_command_ui_pyroscope() {
     CMD2_DL("d.ui.message",                _cxxstd_::bind(&cmd_d_ui_message, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.completion",             _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.ratio",                  _cxxstd_::bind(&cmd_d_ui_ratio, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.uprate_tm",              _cxxstd_::bind(&cmd_d_ui_uprate_tm, _cxxstd_::placeholders::_1));
 
     rpc::parse_command_multiple(
         rpc::make_target(),
@@ -1163,15 +1182,18 @@ void initialize_command_ui_pyroscope() {
         // Number of connected peers (↻)
         "method.set_key = ui.column.render, \"440:2: ↻\", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
+        // Uprate or approximate time since last active state (⌬ ≀∆)
+        "method.set_key = ui.column.render, \"800:5: ⌬ ≀∆\", ((d.ui.uprate_tm))\n"
+
         // Uploaded data (⊼)
-        "method.set_key = ui.column.render, \"900:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
+        "method.set_key = ui.column.render, \"810:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
 
 #if RT_HEX_VERSION < 0x000907
         // Data size (✇)
-        "method.set_key = ui.column.render, \"910:4: ✇  \", ((convert.human_size, ((d.size_bytes)) ))\n"
+        "method.set_key = ui.column.render, \"900:4: ✇  \", ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
         // Selected data size (✇)
-        "method.set_key = ui.column.render, \"910:4: ✇  \", ((convert.human_size, ((d.selected_size_bytes)) ))\n"
+        "method.set_key = ui.column.render, \"900:4: ✇  \", ((convert.human_size, ((d.selected_size_bytes)) ))\n"
 #endif
     );
 }
