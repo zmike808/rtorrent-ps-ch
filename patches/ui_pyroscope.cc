@@ -412,45 +412,6 @@ static int ratio_color(int ratio) {
 }
 
 
-// Render columns from `column_defs`, return total length
-int render_columns(bool headers, rpc::target_type target,
-                   display::Canvas* canvas, int column, int pos,
-                   const torrent::Object::map_type& column_defs) {
-    torrent::Object::map_const_iterator cols_itr, last_col = column_defs.end();
-    int total = 0;
-
-    for (cols_itr = column_defs.begin(); cols_itr != last_col; ++cols_itr) {
-        // Skip sort key (format is "sort:len:title")
-        size_t header_colon = cols_itr->first.find(':');
-        if (header_colon == std::string::npos) continue;
-
-        // Parse header length
-        const char* header_pos = cols_itr->first.c_str() + header_colon + 1;
-        char* header_text = 0;
-        int header_len = (int)strtol(header_pos, &header_text, 10);
-        if (*header_text++ != ':') continue;
-
-        // Render title text, or the result of the column command
-        if (headers) {
-            std::string header_str = u8_chop(header_text, header_len);
-            canvas->print(column, pos, " %s", header_str.c_str());
-
-            // store current column position
-            column_pos[header_str] = column + 1;
-        } else {
-            std::string text = rpc::call_object_nothrow(cols_itr->second, target).as_string();
-            //std::string text = rpc::call_command_string(cols_itr->second.as_string().c_str(), target);
-            canvas->print(column, pos, " %s", u8_chop(text, header_len).c_str());
-        }
-
-        // Advance position
-        column += header_len + 1;
-        total += header_len + 1;
-    }
-    return total;
-}
-
-
 // patch hook for download list canvas redraw of a single item; "pos" is placed AFTER the item
 void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* canvas, core::View* view, int pos, Range& range) {
     int offset = row_offset(view, range);
@@ -540,6 +501,45 @@ void ui_pyroscope_download_list_redraw_item(Window* window, display::Canvas* can
 }
 
 
+// Render columns from `column_defs`, return total length
+int render_columns(bool headers, rpc::target_type target,
+                   display::Canvas* canvas, int column, int pos,
+                   const torrent::Object::map_type& column_defs) {
+    torrent::Object::map_const_iterator cols_itr, last_col = column_defs.end();
+    int total = 0;
+
+    for (cols_itr = column_defs.begin(); cols_itr != last_col; ++cols_itr) {
+        // Skip sort key (format is "sort:len:title")
+        size_t header_colon = cols_itr->first.find(':');
+        if (header_colon == std::string::npos) continue;
+
+        // Parse header length
+        const char* header_pos = cols_itr->first.c_str() + header_colon + 1;
+        char* header_text = 0;
+        int header_len = (int)strtol(header_pos, &header_text, 10);
+        if (*header_text++ != ':') continue;
+
+        // Render title text, or the result of the column command
+        if (headers) {
+            std::string header_str = u8_chop(header_text, header_len);
+            canvas->print(column, pos, " %s", header_str.c_str());
+
+            // store current column position
+            column_pos[header_str] = column + 1;
+        } else {
+            std::string text = rpc::call_object_nothrow(cols_itr->second, target).as_string();
+            //std::string text = rpc::call_command_string(cols_itr->second.as_string().c_str(), target);
+            canvas->print(column, pos, " %s", u8_chop(text, header_len).c_str());
+        }
+
+        // Advance position
+        column += header_len + 1;
+        total += header_len + 1;
+    }
+    return total;
+}
+
+
 // patch hook for download list canvas redraw; if this returns true, the calling
 // function is left immediately (i.e. true indicates we took over ALL redrawing)
 bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, core::View* view) {
@@ -563,7 +563,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     const torrent::Object::map_type& column_defs = control->object_storage()->get_str("ui.column.render").as_map();
     // clear all column positions before they will be updated (columns can be removed)
     column_pos.clear();
-    // x_base value depends on the static headers below! (x_base = 1 + number of chars in header)
+    // x_base value depends on the static header below! (x_base = 1 + number of chars in static header below)
     int pos = 1, x_base = 2, column = x_base;
 
     canvas->print(2, pos, " ");
@@ -597,18 +597,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     while (range.first != range.second) {
         core::Download* d = *range.first;
         core::Download* item = d;
-        bool has_msg = !d->message().empty();
-        bool has_alert = has_msg && d->message().find("Tried all trackers") == std::string::npos;
+        bool has_alert = !d->message().empty() && d->message().find("Tried all trackers") == std::string::npos;
         int offset = row_offset(view, range);
-        int col_active = ps::COL_INFO;
-        //int col_active = item->is_open() && item->is_active() ? ps::COL_INFO : d->is_done() ? ps::COL_STOPPED : ps::COL_QUEUED;
-
         std::string displayname = get_custom_string(d, "displayname");
-        uint32_t down_rate = D_INFO(item)->down_rate()->rate();
-        uint32_t up_rate = D_INFO(item)->up_rate()->rate();
-        char buffer[canvas->width() + 1];
-        char* last = buffer + canvas->width() - 2 + 1;
-        print_download_title(buffer, last, d);
 
         // Display active download indicator
         canvas->print(0, pos, "%s  ", range.first == view->focus() ? "»" : " ");
@@ -625,11 +616,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             displayname.empty() ? d->info()->name() : displayname.c_str(),
             canvas->width() - x_name - 1).c_str());
 
-        int x_scrape = 3 + 0*2 + 1; // lead, 0 status columns, gap
-        int x_rate = x_scrape; // skip 0 scrape columns
-        //int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
         decorate_download_title(window, canvas, view, pos, range);
-        canvas->set_attr(2, pos, x_name-2, attr_map[col_active + offset], col_active + offset);
+        canvas->set_attr(2, pos, x_name-2, attr_map[ps::COL_INFO + offset], ps::COL_INFO + offset);
 
         // apply color to alert messages in message column if it exists
         if (has_alert && column_pos.find("⚑ ") != column_pos.end())
@@ -650,8 +638,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 
         // color up rates / time if uprate_tm column exists
         if (column_pos.find(" ⌬ ≀∆") != column_pos.end()) {
-            if (!up_rate) {
-                // time display
+            if (!D_INFO(item)->up_rate()->rate()) {
+                // elapsed time
                 canvas->set_attr(column_pos[" ⌬ ≀∆"]+1, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
                 canvas->set_attr(column_pos[" ⌬ ≀∆"]+4, pos, 1, attr_map[ps::COL_QUEUED + offset], ps::COL_QUEUED + offset);
             } else {
@@ -663,13 +651,13 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         // color down rates / time if downrate_tm column exists
         if (column_pos.find(" ⌬ ≀∇") != column_pos.end()) {
 #if RT_HEX_VERSION < 0x000907
-            if (d->is_done() || !down_rate) {
+            if (d->is_done() || !D_INFO(item)->down_rate()->rate()) {
                 int tm_color = (d->is_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
 #else
-            if (d->data()->is_partially_done() || !down_rate) {
+            if (d->data()->is_partially_done() || !D_INFO(item)->down_rate()->rate()) {
                 int tm_color = (d->data()->is_partially_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
 #endif
-                // time display
+                // elapsed time
                 canvas->set_attr(column_pos[" ⌬ ≀∇"]+1, pos, 1, attr_map[tm_color], tm_color);
                 canvas->set_attr(column_pos[" ⌬ ≀∇"]+4, pos, 1, attr_map[tm_color], tm_color);
             } else {
