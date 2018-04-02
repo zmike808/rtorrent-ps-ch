@@ -1081,10 +1081,10 @@ void initialize_command_ui_pyroscope() {
 
 #if RT_HEX_VERSION < 0x000907
         // Data size (✇)
-        "method.set_key = ui.column.render, \"900:4: ✇  \", ((convert.human_size, ((d.size_bytes)) ))\n"
+        "method.set_key = ui.column.render, \"900:4:  ✇ \", ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
         // Selected data size (✇)
-        "method.set_key = ui.column.render, \"900:4: ✇  \", ((convert.human_size, ((d.selected_size_bytes)) ))\n"
+        "method.set_key = ui.column.render, \"900:4:  ✇ \", ((convert.human_size, ((d.selected_size_bytes)) ))\n"
 #endif
     );
 }
