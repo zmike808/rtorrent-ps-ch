@@ -49,7 +49,6 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "rpc/object_storage.h"
 
 // from command_pyroscope.cc
-extern torrent::Tracker* get_active_tracker(torrent::Download* item);
 extern std::string get_active_tracker_domain(torrent::Download* item);
 
 
@@ -569,8 +568,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     canvas->print(2, pos, " ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
-    if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
-        canvas->print(canvas->width() - 7, 1, "Tracker");
+    if (canvas->width() - column > TRACKER_LABEL_WIDTH - 6) {
+        canvas->print(canvas->width() - 14, 1, "Tracker Domain");
     }
     canvas->set_attr(0, pos, -1, attr_map[ps::COL_LABEL], ps::COL_LABEL);
 
