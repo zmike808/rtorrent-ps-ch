@@ -1049,12 +1049,6 @@ void initialize_command_ui_pyroscope() {
         // First character of throttle name (⊘)
         "method.set_key = ui.column.render, \"200:1:⊘\", \"branch=((equal, ((d.throttle_name)), ((cat,NULL)))), ((cat, \\\"∞\\\")), ((d.throttle_name))\"\n"
 
-        // Unsafe data (◎)
-        "method.set_key = ui.column.render, \"230:1:◎\", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, \" \"}, {1, \"⊘\"}, {2, \"⊗\"}))\n"
-
-        // First character of parent directory (⊕)
-        "method.set_key = ui.column.render, \"250:1:⊕\", ((d.parent_dir))\n"
-
         // Completion status (⣿)
         "method.set_key = ui.column.render, \"300:2:⣿ \", ((d.ui.completion))\n"
 
