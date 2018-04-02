@@ -1041,48 +1041,48 @@ void initialize_command_ui_pyroscope() {
         "method.insert = ui.column.render, multi|rlookup|static\n"
 
         // Status flags (☢ ☍ ⌘ ✰)
-        "method.set_key = ui.column.render, \"100:1:☢\", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪ \"}, {01, \"▪ \"}, {10, \"╍ \"}, {11, \"▹ \"}))\n"
-        "method.set_key = ui.column.render, \"110:1:☍\", ((if, ((d.tied_to_file)), ((cat, \"⚯ \")), ((cat, \"  \"))))\n"
-        "method.set_key = ui.column.render, \"120:1:⌘\", ((if, ((d.ignore_commands)), ((cat, \"◌ \")), ((cat, \"⚒ \"))))\n"
-        "method.set_key = ui.column.render, \"130:1:✰\", ((string.map, ((cat, ((d.priority)))), {0, \"✖ \"}, {1, \"⇣ \"}, {2, \"  \"}, {3, \"⇡ \"}))\n"
+        "method.set_key = ui.column.render, \"100:1:☢\", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪\"}, {01, \"▪\"}, {10, \"╍\"}, {11, \"▹\"}))\n"
+        "method.set_key = ui.column.render, \"110:1:☍\", ((if, ((d.tied_to_file)), ((cat, \"⚯\")), ((cat, \" \"))))\n"
+        "method.set_key = ui.column.render, \"120:1:⌘\", ((if, ((d.ignore_commands)), ((cat, \"◌\")), ((cat, \"⚒\"))))\n"
+        "method.set_key = ui.column.render, \"130:1:✰\", ((string.map, ((cat, ((d.priority)))), {0, \"✖\"}, {1, \"⇣\"}, {2, \" \"}, {3, \"⇡\"}))\n"
 
         // First character of throttle name (⊘)
-        "method.set_key = ui.column.render, \"140:1:⊘\", \"branch=((equal, ((d.throttle_name)), ((cat,NULL)))), ((cat, \\\"∞ \\\")), ((d.throttle_name))\"\n"
+        "method.set_key = ui.column.render, \"200:1:⊘\", \"branch=((equal, ((d.throttle_name)), ((cat,NULL)))), ((cat, \\\"∞\\\")), ((d.throttle_name))\"\n"
 
         // Unsafe data (◎)
-        "method.set_key = ui.column.render, \"160:1:◎\", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, \"  \"}, {1, \"⊘ \"}, {2, \"⊗ \"}))\n"
+        "method.set_key = ui.column.render, \"230:1:◎\", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, \" \"}, {1, \"⊘\"}, {2, \"⊗\"}))\n"
 
         // First character of parent directory (⊕)
-        "method.set_key = ui.column.render, \"170:1:⊕\", ((d.parent_dir))\n"
+        "method.set_key = ui.column.render, \"250:1:⊕\", ((d.parent_dir))\n"
 
         // Completion status (⣿)
-        "method.set_key = ui.column.render, \"180:2:⣿ \", ((d.ui.completion))\n"
+        "method.set_key = ui.column.render, \"300:2:⣿ \", ((d.ui.completion))\n"
 
         // Transfer direction (⋮)
-        "method.set_key = ui.column.render, \"190:1:⋮\", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, \"⇅ \")),((cat, \"↡ \")))), ((if,((d.up.rate)),((cat, \"↟ \")),((cat, \"  \")))) ))\n"
+        "method.set_key = ui.column.render, \"310:1:⋮\", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, \"⇅\")),((cat, \"↡\")))), ((if,((d.up.rate)),((cat, \"↟\")),((cat, \" \")))) ))\n"
 
         // Ratio (☯)
-        "method.set_key = ui.column.render, \"200:2:☯ \", ((d.ui.ratio))\n"
+        "method.set_key = ui.column.render, \"320:2:☯ \", ((d.ui.ratio))\n"
 
         // Message (⚑)
-        "method.set_key = ui.column.render, \"210:2:⚑ \", ((d.ui.message))\n"
+        "method.set_key = ui.column.render, \"330:2:⚑ \", ((d.ui.message))\n"
 
         // Scrape info (↺ ⤴ ⤵)
-        "method.set_key = ui.column.render, \"410:2: ↺\", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
-        "method.set_key = ui.column.render, \"420:2: ⤴\", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
-        "method.set_key = ui.column.render, \"430:2: ⤵\", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
+        "method.set_key = ui.column.render, \"400:2: ↺\", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
+        "method.set_key = ui.column.render, \"410:2: ⤴\", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
+        "method.set_key = ui.column.render, \"420:2: ⤵\", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
 
         // Number of connected peers (↻)
-        "method.set_key = ui.column.render, \"440:2: ↻\", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"430:2: ↻\", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Uprate or approximate time since last active state (⌬ ≀∆)
-        "method.set_key = ui.column.render, \"800:5: ⌬ ≀∆\", ((d.ui.uprate_tm))\n"
+        "method.set_key = ui.column.render, \"600:5: ⌬ ≀∆\", ((d.ui.uprate_tm))\n"
 
         // Uploaded data (⊼)
-        "method.set_key = ui.column.render, \"810:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
+        "method.set_key = ui.column.render, \"700:6:   ⊼  \", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, \"   ·  \"))))\n"
 
         // Downrate or approximate time since completion (⌬ ≀∇)
-        "method.set_key = ui.column.render, \"820:5: ⌬ ≀∇\", ((d.ui.downrate_tm))\n"
+        "method.set_key = ui.column.render, \"800:5: ⌬ ≀∇\", ((d.ui.downrate_tm))\n"
 
 #if RT_HEX_VERSION < 0x000907
         // Data size (✇)
