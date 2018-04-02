@@ -610,10 +610,12 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         column += custom_len;
         int x_name = column + 1;
 
-        // Render name
-        canvas->print(column, pos, " %s", u8_chop(
-            displayname.empty() ? d->info()->name() : displayname.c_str(),
-            canvas->width() - x_name - 1).c_str());
+        // Render name : only display Name column if there's space for it
+        if (canvas->width() > column) {
+            canvas->print(column, pos, " %s", u8_chop(
+                displayname.empty() ? d->info()->name() : displayname.c_str(),
+                canvas->width() - x_name - 1).c_str());
+        }
 
         decorate_download_title(window, canvas, view, pos, range);
         canvas->set_attr(2, pos, x_name-2, attr_map[ps::COL_INFO + offset], ps::COL_INFO + offset);
