@@ -560,26 +560,16 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         return true;
 
     // show column headers
-//    int pos = 1;
-//    canvas->print(2, pos, " ☢ ☍ ⌘ ✰ ⊘ ◎ ⊕ ⣿ ⚡ ☯ ⚑  ↺  ⤴  ⤵  ↻  ⌚ ≀∆     ⊼   ⌚ ≀∇   ✇   Name");
-//    if (canvas->width() > TRACKER_LABEL_WIDTH) {
     const torrent::Object::map_type& column_defs = control->object_storage()->get_str("ui.column.render").as_map();
-    // x_base value depends on the static headers below! (x_base = 1 + number of chars in header)
-//    int pos = 1, x_base = 31, column = x_base;
-//    int pos = 1, x_base = 18, column = x_base;
-//    int pos = 1, x_base = 14, column = x_base;
-//    int pos = 1, x_base = 8, column = x_base;
-    int pos = 1, x_base = 2, column = x_base;
-
     // clear all column positions before they will be updated (columns can be removed)
     column_pos.clear();
-//    canvas->print(2, pos, " ⣿ ☯ ⌚ ≀∆ ⌚ ≀∇ ");
-//    canvas->print(2, pos, "  ⌬ ≀∇ ");
+    // x_base value depends on the static headers below! (x_base = 1 + number of chars in header)
+    int pos = 1, x_base = 2, column = x_base;
+
     canvas->print(2, pos, " ");
     column += render_columns(true, rpc::make_target(), canvas, column, pos, column_defs);
     canvas->print(column, pos, " Name "); column += 6;
     if (canvas->width() - column > TRACKER_LABEL_WIDTH) {
-//        canvas->print(canvas->width() - 14, 1, "Tracker Domain");
         canvas->print(canvas->width() - 7, 1, "Tracker");
     }
     canvas->set_attr(0, pos, -1, attr_map[ps::COL_LABEL], ps::COL_LABEL);
@@ -607,127 +597,21 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     while (range.first != range.second) {
         core::Download* d = *range.first;
         core::Download* item = d;
-//        torrent::Tracker* tracker = get_active_tracker((*range.first)->download());
-//        int ratio = rpc::call_command_value("d.ratio", rpc::make_target(d));
         bool has_msg = !d->message().empty();
         bool has_alert = has_msg && d->message().find("Tried all trackers") == std::string::npos;
         int offset = row_offset(view, range);
         int col_active = ps::COL_INFO;
         //int col_active = item->is_open() && item->is_active() ? ps::COL_INFO : d->is_done() ? ps::COL_STOPPED : ps::COL_QUEUED;
 
-/*        const char* alert = "⚠ ";
-        if (has_alert) {
-            if (d->message().find("Timeout was reached") != std::string::npos
-                        || d->message().find("Timed out") != std::string::npos)
-                alert = "◔ ";
-            else if (d->message().find("Connecting to") != std::string::npos)
-                alert = "⚡ ";
-            else if (d->message().find("Could not parse bencoded data") != std::string::npos
-                        || d->message().find("Failed sending data") != std::string::npos
-                        || d->message().find("Server returned nothing") != std::string::npos
-                        || d->message().find("Couldn't connect to server") != std::string::npos)
-                alert = "↯ ";
-            else if (d->message().find("not registered") != std::string::npos
-                        || d->message().find("torrent cannot be found") != std::string::npos
-                        || d->message().find("unregistered") != std::string::npos)
-                alert = "¿?";
-            else if (d->message().find("not authorized") != std::string::npos
-                        || d->message().find("blocked from") != std::string::npos
-                        || d->message().find("denied") != std::string::npos
-                        || d->message().find("limit exceeded") != std::string::npos
-                        || d->message().find("active torrents are enough") != std::string::npos)
-                alert = "⨂ ";
-        }
-*/
-//        const char* prios[] = {"✖ ", "⇣ ", "  ", "⇡ "};
-
-//        char throttle_str[3] = "  ";
-//        std::string throttlename = "";
-//        if (!d->bencode()->get_key("rtorrent").get_key_string("throttle_name").empty()) {
-//            throttlename = rpc::call_command_string("d.throttle_name", rpc::make_target(d)).c_str();
-//            sprintf(throttle_str, "%c ", throttlename[0]);
-//        }
-
-//        const char* unsafe_data[] = {"  ", "⊘ ", "⊗ "};
-
-//        char dir_str[3] = "  ";
-//        std::string directory_str = rpc::call_command_string("d.directory", rpc::make_target(d)).c_str();
-//        if (rpc::call_command_value("d.is_multi_file", rpc::make_target(d)) == 0) {
-//            std::string dirletter = directory_str.substr(directory_str.find_last_of("\\/") + 1,1);
-//            if (!dirletter.empty()) {
-//                sprintf(dir_str, "%c ", dirletter[0]);
-//            }
-//        } else {
-//            std::string dirpath = directory_str.substr(0, directory_str.find_last_of("\\/"));
-//            std::string dirletter = dirpath.substr(dirpath.find_last_of("\\/") + 1,1);
-//            if (!dirletter.empty()) {
-//                sprintf(dir_str, "%c ", dirletter[0]);
-//            }
-//        }
-
-//        int connected_peers = d->connection_list()->size();
-
         std::string displayname = get_custom_string(d, "displayname");
-//        int is_tagged = rpc::commands.call_command_d("d.views.has", d, torrent::Object("tagged")).as_value() == 1;
         uint32_t down_rate = D_INFO(item)->down_rate()->rate();
         uint32_t up_rate = D_INFO(item)->up_rate()->rate();
         char buffer[canvas->width() + 1];
         char* last = buffer + canvas->width() - 2 + 1;
         print_download_title(buffer, last, d);
 
-//        canvas->print(0, pos, "%s  %s%s%s%s%s%s%s%s%s%s%s %s %s %s %s %s%s %s%s%s %s%s %s%s%s",
-//        canvas->print(0, pos, "%s  %s%s%s%s%s%s %s %s %s %s%s %s%s ",
-//        canvas->print(0, pos, "%s  %s%s%s%s %s %s %s %s%s %s%s ",
-//        canvas->print(0, pos, "%s  %s%s ",
-        canvas->print(0, pos, "%s  ",
-            range.first == view->focus() ? "»" : " "
-//            item->is_open() ? item->is_active() ? "▹ " : "╍ " : "▪ ",
-//            rpc::call_command_string("d.tied_to_file", rpc::make_target(d)).empty() ? "  " : "⚯ ",
-//            rpc::call_command_value("d.ignore_commands", rpc::make_target(d)) == 0 ? "⚒ " : "◌ ",
-//            prios[d->priority() % 4],
-//            !throttlename.empty() ? throttlename == "NULL" ? "∞ " : throttle_str : "  ",
-//            unsafe_data[get_custom_long(d, "unsafe_data") % 3],
-//            dir_str,
-//            d->is_done() ? "✔ " : progress_style == 0 ? progress_str : progress[progress_style][
-//                item->file_list()->completed_chunks() * PROGRESS_STEPS
-//                / item->file_list()->size_chunks()],
-//            D_INFO(item)->down_rate()->rate() ?
-//                (D_INFO(item)->up_rate()->rate() ? "⇅ " : "↡ ") :
-//                (D_INFO(item)->up_rate()->rate() ? "↟ " : "  "),
-//            ying_yang_style == 0 ? ying_yang_str :
-//                ratio >= YING_YANG_STEPS * 1000 ? "⊛ " : ying_yang[ying_yang_style][ratio / 1000],
-//            has_msg ? has_alert ? alert : "♺ " : is_tagged ? "⚑ " : "  ",
-//            tracker ? num2(tracker->scrape_downloaded()).c_str() : "  ",
-//            tracker ? num2(tracker->scrape_complete()).c_str() : "  ",
-//            tracker ? num2(tracker->scrape_incomplete()).c_str() : "  ",
-//            num2(connected_peers).c_str(),
-//            !up_rate ?  "" : " ",
-//            !up_rate ? (connected_peers ? "   0”" : elapsed_time(get_custom_long(d, "last_active")).c_str()) :
-//                   human_size(up_rate, 2 | 8).c_str(),
-//            // d.up.total
-//            D_INFO(item)->up_rate()->total() ? "" : "  ",
-//            D_INFO(item)->up_rate()->total() ?
-//                human_size(D_INFO(item)->up_rate()->total(), 0).c_str() :
-//                num2(D_INFO(item)->up_rate()->total()).c_str(),
-//            D_INFO(item)->up_rate()->total() ? "" : "  ",
-//#if RT_HEX_VERSION < 0x000907
-//            d->is_done() || !down_rate ? "" : " ",
-//            d->is_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
-//#else
-//            d->data()->is_partially_done() || !down_rate ? "" : " ",
-//            d->data()->is_partially_done() ? elapsed_time(get_custom_long(d, "tm_completed")).c_str() :
-//#endif
-//                !down_rate ? elapsed_time(get_custom_long(d, "tm_loaded")).c_str() :
-//                           human_size(down_rate, 2 | 8).c_str()
-//                           human_size(down_rate, 2 | 8).c_str(),
-//#if RT_HEX_VERSION < 0x000907
-//            human_size(item->file_list()->size_bytes(), 2).c_str(),
-//#else
-//            human_size(item->file_list()->selected_size_bytes(), 2).c_str(),
-//#endif
-//            displayname.empty() ? "" : " ",
-//            displayname.empty() ? buffer : displayname.c_str()
-        );
+        // Display active download indicator
+        canvas->print(0, pos, "%s  ", range.first == view->focus() ? "»" : " ");
 
         // Render custom columns
         column = x_base;
@@ -741,14 +625,11 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
             displayname.empty() ? d->info()->name() : displayname.c_str(),
             canvas->width() - x_name - 1).c_str());
 
-//        int x_scrape = 3 + 11*2 + 1; // lead, 11 status columns, gap
         int x_scrape = 3 + 0*2 + 1; // lead, 0 status columns, gap
-//        int x_rate = x_scrape + 4*3; // skip 4 scrape columns
         int x_rate = x_scrape; // skip 0 scrape columns
-////        int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
+        //int x_name = x_rate + 2*5 + 4 + 6 + 4; // skip 4 rate/size columns, gaps
         decorate_download_title(window, canvas, view, pos, range);
         canvas->set_attr(2, pos, x_name-2, attr_map[col_active + offset], col_active + offset);
-//        if (has_alert) canvas->set_attr(x_scrape-3, pos, 2, attr_map[ps::COL_ALARM + offset], ps::COL_ALARM + offset);
 
         // apply color to alert messages in message column if it exists
         if (has_alert && column_pos.find("⚑ ") != column_pos.end())
@@ -833,7 +714,7 @@ void ui_pyroscope_statusbar_redraw(Window* window, display::Canvas* canvas) {
 }
 
 
-// return the colorized icon of the corresponding message of the given download item
+// return the icon of the corresponding message of the given download item
 std::string get_ui_message(core::Download* item) {
     std::string alert = "⚠ ";
     bool has_msg = !item->message().empty();
@@ -1161,11 +1042,11 @@ void initialize_command_ui_pyroscope() {
     CMD2_ANY_LIST("convert.human_size",         _cxxstd_::bind(&apply_human_size, _cxxstd_::placeholders::_2));
     CMD2_ANY_LIST("convert.magnitude",          _cxxstd_::bind(&apply_magnitude, _cxxstd_::placeholders::_2));
 
-    CMD2_DL("d.ui.message",                _cxxstd_::bind(&cmd_d_ui_message, _cxxstd_::placeholders::_1));
-    CMD2_DL("d.ui.completion",             _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));
-    CMD2_DL("d.ui.ratio",                  _cxxstd_::bind(&cmd_d_ui_ratio, _cxxstd_::placeholders::_1));
-    CMD2_DL("d.ui.uprate_tm",              _cxxstd_::bind(&cmd_d_ui_uprate_tm, _cxxstd_::placeholders::_1));
-    CMD2_DL("d.ui.downrate_tm",            _cxxstd_::bind(&cmd_d_ui_downrate_tm, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.message",     _cxxstd_::bind(&cmd_d_ui_message, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.completion",  _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.ratio",       _cxxstd_::bind(&cmd_d_ui_ratio, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.uprate_tm",   _cxxstd_::bind(&cmd_d_ui_uprate_tm, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.ui.downrate_tm", _cxxstd_::bind(&cmd_d_ui_downrate_tm, _cxxstd_::placeholders::_1));
 
     rpc::parse_command_multiple(
         rpc::make_target(),
