@@ -432,11 +432,11 @@ int render_columns(bool headers, rpc::target_type target,
 
         // Render title text, or the result of the column command
         if (headers) {
-            // store current column position
-            std::string header_str(header_text);
-            column_pos[header_str] = column + 1;
+            std::string header_str = u8_chop(header_text, header_len);
+            canvas->print(column, pos, " %s", header_str.c_str());
 
-            canvas->print(column, pos, " %s", u8_chop(header_text, header_len).c_str());
+            // store current column position
+            column_pos[header_str] = column + 1;
         } else {
             std::string text = rpc::call_object_nothrow(cols_itr->second, target).as_string();
             //std::string text = rpc::call_command_string(cols_itr->second.as_string().c_str(), target);
