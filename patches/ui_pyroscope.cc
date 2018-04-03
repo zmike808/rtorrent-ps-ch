@@ -361,23 +361,28 @@ static int row_offset(core::View* view, Range& range) {
 }
 
 
-static void decorate_download_title(Window* window, display::Canvas* canvas, core::View* view, int pos, Range& range) {
+static void decorate_download_title(Window* window, display::Canvas* canvas, core::View* view, int pos, Range& range, int column = 2) {
     int offset = row_offset(view, range);
-    core::Download* item = *range.first;
-    bool active = item->is_open() && item->is_active();
-
-    // download title color
-    int title_col;
     unsigned long focus_attr = range.first == view->focus() ? attr_map[ps::COL_FOCUS] : 0;
+
+    // apply color to name row/column if it's visible
+    if (column > 0) {
+        // download title color
+        int title_col;
+        core::Download* item = *range.first;
+        bool active = item->is_open() && item->is_active();
+
 #if RT_HEX_VERSION < 0x000907
-    if ((*range.first)->is_done())
+        if ((*range.first)->is_done())
 #else
-    if ((*range.first)->data()->is_partially_done())
+        if ((*range.first)->data()->is_partially_done())
 #endif
-        title_col = (active ? D_INFO(item)->up_rate()->rate() ? ps::COL_SEEDING : ps::COL_COMPLETE : ps::COL_STOPPED) + offset;
-    else
-        title_col = (active ? D_INFO(item)->down_rate()->rate() ? ps::COL_LEECHING : ps::COL_INCOMPLETE : ps::COL_QUEUED) + offset;
-    canvas->set_attr(2, pos, -1, attr_map[title_col] | focus_attr, title_col);
+            title_col = (active ? D_INFO(item)->up_rate()->rate() ? ps::COL_SEEDING : ps::COL_COMPLETE : ps::COL_STOPPED) + offset;
+        else
+            title_col = (active ? D_INFO(item)->down_rate()->rate() ? ps::COL_LEECHING : ps::COL_INCOMPLETE : ps::COL_QUEUED) + offset;
+
+        canvas->set_attr(column, pos, -1, attr_map[title_col] | focus_attr, title_col);
+    }
 
     // show label for active tracker (a/k/a in focus tracker)
     std::string url = get_active_tracker_domain((*range.first)->download());
@@ -393,13 +398,13 @@ static void decorate_download_title(Window* window, display::Canvas* canvas, cor
         }
 
         // print it right-justified and in braces
-        int td_col = ps::COL_INFO;
-        //int td_col = active ? ps::COL_INFO : (*range.first)->is_done() ? ps::COL_STOPPED : ps::COL_QUEUED;
         int xpos = canvas->width() - len - 2;
         canvas->print(xpos, pos, "{%s}", url.c_str());
-        canvas->set_attr(xpos + 1, pos, len, attr_map[td_col + offset] | focus_attr, td_col + offset);
-        canvas->set_attr(xpos, pos, 1, (attr_map[td_col + offset] | focus_attr) ^ A_BOLD, td_col + offset);
-        canvas->set_attr(canvas->width() - 1, pos, 1, (attr_map[td_col + offset] | focus_attr) ^ A_BOLD, td_col + offset);
+
+        // apply color to it
+        canvas->set_attr(xpos + 1, pos, len, attr_map[ps::COL_INFO + offset] | focus_attr, ps::COL_INFO + offset);
+        canvas->set_attr(xpos, pos, 1, (attr_map[ps::COL_INFO + offset] | focus_attr) ^ A_BOLD, ps::COL_INFO + offset);
+        canvas->set_attr(canvas->width() - 1, pos, 1, (attr_map[ps::COL_INFO + offset] | focus_attr) ^ A_BOLD, ps::COL_INFO + offset);
     }
 }
 
@@ -606,7 +611,6 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         // Render custom columns
         column = x_base;
         int custom_len = render_columns(false, rpc::make_target(d), canvas, column, pos, column_defs);
-        canvas->set_attr(column, pos, custom_len, attr_map[ps::COL_DEFAULT], ps::COL_DEFAULT);
         column += custom_len;
         int x_name = column + 1;
 
@@ -617,7 +621,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
                 canvas->width() - x_name - 1).c_str());
         }
 
-        decorate_download_title(window, canvas, view, pos, range);
+        // apply basic color to all the custom columns first
         canvas->set_attr(2, pos, x_name-2, attr_map[ps::COL_INFO + offset], ps::COL_INFO + offset);
 
         // apply color to alert messages in message column if it exists
@@ -666,6 +670,9 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
                 canvas->set_attr(column_pos[" ⌬ ≀∇"], pos, 5, attr_map[ps::COL_LEECHING + offset], ps::COL_LEECHING + offset);
             }
         }
+
+        // apply color to label column always and apply color to name column only if there's space for it
+        decorate_download_title(window, canvas, view, pos, range, (canvas->width() > column ? x_name : -1));
 
         // is this the item in focus?
         if (range.first == view->focus()) {
