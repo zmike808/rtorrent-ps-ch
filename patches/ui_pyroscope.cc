@@ -601,9 +601,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
     while (range.first != range.second) {
         core::Download* d = *range.first;
         core::Download* item = d;
-        bool has_alert = !d->message().empty() && d->message().find("Tried all trackers") == std::string::npos;
         int offset = row_offset(view, range);
-        std::string displayname = get_custom_string(d, "displayname");
+        bool has_alert = !d->message().empty() && d->message().find("Tried all trackers") == std::string::npos;
 
         // Display active download indicator
         canvas->print(0, pos, "%s  ", range.first == view->focus() ? "»" : " ");
@@ -616,6 +615,8 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 
         // Render name : only display Name column if there's space for it
         if (canvas->width() > column) {
+            std::string displayname = get_custom_string(d, "displayname");
+
             canvas->print(column, pos, " %s", u8_chop(
                 displayname.empty() ? d->info()->name() : displayname.c_str(),
                 canvas->width() - x_name - 1).c_str());

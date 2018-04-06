@@ -231,15 +231,15 @@ int64_t get_active_tracker_scrape_info(const int operation, torrent::Download* i
 
     if (tracker) {
         switch (operation) {
-        case 1:
-            scrape_num = tracker->scrape_downloaded();
-            break;
-        case 2:
-            scrape_num = tracker->scrape_complete();
-            break;
-        case 3:
-            scrape_num = tracker->scrape_incomplete();
-            break;
+            case 1:
+                scrape_num = tracker->scrape_downloaded();
+                break;
+            case 2:
+                scrape_num = tracker->scrape_complete();
+                break;
+            case 3:
+                scrape_num = tracker->scrape_incomplete();
+                break;
         }
     }
 
@@ -249,7 +249,6 @@ int64_t get_active_tracker_scrape_info(const int operation, torrent::Download* i
 
 // return the name of the parent directory of the given download item
 std::string get_parent_dir(core::Download* item) {
-    std::string dir;
     std::string path = rpc::call_command_string("d.directory", rpc::make_target(item)).c_str();
 
     if (rpc::call_command_value("d.is_multi_file", rpc::make_target(item)) == 1) {
