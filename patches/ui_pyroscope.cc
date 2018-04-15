@@ -1056,7 +1056,7 @@ void initialize_command_ui_pyroscope() {
         "method.set_key = ui.column.render, \"130:1:✰\", ((string.map, ((cat, ((d.priority)))), {0, \"✖\"}, {1, \"⇣\"}, {2, \" \"}, {3, \"⇡\"}))\n"
 
         // First character of throttle name (⊘)
-        "method.set_key = ui.column.render, \"200:1:⊘\", \"branch=((equal, ((d.throttle_name)), ((cat,NULL)))), ((cat, \\\"∞\\\")), ((d.throttle_name))\"\n"
+        "method.set_key = ui.column.render, \"200:1:⊘\", {(branch, ((equal,((d.throttle_name)),((cat,NULL)))), ((cat, \"∞\")), ((d.throttle_name)) )}\n"
 
         // Completion status (⣿)
         "method.set_key = ui.column.render, \"300:2:⣿ \", ((d.ui.completion))\n"
