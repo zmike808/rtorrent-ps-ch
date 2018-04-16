@@ -4,9 +4,9 @@
 #
 
 # Set CH version
-RT_CH_MAJOR_VERSION=1.6
+RT_CH_MAJOR_VERSION=1.7
 RT_CH_MINOR_RELEASE=0
-RT_CH_MINOR_GIT=2
+RT_CH_MINOR_GIT=0
 
 # Set latest major lT/rT release versions
 LT_MAJOR=0.13
