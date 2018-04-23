@@ -50,7 +50,8 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 
 // from command_pyroscope.cc
 extern std::string get_active_tracker_domain(torrent::Download* item);
-
+extern std::string convert_to_string(const torrent::Object::list_const_iterator& itr);
+extern int64_t convert_to_value(const torrent::Object::list_const_iterator& itr);
 
 #define TRACKER_LABEL_WIDTH 20U
 #define PROGRESS_STEPS 9
@@ -145,6 +146,21 @@ std::string u8_chop(const std::string& text, size_t glyphs) {
     }
 
     return bytes < text.length() ? text.substr(0, bytes) : text;
+}
+
+
+// Pad a string
+std::string pad_string(std::string& text, size_t width, const std::string& fillchar, bool at_end = true) {
+    int len = width - text.length();
+
+    if (len > 0) {
+        if (at_end)
+            text.insert(text.end(), len, fillchar[0]);
+        else
+            text.insert(text.begin(), len, fillchar[0]);
+    }
+
+    return text;
 }
 
 
@@ -958,6 +974,60 @@ torrent::Object apply_magnitude(const torrent::Object::list_type& args) {
     return num2(args.front().as_value());
 }
 
+// chars.chop="123456",4,1 -> 123…
+torrent::Object apply_chars_chop(const torrent::Object::list_type& args) {
+    if (args.size() < 1 || args.size() > 3)
+        throw torrent::input_error("chars.chop takes 1 to 3 arguments!");
+
+    std::string text;
+    size_t len;
+    bool use_trailing = false;
+
+    for (torrent::Object::list_const_iterator itr = args.begin(); itr != args.end(); itr++) {
+        if (itr - args.begin() == 0) {
+            text = convert_to_string(itr);
+            len = text.length();
+        }
+
+        if (itr - args.begin() == 1)
+            len = (size_t)convert_to_value(itr);
+
+        if (itr - args.begin() == 2)
+            use_trailing = (bool)convert_to_value(itr);
+    }
+
+    return (use_trailing && text.length() > len && len > 1) ? u8_chop(text, len - 1) + "…" : u8_chop(text, len);
+}
+
+
+// chars.pad="283",5,"0",0 -> 00283
+torrent::Object apply_chars_pad(const torrent::Object::list_type& args) {
+    if (args.size() < 1 || args.size() > 4) {
+        throw torrent::input_error("chars.pad takes 1 to 4 arguments!");
+    }
+
+    std::string text;
+    size_t width = 0;
+    std::string fillchar = " ";
+    bool at_end = true;
+
+    for (torrent::Object::list_const_iterator itr = args.begin(); itr != args.end(); itr++) {
+        if (itr - args.begin() == 0)
+            text = convert_to_string(itr);
+
+        if (itr - args.begin() == 1)
+            width = (size_t)convert_to_value(itr);
+
+        if (itr - args.begin() == 2)
+            fillchar = convert_to_string(itr);
+
+        if (itr - args.begin() == 3)
+            at_end = (bool)convert_to_value(itr);
+    }
+
+    return pad_string(text, width, fillchar, at_end);
+}
+
 
 torrent::Object cmd_d_ui_message(core::Download* download) {
     return display::get_ui_message(download);
@@ -1038,6 +1108,9 @@ void initialize_command_ui_pyroscope() {
 
     CMD2_ANY_LIST("convert.human_size",         _cxxstd_::bind(&apply_human_size, _cxxstd_::placeholders::_2));
     CMD2_ANY_LIST("convert.magnitude",          _cxxstd_::bind(&apply_magnitude, _cxxstd_::placeholders::_2));
+
+    CMD2_ANY_LIST("chars.chop",                 _cxxstd_::bind(&apply_chars_chop, _cxxstd_::placeholders::_2));
+    CMD2_ANY_LIST("chars.pad",                  _cxxstd_::bind(&apply_chars_pad, _cxxstd_::placeholders::_2));
 
     CMD2_DL("d.ui.message",     _cxxstd_::bind(&cmd_d_ui_message, _cxxstd_::placeholders::_1));
     CMD2_DL("d.ui.completion",  _cxxstd_::bind(&cmd_d_ui_completion, _cxxstd_::placeholders::_1));

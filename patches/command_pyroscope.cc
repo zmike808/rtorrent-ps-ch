@@ -139,6 +139,37 @@ int uniform_rng::rand_range(int lo, int hi)
 
 static torrent::uniform_rng system_random_gen;
 
+
+// Convert a value to string
+std::string convert_to_string(const torrent::Object::list_const_iterator& itr) {
+    std::string text;
+
+    if (itr->is_value())
+        text = rpc::convert_to_string(itr->as_value());
+    else if (itr->is_string())
+        text = itr->as_string();
+    else
+        throw torrent::input_error("Wrong type is supplied to convert_to_string.");
+
+    return text;
+}
+
+
+// Convert a value to number
+int64_t convert_to_value(const torrent::Object::list_const_iterator& itr) {
+    int64_t val = 0;
+
+    if (itr->is_value())
+        val = itr->as_value();
+    else if (itr->is_string())
+        val = rpc::convert_to_value(itr->as_string());
+    else
+        throw torrent::input_error("Wrong type is supplied to convert_to_value.");
+
+    return val;
+}
+
+
 /*  @DOC
     `system.random = [[<lower>,] <upper>]`
 
