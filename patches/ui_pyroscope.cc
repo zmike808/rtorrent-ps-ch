@@ -134,6 +134,12 @@ static std::string network_history_down_str;
 static std::map<std::string, int> column_pos;
 
 
+// Get length of an UTF-8 string
+size_t u8_length(const std::string& s) {
+    return (s.length() - count_if(s.begin(), s.end(), [](char c)->bool { return (c & 0xC0) == 0x80; }));
+}
+
+
 // Chop off an UTF-8 string
 std::string u8_chop(const std::string& text, size_t glyphs) {
     std::mbstate_t mbs = std::mbstate_t();
@@ -151,7 +157,7 @@ std::string u8_chop(const std::string& text, size_t glyphs) {
 
 // Pad a string
 std::string pad_string(std::string& text, size_t width, const std::string& fillchar, bool at_end = true) {
-    int len = width - text.length();
+    int len = width - u8_length(text);
 
     if (len > 0) {
         if (at_end)
@@ -974,19 +980,22 @@ torrent::Object apply_magnitude(const torrent::Object::list_type& args) {
     return num2(args.front().as_value());
 }
 
+
 // chars.chop="123456",4,1 -> 123…
 torrent::Object apply_chars_chop(const torrent::Object::list_type& args) {
     if (args.size() < 1 || args.size() > 3)
         throw torrent::input_error("chars.chop takes 1 to 3 arguments!");
 
     std::string text;
+    size_t text_len;
     size_t len;
     bool use_trailing = false;
 
     for (torrent::Object::list_const_iterator itr = args.begin(); itr != args.end(); itr++) {
         if (itr - args.begin() == 0) {
             text = convert_to_string(itr);
-            len = text.length();
+            text_len = u8_length(text);
+            len = text_len;
         }
 
         if (itr - args.begin() == 1)
@@ -996,7 +1005,7 @@ torrent::Object apply_chars_chop(const torrent::Object::list_type& args) {
             use_trailing = (bool)convert_to_value(itr);
     }
 
-    return (use_trailing && text.length() > len && len > 1) ? u8_chop(text, len - 1) + "…" : u8_chop(text, len);
+    return (use_trailing && text_len > len && len > 1) ? u8_chop(text, len - 1) + "…" : u8_chop(text, len);
 }
 
 
