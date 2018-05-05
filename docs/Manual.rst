@@ -436,10 +436,90 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 See directly above for an example.
 
 
+d.custom[.set]=last_active|tm_completed[,«timestamp»]
+^^^^^^^^^^
+
+Custom fileds ``d.custom=last_active`` and ``d.custom=tm_completed`` hold timestamps: the last time when items had peers and time of completion. They are also displayed on the collapsed display.
+
+
+event.view.[hide|show]
+^^^^^^^^^^
+
+Events (multi commands) that will be triggered upon view changes: first ``event.view.hide`` group is triggered then ``event.view.show`` group. Example usage:
+
+.. code-block:: ini
+
+    method.set_key = event.view.hide, ~log, ((print, ((ui.current_view)), " → ", ((argument.0))))
+
+
+event.download.partially_restarted
+^^^^^^^^^^
+
+Event (multi commands) that will be triggered when a download is being partially restarted: when previously deselected files are selected of a finished download. Example usage:
+
+.. code-block:: ini
+
+    method.set_key = event.download.partially_restarted, ~log, ((print, "Partially restarted : ", ((d.name))))
+
+
+d.allocatable_size_bytes=
+^^^^^^^^^^
+
+Returns the size needed to create the selected files of a download in Bytes.
+
+
+d.selected_size_bytes=
+^^^^^^^^^^
+
+Returns the size of the selected files of a download in Bytes. It returns the ``completed_bytes`` if a download is only partyally done (and not the slected size of files, since they can be turnd off later!), or calculates the partial size based on the selected chunks of the selected files if a downalod hasn't been (partially) finished.
+
+
+d.is_enough_diskspace=
+^^^^^^^^^^
+
+Returns boolean, determines whether there's enough space for the selected files of a download on the selected partition of an HDD.
+
+
+d.is_done=
+^^^^^^^^^^
+
+Returns boolean, determines whether all the files of a download have been finished (to be able to distinguish between finished and partially done downloads).
+
+
 d.is_meta= (merged into 0.9.7+)
 ^^^^^^^^^^
 
 Returns boolean, determines whether a download is meta download of magnet URI.
+
+
+f.is_fallocatable=
+^^^^^^^^^^
+
+Returns boolean, determines whether a file has ``flag_fallocate`` flag.
+
+
+f.is_fallocatable_file=
+^^^^^^^^^^
+
+Returns boolean, determines whether a file has both ``flag_fallocate`` and ``flag_resize_queued`` flag.
+
+
+f.[un]set_fallocate=
+^^^^^^^^^^
+
+``f.set_fallocate`` and ``f.unset_fallocate`` commands are setter methods for ``flag_fallocate`` flag of a file.
+
+
+d.group.name=
+^^^^^^^^^^
+
+Returns the name of the choke group the download belongs to.
+
+
+convert.group=«cmd»
+^^^^^^^^^^
+
+Returns a formatted (2 characters padded) string for a number, e.g.: ``--``, `` 2``, ``125``. It's used to display max choke group values on Info screen.
 
 
 directory.watch.added=«dir»,«cmd»,[«cmd1»,«cmd2»,…]
