@@ -15,7 +15,7 @@ The following is an explanation of the collapsed display of
    :align: center
    :alt: rTorrent-PS Main View
 
-   rTorrent-PS-CH collapsed canvas
+   *rTorrent-PS-CH collapsed canvas*
 
 The following is an overview of the column heading icons, and what the values and icons in it mean.
 
@@ -76,7 +76,7 @@ And you'll get this in your terminal:
    :align: center
    :alt: rTorrent-PS Network History
 
-   rTorrent-PS Network History
+   *rTorrent-PS Network History*
 
 As you can see, you get the upper and lower bounds of traffic within
 your configured time window, and each bar of the graph represents an
@@ -288,7 +288,7 @@ the following...
    :align: center
    :alt: xterm-256-color
 
-   xterm-256-color
+   *xterm-256-color*
 
 
 ui.current\_view= (merged into 0.9.7+)
