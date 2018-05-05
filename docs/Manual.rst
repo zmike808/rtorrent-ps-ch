@@ -192,6 +192,12 @@ Configuration example:
     schedule = bind_7,0,0,"ui.bind_key=download_list,7,ui.current_view.set=rtcontrol"
 
 
+ui.bind\_key.verbose[.set]=0|1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Determines whether to log key rebindings. Default is ``1``.
+
+
 view.collapsed.toggle=«VIEW NAME»
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -412,6 +418,49 @@ Examples:
     ERROR    While calling value('', '1b'): <Fault -503: 'Junk at end of number: 1b'>
 
 
+convert.human_size=«value»[,«format»]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Converts a number (e.g. output of the first parameter) to human readable byte size format. If ``«format»`` is ``0`` use 6 chars (one decimal place), if ``1`` then just print the rounded value (4 chars), if ``2`` then combine the two formats into 4 chars by rounding for values >= 9.95. It can be used e.g. with ``log.messages`` or ``ui.column.render``:
+
+.. code-block:: shell
+
+    # Uploaded data (⊼)
+    method.set_key = ui.column.render, "700:6:   ⊼  ", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, "   ·  "))))
+
+
+convert.magnitude=«value»
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Converts a number (e.g. output of the first parameter) to 2-digits number, or digit + dimension indicator (c = 10², m = 10³, X = 10⁴, C = 10⁵, M = 10⁶). It can be used e.g. with ``log.messages`` or ``ui.column.render``:
+
+.. code-block:: shell
+
+    # Scrape info (↺ ⤴ ⤵)
+    method.set_key = ui.column.render, "400:2: ↺", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))
+
+
+string.map=«cmd»,{«from1»,«to1»}[,{«from2»,«to2»},…]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Compares a string (e.g. output of the first parameter) to ``fromx`` values and replaces them with the corresponding ``tox`` values upon a match. It can be used e.g. with ``ui.column.render``:
+
+.. code-block:: shell
+
+    # Override Throttle column (⊘)
+    method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
+
+
+string.replace=«cmd»,{«from1»,«to1»}[,{«from2»,«to2»},…]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Replaces strings (``fromx`` values) of a string (e.g. output of the first parameter) with the corresponding ``tox`` values upon a match. Example usage:
+
+.. code-block:: shell
+
+    print=(string.replace,(d.name),{"Play","foo"},{"Plus","bar"})
+
+
 string.contains[\_i]=«haystack»,«needle»[,…]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -434,6 +483,49 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 ``condition`` is true for an item.
 
 See directly above for an example.
+
+
+ui.focus.[home|end|pgup|pgdn]=
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Commands that can be assigned to keyboard schortcuts (with the help of ``ui.bind_key`` command) to jump to the first / last item in the current view or scroll by 50 items up or down at a time (or whatever other value ui.focus.page_size has). An example keyboard shortcut assignements:
+
+.. code-block:: ini
+
+    schedule = navigation_home,0,0,"ui.bind_key=download_list,0406,ui.focus.home="
+    schedule = navigation_end, 0,0,"ui.bind_key=download_list,0550,ui.focus.end="
+    schedule = navigation_pgup,0,0,"ui.bind_key=download_list,0523,ui.focus.pgup="
+    schedule = navigation_pgdn,0,0,"ui.bind_key=download_list,0522,ui.focus.pgdn="
+
+
+ui.focus.page_size[.set]=«value»
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get / set the number of items to scroll with ``ui.focus.pgup`` or ``ui.focus.pgdn``. Default value: ``50``.
+
+
+ui.style.[progress|ratio][.set]=«value»
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get / set the value of style to use in ``completion status`` (values from ``0`` to ``2``) and ``ratio`` (values from ``0`` to ``3``) columns. Value ``0`` is a *mostly* ASCII one for both. Default value for both: ``1``.
+
+
+system.colors.max=
+^^^^^^^^^^^^^^^^^^
+
+Returns the max number of colors the underlying system supports.
+
+
+system.colors.enabled=
+^^^^^^^^^^^^^^^^^^
+
+Returns boolean, determines whether the underlying system (ncurses) has coloring support.
+
+
+system.colors.rgb=
+^^^^^^^^^^^^^^^^^^
+
+Returns boolean, determines whether the underlying system (ncurses) can change colors. (This always returns ``0`` for whatever reason.)
 
 
 event.view.[hide|show]
@@ -466,6 +558,18 @@ d.allocatable_size_bytes=
 ^^^^^^^^^^
 
 Returns the size needed to create the selected files of a download in Bytes.
+
+
+d.parent_dir=
+^^^^^^^^^^^^^
+
+Returns the name of the parent directory of a download.
+
+
+d.tracker_scrape.[downloaded|complete|incomplete]=
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Return the number of downloads / seeders / leechers acquired during scraping request.
 
 
 d.selected_size_bytes=
