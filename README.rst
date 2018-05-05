@@ -29,16 +29,20 @@ It includes the following changes on `extended canvas <docs/RtorrentExtendedCanv
 Extra commands
 --------------
 
-It also adds the following extra commands:
+It also adds the following extra attributes, commands:
 
+- ``d.custom=last_active``, ``d.custom=tm_completed`` `custom fields <https://github.com/chros73/rtorrent-ps/issues/120>`_
 -  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
 - ``convert.group``, ``d.is_done``, ``d.selected_size_bytes`` (`partially done downloads and choke groups fix  <https://github.com/chros73/rtorrent-ps/issues/69>`_)
 -  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
+-  `chars.* <https://github.com/chros73/rtorrent-ps/issues/123>`_ command group
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
 -  ``ui.throttle.global.step.small.set``, ``ui.throttle.global.step.medium.set``, ``ui.throttle.global.step.large.set``  (`global throttle steps <https://github.com/chros73/rtorrent-ps/issues/84>`_)
 -  ``ui.input.history.size``, ``ui.input.history.size.set``, ``ui.input.history.clear`` (`input history <https://github.com/chros73/rtorrent-ps/issues/83>`_)
 -  `directory.watch.removed <https://github.com/chros73/rtorrent-ps/issues/87>`_
+-  ``d.parent_dir`` command and `d.tracker_scrape.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
+-  `d.ui.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
 -  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
 
 The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
@@ -64,7 +68,7 @@ Over latest ``rtorrent v0.9.6/0.13.6``:
 -  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
 -  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
-Differences between ``rTorrent-PS``:
+Main differences between ``rTorrent-PS``:
 
 -  `CPU optimized build <https://github.com/chros73/rtorrent-ps/issues/109>`_
 -  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
