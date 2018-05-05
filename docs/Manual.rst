@@ -516,7 +516,7 @@ convert.group=«cmd»
 Returns a formatted (2 characters padded) string for a number, e.g.: ``--``, `` 2``, ``125``. It's used to display max choke group values on Info screen.
 
 
-directory.watch.added=«dir»,«cmd»,[«cmd1»,«cmd2»,…]
+directory.watch.added=«dir»,«cmd»[,«cmd1»,«cmd2»,…]
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 `directory.watch.added <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for added meta files.
@@ -528,7 +528,7 @@ First parameter is the directory that will be watched, second is the name of the
     directory.watch.added = (cat,(cfg.dir.meta_downl),unsafe/),   load.start,  "d.attribs.set=unsafe,,1", print=loadedunsafe
 
 
-directory.watch.removed=«cmd»,«dir1»,[«dir2»,…]
+directory.watch.removed=«cmd»,«dir1»[,«dir2»,…]
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 `directory.watch.removed <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for removed meta files.
@@ -540,7 +540,7 @@ It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d
     directory.watch.removed = d.erase, (cat,(cfg.dir.meta_compl),various/), (cat,(cfg.dir.meta_compl),unsafe/)
 
 
-math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»,[«cmd2»,…]
+math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»[,«cmd2»,…]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``math.*`` command group adds support for basic arithmetic operators (``+``, ``-``, ``*``, ``/``, ``%``) and ``min``, ``max``, ``count``, ``avg``, ``median`` functions. They support multiple arguments, even list type as well, they also can be chained together, but restricted to integer arithmetic only (as in ``bash``): ``/``, ``avg``, ``median`` always round down. 
