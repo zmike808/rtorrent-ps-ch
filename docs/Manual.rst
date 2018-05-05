@@ -442,6 +442,30 @@ d.is_meta= (merged into 0.9.7+)
 Returns boolean, determines whether a download is meta download of magnet URI.
 
 
+directory.watch.added=«dir»,«cmd»,[«cmd1»,«cmd2»,…]
+^^^^^^^^^^^^^^^^^^^^^^^
+
+`directory.watch.added <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for added meta files.
+
+First parameter is the directory that will be watched, second is the name of the main command that will be called if an "add" event is triggered (``load.*`` commands), while the rest of the parameters are  a comma separated list of extra commands that will be passed as arguments to the main command specified as the second parameter. Note that if an extra command includes commas (``,`` parameter separator) then it needs to be included inside quotes (``"``).
+
+.. code-block:: ini
+
+    directory.watch.added = (cat,(cfg.dir.meta_downl),unsafe/),   load.start,  "d.attribs.set=unsafe,,1", print=loadedunsafe
+
+
+directory.watch.removed=«cmd»,«dir1»,[«dir2»,…]
+^^^^^^^^^^^^^^^^^^^^^^^
+
+`directory.watch.removed <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for removed meta files.
+
+It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d.erase``; rest of the parameters are a comma separated list of the directories that will be watched.
+
+.. code-block:: ini
+
+    directory.watch.removed = d.erase, (cat,(cfg.dir.meta_compl),various/), (cat,(cfg.dir.meta_compl),unsafe/)
+
+
 math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»,[«cmd2»,…]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -505,7 +529,23 @@ Determines whether subfiltering is logged onto the messages view (key `l`). Disa
     view.temp_filter.log.set=1
 
 
-ui.status.throttle.[up|down].set=«throttlename»[,«throttlename»]
+ui.input.history.size[.set]=«value»
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get / set the size of `input history <https://github.com/chros73/rtorrent-ps-ch/issues/83>`_. Default value is:
+
+.. code-block:: ini
+
+    ui.input.history.size.set=99
+
+
+ui.input.history.clear=
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Clear all the `input history <https://github.com/chros73/rtorrent-ps-ch/issues/83>`_.
+
+
+ui.status.throttle.[up|down][.set]=«throttlename»[,«throttlename»]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Displays values of the given ``throttle.up``/``throttle.down`` in the first part of status bar, multiple comma separated names can be given.
@@ -538,5 +578,16 @@ Configuration example:
     ui.status.throttle.up.set=slowup,tardyup
     ui.status.throttle.down.set=slowdown
 
+
+ui.throttle.global.step.[small|medium|large][.set]=«value»
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Set `global throttle steps <https://github.com/rakshasa/rtorrent/wiki/User-Guide#throttling>`_. Their default value is:
+
+.. code-block:: ini
+
+    ui.throttle.global.step.small.set  =   5
+    ui.throttle.global.step.medium.set =  50
+    ui.throttle.global.step.large.set  = 500
 
 
