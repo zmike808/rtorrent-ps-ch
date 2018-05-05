@@ -521,7 +521,7 @@ directory.watch.added=«dir»,«cmd»,[«cmd1»,«cmd2»,…]
 
 `directory.watch.added <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for added meta files.
 
-First parameter is the directory that will be watched, second is the name of the main command that will be called if an "add" event is triggered (``load.*`` commands), while the rest of the parameters are  a comma separated list of extra commands that will be passed as arguments to the main command specified as the second parameter. Note that if an extra command includes commas (``,`` parameter separator) then it needs to be included inside quotes (``"``).
+First parameter is the directory that will be watched, second is the name of the main command that will be called if an "add" event is triggered (``load.*`` commands), while the rest of the parameters are  a comma separated list of extra commands that will be passed as arguments to the main command specified as the second parameter. Note that if an extra command includes commas (``,`` parameter separator) then it needs to be included inside quotes (``"``). Limitation: a given directory can only be specified once with either  ``directory.watch.added`` or ``directory.watch.removed``.
 
 .. code-block:: ini
 
@@ -533,7 +533,7 @@ directory.watch.removed=«cmd»,«dir1»,[«dir2»,…]
 
 `directory.watch.removed <https://github.com/chros73/rtorrent-ps-ch/issues/87>`_ adds ``inotify`` support for removed meta files.
 
-It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d.erase``; rest of the parameters are a comma separated list of the directories that will be watched.
+It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d.erase``; rest of the parameters are a comma separated list of the directories that will be watched. Limitation: a given directory can only be specified once with either  ``directory.watch.added`` or ``directory.watch.removed``.
 
 .. code-block:: ini
 
