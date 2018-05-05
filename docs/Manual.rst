@@ -97,7 +97,7 @@ multiplexer like most people do, and the display doesn't look right, try
 ``tmux -u`` respectively ``screen -U`` to force UTF-8 mode. Also make
 sure you have the ``locales`` package installed on Debian-type systems.
 
-Connecting via SSH from Windows using PuTTY/KiTTY (version >=0.70), take a look at this small `guide <https://github.com/chros73/rtorrent-ps-ch_setup/wiki/Windows-8.1#connect-via-ssh>`_:
+Connecting via SSH from Windows using PuTTY/KiTTY (version >=0.70), take a look at this small `guide <https://github.com/chros73/rtorrent-ps-ch_setup/wiki/Windows-8.1#connect-via-ssh>`_.
 
 The following command lets you easily check whether your font supports
 all the necessary characters and your terminal is configured correctly:
@@ -474,15 +474,13 @@ Modified possible cases:
     [Throttle 200(114) / 500(250) KB] [Rate 115.9(1.7|114.2) / 333.9(333.9|0.0) KB]
     [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
 
-
-Limitation is that every group (there are 4 possible groups) can contain the following number of characters (it leaves space for at least 5 throttles to be displayed):
- 40 chars for limits, 50 chars for rates.
+Limitation is that every group (there are 4 possible groups) can contain the following number of characters (it leaves space for at least 5 throttles to be displayed): 40 chars for limits, 50 chars for rates.
 
 This extra info isn't displayed in the following cases:
 
-  * there isn't any ``throttle.up``/``throttle.down`` name as the config variable suggest or the given name is "NULL"
-  * ``throttle.up``/``throttle.down`` is not throttled (=0)
-  * the global upload/download is not throttled (=0) (``throttle.up``/``throttle.down`` won't be taken into account in this case)
+   - there isn't any ``throttle.up``/``throttle.down`` name as the config variable suggest or the given name is "NULL"
+   - ``throttle.up``/``throttle.down`` is not throttled (=0)
+   - the global upload/download is not throttled (=0) (``throttle.up``/``throttle.down`` won't be taken into account in this case)
 
 Configuration example:
 
@@ -492,13 +490,10 @@ Configuration example:
     ui.status.throttle.down.set=slowdown
 
 
-
 d.is_meta=
 ^^^^^^^^^^
 
 Returns boolean, determines whether a download is meta download of magnet URI.
 
 
-.. _Bintray: https://bintray.com/pkg/show/general/pyroscope/rtorrent-ps/rtorrent-ps
-.. _installation options: https://github.com/pyroscope/rtorrent-ps#installation
-.. _Arch Linux: http://www.archlinux.org/
+
