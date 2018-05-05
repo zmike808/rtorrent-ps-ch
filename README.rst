@@ -29,7 +29,7 @@ It includes the following changes on `extended canvas <docs/RtorrentExtendedCanv
 Extra commands
 --------------
 
-It also adds the following extra attributes, commands:
+It also adds the following extra `attributes, commands <docs/Manual.rst#command-extensions>`_:
 
 - ``d.custom=last_active``, ``d.custom=tm_completed`` `custom fields <https://github.com/chros73/rtorrent-ps/issues/120>`_
 -  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
