@@ -208,11 +208,6 @@ Also, you should bind the current view toggle to a key, like this:
 
     schedule = bind_collapse,0,0,"ui.bind_key=download_list,*,view.collapsed.toggle="
 
-Further explanations on what the columns show and what forms of
-abbreviations are used, to get a display as compact as possible while
-still showing all the important stuff, can be found on :ref:`extended-canvas`.
-That section also contains hints on **how to correctly setup your terminal**.
-
 
 ui.color.«TYPE».set="«COLOR DEF»"
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,23 +257,9 @@ defaults:
     ui.color.title.set="bold bright white on blue"
 
 Note that you might need to enable support for 256 colors in your
-terminal, see this article for a description. In a nutshell, you need to
-install the ``ncurses-term`` package if you don't have it already, and
-also add these commands to your rTorrent start script:
-
-.. code-block:: shell
-
-    if [ "$TERM" = "${TERM%-256color}" ]; then
-        export TERM="$TERM-256color"
-    fi
-
-Also consider the hints at the end of the `Extended Canvas Explained`_
-page.
-
-If everything worked so far, and you now want to find you own coloring
+terminal, see above for a description. You may want to create your own coloring
 theme, the easiest way is to use a second shell and ``rtxmlrpc``. Try
-out some colors, and add the combinations you like to your
-``~/.rtorrent.rc``.
+out some colors, and add the combinations you like to your ``~/.rtorrent.rc``.
 
 .. code-block:: shell
 
@@ -297,7 +278,7 @@ The term-256color script can help you with showing the colors your
 terminal supports, an example output using Gnome's terminal looks like
 the following...
 
-.. figure:: _static/img/xterm-256-color.png
+.. figure:: https://raw.githubusercontent.com/pyroscope/rtorrent-ps/master/docs/_static/img/xterm-256-color.png
    :align: center
    :alt: xterm-256-color
 
@@ -335,7 +316,6 @@ Commands to add network traffic charts to the bottom of the collapsed
 download display. The commands added are
 ``network.history.depth[.set]=``, ``network.history.sample=``,
 ``network.history.refresh=``, and ``network.history.auto_scale=``.
-See the :ref:`extended-canvas` on how to use them.
 
 
 d.tracker\_domain=
@@ -490,7 +470,7 @@ Configuration example:
     ui.status.throttle.down.set=slowdown
 
 
-d.is_meta=
+d.is_meta= (merged into 0.9.7+)
 ^^^^^^^^^^
 
 Returns boolean, determines whether a download is meta download of magnet URI.
