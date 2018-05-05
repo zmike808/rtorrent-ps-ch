@@ -644,8 +644,34 @@ It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d
     directory.watch.removed = d.erase, (cat,(cfg.dir.meta_compl),various/), (cat,(cfg.dir.meta_compl),unsafe/)
 
 
+chars.chop=«text»[,«length»[,0|1]]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Chop a string or a number to the given ``«length»``, if third parameter is set to ``1`` then ``…`` character is appended to the chopped string. It's UTF-8 aware and also can be chained together with other ``chars.*`` commands. 
+
+.. code-block:: ini
+
+    # Result: 12…
+    print=(chars.chop, "1234567", 3, 1)
+    # Result: 123xx
+    print=(chars.pad, (chars.chop, "1234567", 3), 5, "x")
+
+
+chars.pad=«text»[,«length»[,«char»[,0|1]]]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Pad a string or a number to the given ``«length»`` with the specified ``«char»`` character (default is `` `` space), if fourth parameter is set to ``1`` then padding left is applied, otherwise padding right. It's UTF-8 aware and also can be chained together with other ``chars.*`` commands. 
+
+.. code-block:: ini
+
+    # Result: 00123
+    print=(chars.pad, "123", 5, "0", 1)
+    # Result: 123xx
+    print=(chars.pad, (chars.chop, "1234567", 3), 5, "x")
+
+
 math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»[,«cmd2»,…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``math.*`` command group adds support for basic arithmetic operators (``+``, ``-``, ``*``, ``/``, ``%``) and ``min``, ``max``, ``count``, ``avg``, ``median`` functions. They support multiple arguments, even list type as well, they also can be chained together, but restricted to integer arithmetic only (as in ``bash``): ``/``, ``avg``, ``median`` always round down. 
 
@@ -767,5 +793,11 @@ Set `global throttle steps <https://github.com/rakshasa/rtorrent/wiki/User-Guide
     ui.throttle.global.step.small.set  =   5
     ui.throttle.global.step.medium.set =  50
     ui.throttle.global.step.large.set  = 500
+
+
+d.ui.*=
+^^^^^^^
+
+Commands to display various information that require coloring support on the collapsed download display. The commands added are ``d.ui.message``, ``d.ui.completion``, ``d.ui.ratio``, ``d.ui.uprate_tm``, ``d.ui.downrate_tm`` .
 
 
