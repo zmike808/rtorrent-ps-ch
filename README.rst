@@ -3,18 +3,18 @@
 rTorrent-PS-CH - Fork notes
 ===========================
 
-.. figure:: https://raw.githubusercontent.com/chros73/rtorrent-ps/master/docs/_static/img/rTorrent-PS-CH-0.9.6-happy-pastel-kitty-s.png
+.. figure:: docs/_static/img/rTorrent-PS-CH-0.9.6-happy-pastel-kitty-s.png
    :align: center
    :alt: Extended Canvas Screenshot
    
 *rTorrent-PS-CH*
 
-This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps_setup <https://github.com/chros73/rtorrent-ps_setup/>`_  project.
+This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project.
 
 UI changes
 ----------
 
-It includes the following changes on `extended canvas <docs/RtorrentExtendedCanvas.md#columns-in-the-collapsed-display>`_:
+It includes the following changes on `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
 
 ====  ========================================
  ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
