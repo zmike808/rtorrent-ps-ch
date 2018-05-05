@@ -436,12 +436,6 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 See directly above for an example.
 
 
-d.custom[.set]=last_active|tm_completed[,«timestamp»]
-^^^^^^^^^^
-
-Custom fileds ``d.custom=last_active`` and ``d.custom=tm_completed`` hold timestamps: the last time when items had peers and time of completion. They are also displayed on the collapsed display.
-
-
 event.view.[hide|show]
 ^^^^^^^^^^
 
@@ -460,6 +454,12 @@ Event (multi commands) that will be triggered when a download is being partially
 .. code-block:: ini
 
     method.set_key = event.download.partially_restarted, ~log, ((print, "Partially restarted : ", ((d.name))))
+
+
+d.custom[.set]=last_active|tm_completed[,«timestamp»]
+^^^^^^^^^^
+
+Custom fileds ``d.custom=last_active`` and ``d.custom=tm_completed`` hold timestamps: the last time when items had peers and time of completion. They are also displayed on the collapsed display.
 
 
 d.allocatable_size_bytes=
@@ -508,12 +508,6 @@ f.[un]set_fallocate=
 ^^^^^^^^^^
 
 ``f.set_fallocate`` and ``f.unset_fallocate`` commands are setter methods for ``flag_fallocate`` flag of a file.
-
-
-d.group.name=
-^^^^^^^^^^
-
-Returns the name of the choke group the download belongs to.
 
 
 convert.group=«cmd»
