@@ -436,6 +436,35 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 See directly above for an example.
 
 
+d.is_meta= (merged into 0.9.7+)
+^^^^^^^^^^
+
+Returns boolean, determines whether a download is meta download of magnet URI.
+
+
+math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»,[«cmd2»,…]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``math.*`` command group adds support for basic arithmetic operators (``+``, ``-``, ``*``, ``/``, ``%``) and ``min``, ``max``, ``count``, ``avg``, ``median`` functions. They support multiple arguments, even list type as well, they also can be chained together, but restricted to integer arithmetic only (as in ``bash``): ``/``, ``avg``, ``median`` always round down. 
+
+.. code-block:: ini
+
+    # Subtract 3 numbers: -4
+    print=(math.subtract,5,2,7)
+    # Divide 3 numbers: 2 !
+    print=(math.divide,80,9,4)
+
+    # Calculate size of a download using its size of files (example using list type)
+    print=(math.add,(f.multicall,,f.size_bytes=))
+    # Get average size in Bytes of downloads in main view
+    print=(math.divide,(math.add,(d.multicall2,main,d.size_bytes=)),(view.size,main))
+    
+    # Assign 0 if value smaller than 0, or assign value otherwise ( x >= 0 ? x : 0 )
+    print=(math.max,0,(math.subtract,2,7))
+    # Assign 0 if value smaller than 0, 100 if value is bigger than 100, or assign value otherwise ( x < 0 ? 0 : (x > 100 ? 100 : x) )
+    print=(math.max,0,(math.min,100,(math.divide,500,2)))
+
+
 match=«cmd1»,«cmd2»
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -508,12 +537,6 @@ Configuration example:
 
     ui.status.throttle.up.set=slowup,tardyup
     ui.status.throttle.down.set=slowdown
-
-
-d.is_meta= (merged into 0.9.7+)
-^^^^^^^^^^
-
-Returns boolean, determines whether a download is meta download of magnet URI.
 
 
 
