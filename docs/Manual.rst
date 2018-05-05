@@ -436,6 +436,46 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 See directly above for an example.
 
 
+match=«cmd1»,«cmd2»
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Regexp based comparison operator can work with strings or values (integers), returned from the given commands, its return value is boolean. 
+
+.. code-block:: ini
+
+    method.insert = match_name, simple, "match={d.name=,.*linux.*iso}"
+
+
+view.temp_filter=«viewname»[,«cmd»]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Apply temp filter to a view. If ``«cmd»`` isn't supplied it removes the previously applied temp filter.
+
+.. code-block:: ini
+
+    view.temp_filter=main, "match={d.name=,.*linux.*iso}"
+
+
+view.temp_filter.excluded[.set]="[«viewname1»,«viewname2»,…]"
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Get / set a list of views that can be excluded from subfiltering. Its default value is:
+
+.. code-block:: ini
+
+    view.temp_filter.excluded.set="default,started,stopped"
+
+
+view.temp_filter.log[.set]=0|1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Determines whether subfiltering is logged onto the messages view (key `l`). Disabled by default, to enable it:
+
+.. code-block:: ini
+
+    view.temp_filter.log.set=1
+
+
 ui.status.throttle.[up|down].set=«throttlename»[,«throttlename»]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
