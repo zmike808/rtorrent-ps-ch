@@ -562,8 +562,11 @@ Returns boolean, determines whether the underlying system (ncurses) can change c
 ui.column.render
 ^^^^^^^^^^^^^^^^
 
-Multi-command to hold column definitions, it's used on the collapsed canvas to render all the columns except for "Name" and "Tracker Domain" columns. 
-See the `Columns in the collapsed display <#columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
+Multi-command to hold column definitions, it's used on the collapsed canvas to render all the columns except for "Name" and "Tracker Domain" columns. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
+
+Colorizing columns is limited only to the following ones: ``⚑ , ⣿ , ☯ ,  ⌬ ≀∆,  ⌬ ≀∇`` (columns that use ``d.ui.*`` commands); meaning colorizing other built-in / custom columns isn't supported.
+
+Keys in the map define sorting, length and column title: ``sort:length:title``.
 
 Here's a configuration example showing all the built-in columns and their defaults:
 
@@ -599,7 +602,9 @@ Here's a configuration example showing all the built-in columns and their defaul
     # Selected data size (✇)
     method.set_key = ui.column.render, "900:4:  ✇ ", ((convert.human_size, ((d.selected_size_bytes)) ))
 
-To disable or override built-in columns or add new ones:
+To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet, the title *must be unique* accross columns!
+
+Example:
 
 .. code-block:: ini
 
