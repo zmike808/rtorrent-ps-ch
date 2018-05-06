@@ -4,8 +4,8 @@ User's Manual
 Extended Canvas Explained
 -------------------------
 
-Columns in the Collapsed Display
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Built-in columns in the Collapsed Display
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following is an explanation of the collapsed display of
 *rTorrent-PS-CH* — remember that you need to bind a key (``*`` by default) to the
@@ -562,8 +562,8 @@ Returns boolean, determines whether the underlying system (ncurses) can change c
 ui.column.render
 ^^^^^^^^^^^^^^^^
 
-Multi-command to hold column definitions, used on the collapsed canvas to render all the columns except for Name and Tracker Domain columns. 
-See the `Columns in the collapsed display <#columns-in-the-collapsed-display>`_ section above for built-in column key definitions.
+Multi-command to hold column definitions, it's used on the collapsed canvas to render all the columns except for "Name" and "Tracker Domain" columns. 
+See the `Columns in the collapsed display <#columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
 
 Here's a configuration example showing all the built-in columns and their defaults:
 
