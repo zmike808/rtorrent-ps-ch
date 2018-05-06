@@ -562,11 +562,9 @@ Returns boolean, determines whether the underlying system (ncurses) can change c
 ui.column.render
 ^^^^^^^^^^^^^^^^
 
-Multi-command to hold column definitions, it's used on the collapsed canvas to configure and render all the columns except for "Name" and "Tracker Domain" columns. Built-in or custom columns can be disabled, overridden or new ones added on-the-fly. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
+Multi-command to hold column definitions, it's used on the collapsed canvas to configure and render all the columns except for "Name" and "Tracker Domain" columns. Built-in or custom columns can be disabled, overridden or new ones added on-the-fly. Colorizing columns is limited only to the following ones: ``⚑ , ⣿ , ☯ ,  ⌬ ≀∆,  ⌬ ≀∇`` (columns that use ``d.ui.*`` commands); meaning colorizing other built-in / custom columns isn't supported.
 
-Colorizing columns is limited only to the following ones: ``⚑ , ⣿ , ☯ ,  ⌬ ≀∆,  ⌬ ≀∇`` (columns that use ``d.ui.*`` commands); meaning colorizing other built-in / custom columns isn't supported.
-
-Keys in the map define sorting, length and column title: ``sort:length:title``.
+Keys in the map define sorting, length and column title: ``sort:length:title``. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
 
 Here's a configuration example showing all the built-in columns and their defaults:
 
