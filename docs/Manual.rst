@@ -602,7 +602,7 @@ Here's a configuration example showing all the built-in columns and their defaul
     # Selected data size (✇)
     method.set_key = ui.column.render, "900:4:  ✇ ", ((convert.human_size, ((d.selected_size_bytes)) ))
 
-To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet, the title *must be unique* accross columns!
+To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet, the title in the key *must be unique* accross columns!
 
 Example:
 
@@ -612,9 +612,9 @@ Example:
     method.set_key = ui.column.render, "430:2: ↻"
     # Override Throttle column (⊘)
     method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
-    # Add Unsafe data column (◎)
+    # Add Unsafe data column (◎) after throttle name (⊘) column
     method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
-    # Add Data directory column (⊕) (first character of parent directory)
+    # Add Data directory column (⊕) (first character of parent directory) after Unsafe data (◎) column
     method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
 
 
