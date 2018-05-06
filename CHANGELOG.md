@@ -1,5 +1,18 @@
 # Change Log
 
+## [1.7.0-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.0-0.9.7) (2018-05-06)
+**Implemented enhancements:**
+
+- Get relevant changes from upstream repo [\#124](https://github.com/chros73/rtorrent-ps-ch/issues/124)
+- Add 'chars.\*' command group [\#123](https://github.com/chros73/rtorrent-ps-ch/issues/123)
+- Include tm\_completed and last\_active custom fields into rtorrent [\#120](https://github.com/chros73/rtorrent-ps-ch/issues/120)
+- Backport and modify canvas customization from rtorrent-ps [\#119](https://github.com/chros73/rtorrent-ps-ch/issues/119)
+
+**Fixed bugs:**
+
+- Fix log.messages command in rtorrent-ps [\#122](https://github.com/chros73/rtorrent-ps-ch/issues/122)
+- Fix bug with allocatable\_size\_bytes [\#118](https://github.com/chros73/rtorrent-ps-ch/issues/118)
+
 ## [1.6.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.6.2-0.9.7) (2018-03-10)
 **Implemented enhancements:**
 
