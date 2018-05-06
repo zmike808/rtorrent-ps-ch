@@ -9,7 +9,11 @@ Columns in the Collapsed Display
 
 The following is an explanation of the collapsed display of
 *rTorrent-PS-CH* — remember that you need to bind a key (``*`` by default) to the
-``view.collapsed.toggle`` command, else you won't ever see it.
+``view.collapsed.toggle`` command, else you won't ever see it:
+
+.. code-block:: ini
+
+    schedule2 = collapsed_view_toggle,0,0,"ui.bind_key=download_list,*,view.collapsed.toggle="
 
 .. figure:: _static/img/rTorrent-PS-CH-0.9.6-solarized-yellow-kitty-s.png
    :align: center
@@ -17,7 +21,9 @@ The following is an explanation of the collapsed display of
 
    *rTorrent-PS-CH collapsed canvas*
 
-The following is an overview of the column heading icons, their corresponding key definitions and what the values and icons in it mean.
+Since ``rTorrent-PS-CH v1.7.0-0.9.7`` all the columns are configurable (can be disabled, overridden or new ones added) on the extended canvas except for "Name" and "Tracker Domain" columns, hence the previously included setup specific "Unsafe data" and "Data directory" columns are removed from the built-in columns (they can easily be readded, see below how).
+
+The following is an overview of the built-in column heading icons, their corresponding key definitions and what the values and icons in it mean.
 
 .. |_| unicode:: 0xA0
    :trim:
@@ -50,7 +56,7 @@ The scrape info numbers are exact only for values below 100, else they
 indicate the order of magnitude using roman numerals (c = 10², m = 10³,
 X = 10⁴, C = 10⁵, M = 10⁶).
 
-For example, to add back the removed two "Unsafe data" and "Data directory" columns, add these lines into your config:
+For example, to add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config:
 
 .. code-block:: ini
 
@@ -59,7 +65,7 @@ For example, to add back the removed two "Unsafe data" and "Data directory" colu
     # Add Data directory column (⊕) (first character of parent directory)
     method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
 
-The result:
+The result will be:
 
 ==============  ====================================  ===========
  Column          Key                                  Description
@@ -67,6 +73,8 @@ The result:
  ◎              "230:1:◎"                             Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
  ⊕              "250:1:⊕"                             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
 ==============  ====================================  ===========
+
+For more info about custom column definition take a look at the `ui.column.render <Manual.rst#ui-column-render>`_ multi command.
 
 
 
