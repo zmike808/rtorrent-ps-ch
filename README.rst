@@ -14,7 +14,7 @@ This fork is another set of UI patches on top of the original, it also includes 
 UI changes
 ----------
 
-It includes the following changes on `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
+It includes the following changes on the fully customizable `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
 
 ====  ========================================
  ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
