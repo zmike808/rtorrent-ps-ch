@@ -1,6 +1,9 @@
 User's Manual
 =============
 
+.. contents:: **Contents**
+    :depth: 1
+
 Extended Canvas Explained
 -------------------------
 
