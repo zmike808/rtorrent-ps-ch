@@ -9,7 +9,7 @@ rTorrent-PS-CH - Fork notes
    
 *rTorrent-PS-CH*
 
-This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It's created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project.
+This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It was originally created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project but it doesn't depend on it.
 
 UI changes
 ----------
@@ -18,10 +18,8 @@ It includes the following changes on `extended canvas <docs/Manual.rst#extended-
 
 ====  ========================================
  ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
- ◎    Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue) 
- ⊕    Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
  ↻    Number of connected peers
-⌚ ≀∆  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
+⌬ ≀∆  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
  ⊼    Uploaded data size
 ====  ========================================
 
@@ -68,8 +66,9 @@ Over latest ``rtorrent v0.9.6/0.13.6``:
 -  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
 -  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
-Main differences between ``rTorrent-PS``:
+Differences between ``rTorrent-PS``:
 
+-  `fully customizable collapsed display <docs/Manual.rst#built-in-columns-in-the-collapsed-display>`_
 -  `CPU optimized build <https://github.com/chros73/rtorrent-ps/issues/109>`_
 -  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
 -  `git version support <https://github.com/chros73/rtorrent-ps/issues/78>`_
