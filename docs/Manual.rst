@@ -65,8 +65,6 @@ For example, to add back the two removed "Unsafe data" and "Data directory" colu
     # Add Data directory column (⊕) (first character of parent directory)
     method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
 
-The result will be:
-
 ==============  ====================================  ===========
  Column          Key                                  Description
 ==============  ====================================  ===========
@@ -74,7 +72,7 @@ The result will be:
  ⊕              "250:1:⊕"                             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
 ==============  ====================================  ===========
 
-For more info about custom column definition take a look at the `ui.column.render <Manual.rst#ui-column-render>`_ multi command.
+For more info about custom column definition take a look at the `ui.column.render <Manual.rst#uicolumnrender>`_ multi command.
 
 
 
