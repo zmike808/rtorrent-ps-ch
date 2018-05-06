@@ -402,6 +402,12 @@ with ``elapsed.greater``, to avoid load spikes and similar effects of
 clustered time triggers.
 
 
+throttle.names=
+^^^^^^^^^^^^^^^
+
+Returns a list of all defined throttle names, including the built-in ones (i.e. '' and NULL).
+
+
 value=«number»[,«base»]
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -526,6 +532,13 @@ system.colors.rgb=
 ^^^^^^^^^^^^^^^^^^
 
 Returns boolean, determines whether the underlying system (ncurses) can change colors. (This always returns ``0`` for whatever reason.)
+
+
+ui.column.render
+^^^^^^^^^^^^^^^^
+
+Multi-command to hold column definitions, used on the collapsed canvas to render all the columns except for Name and Tracker Domain columns. 
+See the `Columns in the collapsed display <#columns-in-the-collapsed-display>`_ section above for built-in column key definitions.
 
 
 event.view.[hide|show]
