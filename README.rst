@@ -24,6 +24,12 @@ It includes the following changes on the fully customizable `extended canvas <do
 ====  ========================================
 
 
+Extra keyboard shortcuts
+------------------------
+
+It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_.
+
+
 Extra commands
 --------------
 
@@ -33,7 +39,7 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#command-
 -  `d.is_meta <docs/Manual.rst#d-is-meta-merged-into-0-9-7>`_
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
 - ``convert.group``, ``d.is_done``, ``d.selected_size_bytes`` (`partially done downloads and choke groups fix  <https://github.com/chros73/rtorrent-ps/issues/69>`_)
--  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
+- ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` (`temp filter  <https://github.com/chros73/rtorrent-ps/issues/63>`_)
 -  `chars.* <https://github.com/chros73/rtorrent-ps/issues/123>`_ command group
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
 -  ``ui.throttle.global.step.small.set``, ``ui.throttle.global.step.medium.set``, ``ui.throttle.global.step.large.set``  (`global throttle steps <https://github.com/chros73/rtorrent-ps/issues/84>`_)
@@ -88,6 +94,12 @@ Compiling instructions
 -----------------------
 
 See `Debian Install From Source - The Easy Way <docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 30 minutes.
+
+
+Manual
+------
+
+See the `Manual <docs/Manual.rst>`_ for explanation of basic concepts and command extensions.
 
 
 Change log
