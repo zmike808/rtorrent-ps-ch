@@ -9,7 +9,7 @@ rTorrent-PS-CH - Fork notes
    
 *rTorrent-PS-CH*
 
-This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It was originally created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project but it doesn't depend on it.
+This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It was originally created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project but it doesn't depend on it in any way.
 
 UI changes
 ----------
@@ -30,7 +30,7 @@ Extra commands
 It also adds the following extra `attributes, commands <docs/Manual.rst#command-extensions>`_:
 
 - ``d.custom=last_active``, ``d.custom=tm_completed`` `custom fields <https://github.com/chros73/rtorrent-ps/issues/120>`_
--  `d.is_meta <docs/RtorrentExtended.md#dis_meta>`_
+-  `d.is_meta <docs/Manual.rst#d-is-meta-merged-into-0-9-7>`_
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
 - ``convert.group``, ``d.is_done``, ``d.selected_size_bytes`` (`partially done downloads and choke groups fix  <https://github.com/chros73/rtorrent-ps/issues/69>`_)
 -  `F key <https://github.com/chros73/rtorrent-ps/issues/63>`_ on download list view allows to enter a regex filter to sub-filter the current view (along with ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` commands)
@@ -41,7 +41,7 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#command-
 -  `directory.watch.removed <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  ``d.parent_dir`` command and `d.tracker_scrape.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
 -  `d.ui.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
--  `ui.status.throttle.up <docs/RtorrentExtended.md#uistatusthrottleupsetname>`_ , `ui.status.throttle.down <docs/RtorrentExtended.md#uistatusthrottledownsetname>`_
+-  `ui.status.throttle.[up|down] <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
 
 The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
 
