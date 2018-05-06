@@ -30,8 +30,6 @@ The following is an overview of the column heading icons, their corresponding ke
  ⌘              "120:1:⌘"                             Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
  ✰              "130:1:✰"                             Priority (✖ = off, ⇣ = low, nothing for normal, ⇡ = high)
  ⊘              "200:1:⊘"                             Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
- ◎              "230:1:◎"                             Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
- ⊕              "250:1:⊕"                             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
  ⣿              "300:2:⣿ "                            Completion status (✔ = done; else up to 8 dots [⣿], i.e. 9 levels of 11% each); change to bar style using ``ui.style.progress.set=2``, ``0`` is a _mostly_ ASCII one
  ⋮              "310:1:⋮"                             Transfer direction indicator [⇅ ↡ ↟]
  ☯              "320:2:☯ "                            Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11); change to a different set of number glyphs using ``ui.style.ratio.set=2`` (or ``3``), ``0`` is a _mostly_ ASCII one
@@ -51,6 +49,24 @@ Tracker Domain                                        Domain of the first HTTP t
 The scrape info numbers are exact only for values below 100, else they
 indicate the order of magnitude using roman numerals (c = 10², m = 10³,
 X = 10⁴, C = 10⁵, M = 10⁶).
+
+For example, to add back the removed two "Unsafe data" and "Data directory" columns, add these lines into your config:
+
+.. code-block:: ini
+
+    # Add Unsafe data column (◎)
+    method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
+    # Add Data directory column (⊕) (first character of parent directory)
+    method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
+
+The result:
+
+==============  ====================================  ===========
+ Column          Key                                  Description
+==============  ====================================  ===========
+ ◎              "230:1:◎"                             Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
+ ⊕              "250:1:⊕"                             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
+==============  ====================================  ===========
 
 
 
@@ -542,6 +558,53 @@ ui.column.render
 
 Multi-command to hold column definitions, used on the collapsed canvas to render all the columns except for Name and Tracker Domain columns. 
 See the `Columns in the collapsed display <#columns-in-the-collapsed-display>`_ section above for built-in column key definitions.
+
+Here's a configuration example showing all the built-in columns and their defaults:
+
+.. code-block:: ini
+
+    # Status flags (☢ ☍ ⌘ ✰)
+    method.set_key = ui.column.render, "100:1:☢", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, "▪"}, {01, "▪"}, {10, "╍"}, {11, "▹"}))
+    method.set_key = ui.column.render, "110:1:☍", ((if, ((d.tied_to_file)), ((cat, "⚯")), ((cat, " "))))
+    method.set_key = ui.column.render, "120:1:⌘", ((if, ((d.ignore_commands)), ((cat, "◌")), ((cat, "⚒"))))
+    method.set_key = ui.column.render, "130:1:✰", ((string.map, ((cat, ((d.priority)))), {0, "✖"}, {1, "⇣"}, {2, " "}, {3, "⇡"}))
+    # First character of throttle name (⊘)
+    method.set_key = ui.column.render, "200:1:⊘", {(branch, ((equal,((d.throttle_name)),((cat,NULL)))), ((cat, "∞")), ((d.throttle_name)) )}
+    # Completion status (⣿)
+    method.set_key = ui.column.render, "300:2:⣿ ", ((d.ui.completion))
+    # Transfer direction (⋮)
+    method.set_key = ui.column.render, "310:1:⋮", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, "⇅")),((cat, "↡")))), ((if,((d.up.rate)),((cat, "↟")),((cat, " ")))) ))
+    # Ratio (☯)
+    method.set_key = ui.column.render, "320:2:☯ ", ((d.ui.ratio))
+    # Message (⚑)
+    method.set_key = ui.column.render, "330:2:⚑ ", ((d.ui.message))
+    # Scrape info (↺ ⤴ ⤵)
+    method.set_key = ui.column.render, "400:2: ↺", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))
+    method.set_key = ui.column.render, "410:2: ⤴", ((convert.magnitude, ((d.tracker_scrape.complete)) ))
+    method.set_key = ui.column.render, "420:2: ⤵", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))
+    # Number of connected peers (↻)
+    method.set_key = ui.column.render, "430:2: ↻", ((convert.magnitude, ((d.peers_connected)) ))
+    # Uprate or approximate time since last active state (⌬ ≀∆)
+    method.set_key = ui.column.render, "600:5: ⌬ ≀∆", ((d.ui.uprate_tm))
+    # Uploaded data (⊼)
+    method.set_key = ui.column.render, "700:6:   ⊼  ", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, "   ·  "))))
+    # Downrate or approximate time since completion (⌬ ≀∇)
+    method.set_key = ui.column.render, "800:5: ⌬ ≀∇", ((d.ui.downrate_tm))
+    # Selected data size (✇)
+    method.set_key = ui.column.render, "900:4:  ✇ ", ((convert.human_size, ((d.selected_size_bytes)) ))
+
+To disable or override built-in columns or add new ones:
+
+.. code-block:: ini
+
+    # Disable Number of connected peers (↻) column
+    method.set_key = ui.column.render, "430:2: ↻"
+    # Override Throttle column (⊘)
+    method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
+    # Add Unsafe data column (◎)
+    method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
+    # Add Data directory column (⊕) (first character of parent directory)
+    method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
 
 
 event.view.[hide|show]
