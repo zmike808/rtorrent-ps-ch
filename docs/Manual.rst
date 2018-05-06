@@ -40,10 +40,10 @@ The following is an overview of the built-in column heading icons, their corresp
  ⋮              "310:1:⋮"                             Transfer direction indicator [⇅ ↡ ↟]
  ☯              "320:2:☯ "                            Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11); change to a different set of number glyphs using ``ui.style.ratio.set=2`` (or ``3``), ``0`` is a _mostly_ ASCII one
  ⚑              "330:2:⚑ "                            Message (♺ = Tracker cycle complete, i.e. "Tried all trackers"; ⚡ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⚠ = other; ⚑ = on the ``tagged`` view)
- ↺              "400:2: ↺"                            Number of completions from last scrape info
- ⤴              "410:2: ⤴"                            Number of seeds from last scrape info
- ⤵              "420:2: ⤵"                            Number of leeches from last scrape info
- ↻              "430:2: ↻"                            Number of connected peers
+ ↺              "400:2: ↺"                            Number of completions from last scrape info \*
+ ⤴              "410:2: ⤴"                            Number of seeds from last scrape info \*
+ ⤵              "420:2: ⤵"                            Number of leeches from last scrape info \*
+ ↻              "430:2: ↻"                            Number of connected peers *
  ⌬ ≀∆           "600:5: |_| ⌬ |_| ≀∆"                  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
  ⊼              "700:6: |_| |_| |_| ⊼ |_| |_|"        Uploaded data size
  ⌬ ≀∇           "800:5: |_| ⌬ |_| ≀∇"                 Approximate time since completion (units are «”’hdwmy» from seconds to years); for incomplete items the download rate or, if there's no traffic, the time since the item was loaded
@@ -52,9 +52,9 @@ The following is an overview of the built-in column heading icons, their corresp
 Tracker Domain                                        Domain of the first HTTP tracker with seeds or leeches, or else the first one altogether
 ==============  ====================================  ===========
 
-The scrape info numbers are exact only for values below 100, else they
+\* *The scrape info numbers are exact only for values below 100, else they
 indicate the order of magnitude using roman numerals (c = 10², m = 10³,
-X = 10⁴, C = 10⁵, M = 10⁶).
+X = 10⁴, C = 10⁵, M = 10⁶).*
 
 To add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config or run these in ``rTorrent-PS-CH`` on-the-fly at command prompt (``^x``):
 
