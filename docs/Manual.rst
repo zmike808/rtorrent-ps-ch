@@ -17,33 +17,40 @@ The following is an explanation of the collapsed display of
 
    *rTorrent-PS-CH collapsed canvas*
 
-The following is an overview of the column heading icons, and what the values and icons in it mean.
+The following is an overview of the column heading icons, their corresponding key definitions and what the values and icons in it mean.
 
-==============  ===========
- Column         Description
-==============  ===========
- ☢              Item state (▹ = started, ╍ = paused, ▪ = stopped)
- ☍              Tied item? [⚯]
- ⌘              Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
- ✰              Priority (✖ = off, ⇣ = low, nothing for normal, ⇡ = high)
- ⊘              Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
- ◎              Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
- ⊕              Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
- ⣿              Completion status (✔ = done; else up to 8 dots [⣿], i.e. 9 levels of 11% each); change to bar style using ``ui.style.progress.set=2``, ``0`` is a _mostly_ ASCII one
- ⚡              Transfer direction indicator [⇅ ↡ ↟]
- ☯              Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11); change to a different set of number glyphs using ``ui.style.ratio.set=2`` (or ``3``), ``0`` is a _mostly_ ASCII one
- ⚑              Message (♺ = Tracker cycle complete, i.e. "Tried all trackers"; ⚡ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⚠ = other; ⚑ = on the ``tagged`` view)
- ↺              Number of completions from last scrape info
- ⤴              Number of seeds from last scrape info
- ⤵              Number of leeches from last scrape info
- ↻              Number of connected peers
- ⌚ ≀∆           Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
- ⊼              Uploaded data size
- ⌚ ≀∇           Approximate time since completion (units are «”’hdwmy» from seconds to years); for incomplete items the download rate or, if there's no traffic, the time since the item was loaded
- ✇              Data size
- Name           Name of the download item
-Tracker Domain  Domain of the first HTTP tracker with seeds or leeches, or else the first one altogether
-==============  ===========
+.. table:: Truth table for "not"
+   :widths: 20 30 50
+   :align:  right
+   
+.. |_| unicode:: 0xA0 
+   :trim:
+
+==============  ==================  ===========
+ Column          Key                Description
+==============  ==================  ===========
+ ☢              100:1:☢             Item state (▹ = started, ╍ = paused, ▪ = stopped)
+ ☍              110:1:☍             Tied item? [⚯]
+ ⌘              120:1:⌘             Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
+ ✰              130:1:✰             Priority (✖ = off, ⇣ = low, nothing for normal, ⇡ = high)
+ ⊘              200:1:⊘             Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
+ ◎              230:1:◎             Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
+ ⊕              250:1:⊕             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
+ ⣿              *300:2:⣿ *          Completion status (✔ = done; else up to 8 dots [⣿], i.e. 9 levels of 11% each); change to bar style using ``ui.style.progress.set=2``, ``0`` is a _mostly_ ASCII one
+ ⋮              310:1:⋮             Transfer direction indicator [⇅ ↡ ↟]
+ ☯              "320:2:☯ "          Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11); change to a different set of number glyphs using ``ui.style.ratio.set=2`` (or ``3``), ``0`` is a _mostly_ ASCII one
+ ⚑              "330:2:⚑ "          Message (♺ = Tracker cycle complete, i.e. "Tried all trackers"; ⚡ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⚠ = other; ⚑ = on the ``tagged`` view)
+ ↺              400:2: ↺            Number of completions from last scrape info
+ ⤴              410:2: ⤴            Number of seeds from last scrape info
+ ⤵              420:2: ⤵            Number of leeches from last scrape info
+ ↻              430:2: ↻            Number of connected peers
+ ⌬ ≀∆           600:5: ⌬ ≀∆         Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
+ ⊼              "700:6:   ⊼  "      Uploaded data size
+ ⌬ ≀∇           800:5: ⌬ ≀∇         Approximate time since completion (units are «”’hdwmy» from seconds to years); for incomplete items the download rate or, if there's no traffic, the time since the item was loaded
+ ✇              "900:4:  ✇ "        Data size
+ Name                               Name of the download item
+Tracker Domain                      Domain of the first HTTP tracker with seeds or leeches, or else the first one altogether
+==============  ==================  ===========
 
 The scrape info numbers are exact only for values below 100, else they
 indicate the order of magnitude using roman numerals (c = 10², m = 10³,
