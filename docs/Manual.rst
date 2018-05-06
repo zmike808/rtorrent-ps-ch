@@ -79,7 +79,7 @@ For more info about custom column definition take a look at the `ui.column.rende
 
 
 
-Extra Keyboard shortcuts
+Extra Keyboard Shortcuts
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 There are extra keyboard shortcuts defined along with the `original ones in rTorrent <https://github.com/rakshasa/rtorrent/wiki/User-Guide#navigating>`_.
