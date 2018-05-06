@@ -21,7 +21,7 @@ The following is an explanation of the collapsed display of
 
    *rTorrent-PS-CH collapsed canvas*
 
-Since ``rTorrent-PS-CH v1.7.0-0.9.7`` all the columns are configurable (can be disabled, overridden or new ones added) on the extended canvas except for "Name" and "Tracker Domain" columns, hence the previously included setup specific "Unsafe data" and "Data directory" columns are removed from the built-in columns (they can easily be readded, see below how).
+Since ``rTorrent-PS-CH v1.7.0-0.9.7`` all the columns are configurable (can be disabled, overridden or new ones added on-the-fly) on the extended canvas except for "Name" and "Tracker Domain" columns, hence the previously included setup specific "Unsafe data" and "Data directory" columns are removed from the built-in columns (they can easily be readded, see below how).
 
 The following is an overview of the built-in column heading icons, their corresponding key definitions and what the values and icons in it mean.
 
@@ -56,7 +56,7 @@ The scrape info numbers are exact only for values below 100, else they
 indicate the order of magnitude using roman numerals (c = 10², m = 10³,
 X = 10⁴, C = 10⁵, M = 10⁶).
 
-For example, to add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config:
+To add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config or run these in ``rTorrent-PS-CH`` on-the-fly at command prompt (``^x``):
 
 .. code-block:: ini
 
@@ -151,7 +151,7 @@ the terminal multiplexers; namely start ``tmux`` with the ``-2`` switch
 terminal already set to 256 color mode so it can sense the underlying
 terminal supports them. Take a look at the small `tmux guide <DebianInstallFromSourceTheEasyWay.rst#note-about-tmux>`_.
 
-You can find several color configs in the `examples <examples/>`_ folder.
+You can create your own color theme by using the `ui.color.*= <Manual.rst#ui-color-type-set-color-def>`_ commands or find several color themes in the `examples <examples/>`_ folder.
 
 
 
@@ -562,7 +562,7 @@ Returns boolean, determines whether the underlying system (ncurses) can change c
 ui.column.render
 ^^^^^^^^^^^^^^^^
 
-Multi-command to hold column definitions, it's used on the collapsed canvas to render all the columns except for "Name" and "Tracker Domain" columns. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
+Multi-command to hold column definitions, it's used on the collapsed canvas to configure and render all the columns except for "Name" and "Tracker Domain" columns. Built-in or custom columns can be disabled, overridden or new ones added on-the-fly. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
 
 Colorizing columns is limited only to the following ones: ``⚑ , ⣿ , ☯ ,  ⌬ ≀∆,  ⌬ ≀∇`` (columns that use ``d.ui.*`` commands); meaning colorizing other built-in / custom columns isn't supported.
 
@@ -602,7 +602,7 @@ Here's a configuration example showing all the built-in columns and their defaul
     # Selected data size (✇)
     method.set_key = ui.column.render, "900:4:  ✇ ", ((convert.human_size, ((d.selected_size_bytes)) ))
 
-To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet, the title in the key *must be unique* accross columns!
+To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet with a command, the title in the key *must be unique* accross columns!
 
 Example:
 
@@ -612,7 +612,7 @@ Example:
     method.set_key = ui.column.render, "430:2: ↻"
     # Override Throttle column (⊘)
     method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
-    # Add Unsafe data column (◎) after throttle name (⊘) column
+    # Add Unsafe data column (◎) after Throttle (⊘) column
     method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
     # Add Data directory column (⊕) (first character of parent directory) after Unsafe data (◎) column
     method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
