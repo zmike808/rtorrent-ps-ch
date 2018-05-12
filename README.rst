@@ -61,6 +61,7 @@ Important enhancements, fixes
 
 Over latest ``rtorrent v0.9.6/0.13.6``:
 
+-  `announce interval fix <https://github.com/chros73/rtorrent-ps/issues/125>`_
 -  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
 -  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
