@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.7.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.1-0.9.7) (2018-05-13)
+**Fixed bugs:**
+
+- Fix honoring "throttle.min\_peers\*" settings in rtorrent [\#126](https://github.com/chros73/rtorrent-ps-ch/issues/126)
+
 ## [1.7.0-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.0-0.9.7) (2018-05-06)
 **Implemented enhancements:**
 
