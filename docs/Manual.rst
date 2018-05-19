@@ -11,12 +11,7 @@ Built-in columns in the Collapsed Display
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The following is an explanation of the collapsed display of
-*rTorrent-PS-CH* — remember that you need to bind a key (``*`` by default) to the
-``view.collapsed.toggle`` command, else you won't ever see it:
-
-.. code-block:: ini
-
-    schedule2 = collapsed_view_toggle,0,0,"ui.bind_key=download_list,*,view.collapsed.toggle="
+*rTorrent-PS-CH* (bind to ``*`` key by default).
 
 .. figure:: _static/img/rTorrent-PS-CH-0.9.6-solarized-yellow-kitty-s.png
    :align: center
@@ -76,21 +71,6 @@ To add back the two removed "Unsafe data" and "Data directory" columns, add thes
 ==============  ====================================  ===========
 
 For more info about custom column definition take a look at the `ui.column.render <Manual.rst#uicolumnrender>`_ multi command.
-
-
-
-Extra Keyboard Shortcuts
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-There are extra keyboard shortcuts defined along with the `original ones in rTorrent <https://github.com/rakshasa/rtorrent/wiki/User-Guide#navigating>`_.
-
-==============  ====================================
- Column         Description
-==============  ====================================
- F              subfilter the current view based on the name of downloads by entering a regexp (capital ``f``)
- ↑, ↓           prev, next in input history (at any input prompt, e.g. at ``^x``)
- ESC            exit from any input prompt (e.g. at ``^x``)
-==============  ====================================
 
 
 
@@ -169,7 +149,23 @@ the terminal multiplexers; namely start ``tmux`` with the ``-2`` switch
 terminal already set to 256 color mode so it can sense the underlying
 terminal supports them. Take a look at the small `tmux guide <DebianInstallFromSourceTheEasyWay.rst#note-about-tmux>`_.
 
-You can create your own color theme by using the `ui.color.*= <Manual.rst#ui-color-type-set-color-def>`_ commands or find several color themes in the `examples <examples/>`_ folder.
+You can create your own color theme by using the `ui.color.*= <Manual.rst#ui-color-type-set-color-def>`_ commands or find several color themes in the `contrib <contrib/>`_ folder.
+
+
+
+Extra Keyboard Shortcuts
+------------------------
+
+There are extra keyboard shortcuts defined along with the `original ones in rTorrent <https://github.com/rakshasa/rtorrent/wiki/User-Guide#navigating>`_.
+
+==============  ====================================
+ Column         Description
+==============  ====================================
+ \*              toggle between Collapsed and Expanded displays
+ F              subfilter the current view based on the name of downloads by entering a regexp (capital ``f``)
+ ↑, ↓           prev, next in input history (at any input prompt, e.g. at ``^x``)
+ ESC            exit from any input prompt (e.g. at ``^x``)
+==============  ====================================
 
 
 
@@ -534,7 +530,7 @@ empty), just like ``d.multicall2``, but only calls the given commands if
 See directly above for an example.
 
 
-ui.focus.[home|end|pgup|pgdn]=
+ui.focus.{home|end|pgup|pgdn}=
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Commands that can be assigned to keyboard schortcuts (with the help of ``ui.bind_key`` command) to jump to the first / last item in the current view or scroll by 50 items up or down at a time (or whatever other value ui.focus.page_size has). An example keyboard shortcut assignements:
@@ -553,7 +549,7 @@ ui.focus.page_size[.set]=«value»
 Get / set the number of items to scroll with ``ui.focus.pgup`` or ``ui.focus.pgdn``. Default value: ``50``.
 
 
-ui.style.[progress|ratio][.set]=«value»
+ui.style.{progress|ratio}[.set]=«value»
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Get / set the value of style to use in ``completion status`` (values from ``0`` to ``2``) and ``ratio`` (values from ``0`` to ``3``) columns. Value ``0`` is a *mostly* ASCII one for both. Default value for both: ``1``.
@@ -634,7 +630,7 @@ Example:
     method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
 
 
-event.view.[hide|show]
+event.view.{hide|show}
 ^^^^^^^^^^
 
 Events (multi commands) that will be triggered upon view changes: first ``event.view.hide`` group is triggered then ``event.view.show`` group. Example usage:
@@ -672,7 +668,7 @@ d.parent_dir=
 Returns the name of the parent directory of a download.
 
 
-d.tracker_scrape.[downloaded|complete|incomplete]=
+d.tracker_scrape.{downloaded|complete|incomplete}=
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Return the number of downloads / seeders / leechers acquired during scraping request.
@@ -776,7 +772,7 @@ Pad a string or a number to the given ``«length»`` with the specified ``«char
     print=(chars.pad, (chars.chop, "1234567", 3), 5, "x")
 
 
-math.[add|sub|mul|div|mod|min|max|cnt|avg|med]=«cmd1»[,«cmd2»,…]
+math.{add|sub|mul|div|mod|min|max|cnt|avg|med}=«cmd1»[,«cmd2»,…]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``math.*`` command group adds support for basic arithmetic operators (``+``, ``-``, ``*``, ``/``, ``%``) and ``min``, ``max``, ``count``, ``avg``, ``median`` functions. They support multiple arguments, even list type as well, they also can be chained together, but restricted to integer arithmetic only (as in ``bash``): ``/``, ``avg``, ``median`` always round down. 
@@ -855,7 +851,7 @@ ui.input.history.clear=
 Clear all the `input history <https://github.com/chros73/rtorrent-ps-ch/issues/83>`_.
 
 
-ui.status.throttle.[up|down][.set]=«throttlename»[,«throttlename»]
+ui.status.throttle.{up|down}[.set]=«throttlename»[,«throttlename»]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Displays values of the given ``throttle.up``/``throttle.down`` in the first part of status bar, multiple comma separated names can be given.
@@ -889,7 +885,7 @@ Configuration example:
     ui.status.throttle.down.set=slowdown
 
 
-ui.throttle.global.step.[small|medium|large][.set]=«value»
+ui.throttle.global.step.{small|medium|large}[.set]=«value»
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Set `global throttle steps <https://github.com/rakshasa/rtorrent/wiki/User-Guide#throttling>`_. Their default value is:

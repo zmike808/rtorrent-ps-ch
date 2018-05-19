@@ -47,7 +47,7 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#command-
 -  `directory.watch.removed <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  ``d.parent_dir`` command and `d.tracker_scrape.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
 -  `d.ui.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
--  `ui.status.throttle.[up|down] <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
+-  `ui.status.throttle.{up|down} <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
 
 The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
 
