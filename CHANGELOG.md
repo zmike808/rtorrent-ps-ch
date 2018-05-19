@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.7.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.2-0.9.7) (2018-05-19)
+**Implemented enhancements:**
+
+- Make '\*' key a built-in keyboard shortcut [\#129](https://github.com/chros73/rtorrent-ps-ch/issues/129)
+- Make Info View default on download details [\#128](https://github.com/chros73/rtorrent-ps-ch/issues/128)
+
 ## [1.7.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.1-0.9.7) (2018-05-13)
 **Fixed bugs:**
 
