@@ -1129,6 +1129,10 @@ void initialize_command_ui_pyroscope() {
 
     rpc::parse_command_multiple(
         rpc::make_target(),
+        // Bind '*' to TOGGLE between COLLAPSED and EXPANDED display
+        "schedule2 = collapsed_view_toggle, 0, 0, ((ui.bind_key,download_list,*,view.collapsed.toggle=))\n"
+
+        // Multi-method to store column definitions
         "method.insert = ui.column.render, multi|rlookup|static\n"
 
         // Status flags (☢ ☍ ⌘ ✰)
