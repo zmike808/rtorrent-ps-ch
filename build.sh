@@ -385,6 +385,7 @@ build_cares() { # Build direct dependency: c-ares
 build_curl() { # Build direct dependency: curl
     [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -f $TARBALLS_DIR/DONE-c ]] || fail "You need to build 'c-ares' first!"
     [[ -d $TARBALLS_DIR ]] && [[ -f $TARBALLS_DIR/DONE-curl ]] && rm -f $TARBALLS_DIR/DONE-curl >/dev/null
+    [[ -d "$TARBALLS_DIR" && -f "$TARBALLS_DIR/DONE-curl-chrpath" ]] && rm -f "$TARBALLS_DIR/DONE-curl-chrpath" >/dev/null
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building curl   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     ( set +x ; cd curl-$CURL_VERSION \
@@ -393,7 +394,6 @@ build_curl() { # Build direct dependency: curl
              --disable-smb --disable-imap --disable-pop3 --disable-tftp --disable-telnet --disable-dict --disable-rtsp --disable-ldap --disable-ftp \
         && $MAKE $MAKE_OPTS \
         && $MAKE install \
-        && chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/lib/libcurl.so" \
         || fail "during building 'curl'!" )
 
     touch $TARBALLS_DIR/DONE-curl
@@ -438,6 +438,7 @@ build_lt() { # Build libTorrent
 build_rt() { # Build rTorrent
     [[ -e $TARBALLS_DIR/DONE-PKG ]] && [[ -f $TARBALLS_DIR/DONE-c ]] && [[ -f $TARBALLS_DIR/DONE-curl ]] && [[ -f $TARBALLS_DIR/DONE-xmlrpc ]] && [[ -f $TARBALLS_DIR/DONE-libtorrent ]] || fail "You need to build 'c-ares', 'curl', 'xmlrpc-c', 'libtorrent' first!"
     [[ -d $TARBALLS_DIR ]] && [[ -f $TARBALLS_DIR/DONE-rtorrent ]] && rm -f $TARBALLS_DIR/DONE-rtorrent >/dev/null
+    [[ -d "$TARBALLS_DIR" && -f "$TARBALLS_DIR/DONE-rtorrent-chrpath" ]] && rm -f "$TARBALLS_DIR/DONE-rtorrent-chrpath" >/dev/null
 
     bold "~~~~~~~~~~~~~~~~~~~~~~~~   Building rTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     ( set +x ; cd rtorrent-$RT_VERSION \
@@ -445,15 +446,32 @@ build_rt() { # Build rTorrent
         && ./configure --prefix=$INST_DIR $CFG_OPTS $CFG_OPTS_RT --with-ncursesw --with-xmlrpc-c=$INST_DIR/bin/xmlrpc-c-config \
         && $MAKE $MAKE_OPTS \
         && $MAKE install \
-        && chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/bin/rtorrent" \
         || fail "during building 'rtorrent'!" )
 
     touch $TARBALLS_DIR/DONE-rtorrent
+
+    change_rpath
 }
 
 build_lt_rt() { # Build libTorrent and rTorrent
     build_lt
     build_rt
+}
+
+change_rpath() { # Change rpath (to remove a possible absolute path) in libcurl.so and rtorrent binaries
+    if [[ -f "$TARBALLS_DIR/DONE-curl" && ! -f "$TARBALLS_DIR/DONE-curl-chrpath" && -f "$INST_DIR/lib/libcurl.so" ]]; then
+        bold "~~~~~~~~~~~~~~~~~~~~~~~~   Changing RPATH in libcurl.so   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+        chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/lib/libcurl.so" \
+            && touch "$TARBALLS_DIR/DONE-curl-chrpath" || fail "changing RPATH in 'libcurl.so'!"
+    fi
+
+    if [[ -f "$TARBALLS_DIR/DONE-rtorrent" && ! -f "$TARBALLS_DIR/DONE-rtorrent-chrpath" && -f "$INST_DIR/bin/rtorrent" ]]; then
+        bold "~~~~~~~~~~~~~~~~~~~~~~~~   Changing RPATH in rtorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+        chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$RT_CH_DIRNAME/lib" "$INST_DIR/bin/rtorrent" \
+            && touch "$TARBALLS_DIR/DONE-rtorrent-chrpath" || fail "changing RPATH in 'rtorrent'!"
+    fi
 }
 
 patch_lt_vanilla() { # Patch vanilla libTorrent
@@ -753,9 +771,9 @@ case "$1" in
     clean_all)  clean_all ;;
     download)   prep; download ;;
     build-ares) set_compiler_flags; display_env_vars; prep; clean_all "c-ares-$CARES_VERSION"; download "c-ares-$CARES_VERSION"; build_cares ;;
-    build-curl) set_compiler_flags; display_env_vars; prep; clean_all "curl-$CURL_VERSION"; download "curl-$CURL_VERSION"; build_curl ;;
+    build-curl) set_compiler_flags; display_env_vars; prep; clean_all "curl-$CURL_VERSION"; download "curl-$CURL_VERSION"; build_curl; change_rpath ;;
     build-xrpc) set_compiler_flags; display_env_vars; prep; clean_all "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; download "xmlrpc-c-$XMLRPC_TREE-$XMLRPC_REV"; build_xmlrpc ;;
-    deps)       set_compiler_flags; display_env_vars; prep; build_deps ;;
+    deps)       set_compiler_flags; display_env_vars; prep; build_deps; change_rpath ;;
     patch-d-lt) NOPYROP=true; display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; patch_lt ;;
     patch-d-rt) NOPYROP=true; display_env_vars; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_rt ;;
     patch-lt)   display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; patch_lt ;;
@@ -765,6 +783,7 @@ case "$1" in
     build-rt)   set_compiler_flags; display_env_vars; build_rt ;;
     build-ltrt) set_compiler_flags; display_env_vars; build_lt_rt ;;
     patchbuild) set_compiler_flags; display_env_vars; clean_all "libtorrent-$LT_VERSION"; download "libtorrent-$GIT_LT"; clean_all "rtorrent-$RT_VERSION"; download "rtorrent-$GIT_RT"; patch_lt_rt; build_lt_rt; add_version_info ;;
+    chrpath)    change_rpath ;;
     clean-up)   clean_up ;;
     ver-info)   add_version_info ;;
     sm-home)    symlink_binary_home ;;
