@@ -19,10 +19,10 @@ git_lt='c167c5a'                # 2016-12-12 master
 git_rt='226e670'                # 2016-10-23 master
 
 # Dependency versions
-cares_version='1.13.0'          # 2017-06
-curl_version='7.54.1'           # 2017-06 ; WARNING: see rT issue #457 regarding curl configure options
-xmlrpc_tree='stable'            # [super-stable | stable | advaced]
-xmlrpc_rev='2912'               # Release 1.43.06 2016-12
+cares_version='1.14.0'          # 2018.02.16
+curl_version='7.60.0'           # 2018.05.16 ; WARNING: see rT issue #457 regarding curl configure options
+xmlrpc_tree='stable'            # [super-stable | stable | advanced]
+xmlrpc_rev='2985'               # 2018.04.08 v1.43.07
 export cares_version curl_version xmlrpc_tree xmlrpc_rev
 
 
@@ -202,14 +202,19 @@ tarballs+=("https://bintray.com/artifact/download/pyroscope/rtorrent-ps/libtorre
 tarballs+=("https://bintray.com/artifact/download/pyroscope/rtorrent-ps/rtorrent-$rt_version.tar.gz")
 
 # Get xmlrpc-c from svn if it's not mirrored
-[[ ! "$xmlrpc_rev" =~ ^(2912|2775)$ ]] && xmlrpc_svn_url="http://svn.code.sf.net/p/xmlrpc-c/code/$xmlrpc_tree@$xmlrpc_rev"
+[[ ! "$xmlrpc_rev" =~ ^(2985|2912|2775)$ ]] && xmlrpc_svn_url="http://svn.code.sf.net/p/xmlrpc-c/code/$xmlrpc_tree@$xmlrpc_rev"
 
 
 # Source package md5 hashes
 src_pkg_hashes=('c-ares-1.13.0.tar.gz:d2e010b43537794d8bedfb562ae6bba2')
+src_pkg_hashes+=('c-ares-1.14.0.tar.gz:e57b37a7c46283e83c21cde234df10c7')
 src_pkg_hashes+=('curl-7.54.1.tar.gz:21a6e5658fd55103a90b11de7b2a8a8c')
+src_pkg_hashes+=('curl-7.60.0.tar.gz:48eb126345d3b0f0a71a486b7f5d0307')
 src_pkg_hashes+=('xmlrpc-c-stable-2912-src.tgz:d6336bc1ff6d5ba705438bed72268701')
+src_pkg_hashes+=('xmlrpc-c-stable-2985-src.tgz:0784b5c41440e7451720cff316a64d80')
+src_pkg_hashes+=('libtorrent-0.13.6.tar.gz:66f18044432a62c006c75f6d0bb4d7dc')
 src_pkg_hashes+=('libtorrent-c167c5a.tar.gz:58448dbefe92616f6ad19ac41315feed')
+src_pkg_hashes+=('rtorrent-0.9.6.tar.gz:5e7550f74e382a6245412c615f45444d')
 src_pkg_hashes+=('rtorrent-226e670.tar.gz:a0138f4739d4313d5dfad0432cabef5c')
 
 
