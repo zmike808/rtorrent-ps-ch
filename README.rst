@@ -27,7 +27,7 @@ It includes the following changes on the fully customizable `extended canvas <do
 Extra keyboard shortcuts
 ------------------------
 
-It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_.
+It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_: ``*``, ``F``, ``↑``, ``↓``, ``ESC``.
 
 
 Extra commands

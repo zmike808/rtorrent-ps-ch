@@ -7,7 +7,7 @@ Debian Install From Source - The Easy Way
 Introduction
 ------------
 
-This guide will show only the required methods / commands to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``. It's really easy with the help of the amazing build scripts created by ``pyroscope``.
+This guide will show only the required methods / commands to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``. It's really easy with the help of the amazing build scripts created by ``@pyroscope``.
 
 Note that building process of ``rTorrent-PS-CH`` has been changed (simplified) as of ``v1.6.0``, still installing a compiled build into the `system <#install-it-into-system>`_ in the end is the preferred way.
 
@@ -39,18 +39,20 @@ After that all you need is to place a `.tmux.conf <https://raw.githubusercontent
 
 There is only 1 crucial option (along with the other useful ones) in that ``.tmux.conf``: ``set -g default-terminal "screen-256color"``. This is responsible for getting 256 color support. **No matter** what other tutorials / guides / intructions say about the ``TERM`` environment variable: **you shouldn't set it**! You will experience strange rendering problems! Although this will result that ``rTorrent-PS-CH`` won't start in a terminal window, but that's not a problem since we always run it in ``tmux``. (`Read more <https://sanctum.geek.nz/arabesque/term-strings/>`_ about it.)
 
+You can also build the latest CPU optimized version of `tmux <https://github.com/chros73/build-tmux/>`_.
+
 
 
 Compiling ``rTorrent-PS-CH`` from source
 -----------------------------------
 
-Multiple versions can be supported or just the latest stable ``git`` version. If patches for multiple version can be found inside the ``patches`` directory then ``build.sh`` will compile the latest release version, in this case ``git`` option can be passed to it to build ``git`` version. If ``ONLY_GIT_LT_RT`` is set to ``true`` in ``build.sh`` script then it will always build ``git`` version.
+Multiple versions can be supported or just the latest stable ``git`` version. If patches for multiple version can be found inside the ``patches`` directory then ``build.sh`` will compile the latest release version, in this case ``git`` option can be passed to it to build ``git`` version. If ``only_git_lt_rt`` is set to ``true`` in ``build.sh`` script then it will always build ``git`` version.
 
 
 For regular user
 ^^^^^^^^^^^^^^^^
 
-It has to be compiled this way first. Build script creates local CPU optimized code by default.
+It has to be compiled this way first. Build script creates local CPU optimized code by default (``+`` sign is displayed in the middle of title bar of ``rTorrent-PS-CH`` instead of ``-``).
 
 It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rtorrent-ps-ch*`` directory and create symlink to it in ``~/bin/`` directory.
 
@@ -65,7 +67,7 @@ If you want to turn off optimization for some reason (e.g. packaging the build) 
 
 .. code-block:: shell
 
-   OPTIMIZE_BUILD=no time nice -n 19 ./build.sh ch
+   optimize_build=no time nice -n 19 ./build.sh ch
 
 
 Install it into system
@@ -87,7 +89,7 @@ You can even ``create a package`` of an unoptimized, installed build with ``fpm`
 
 .. code-block:: shell
 
-   DEBFULLNAME="yourname" DEBEMAIL="youremailaddress" ./build.sh pkg2deb
+   debfullname="yourname" debemail="youremailaddress" ./build.sh pkg2deb
 
 You should copy the resulted ``*.deb`` package from ``/tmp/rtorrent-ps-ch-dist`` to somewhere safe.
 
@@ -99,7 +101,7 @@ You can even ``create a package`` of an unoptimized, installed build with ``pacm
 
 .. code-block:: shell
 
-   DEBFULLNAME="yourname" DEBEMAIL="youremailaddress" ./build.sh pkg2pacman
+   debfullname="yourname" debemail="youremailaddress" ./build.sh pkg2pacman
 
 You should copy the resulted ``*.tar.xz`` package from ``/tmp/rtorrent-ps-ch-dist`` to somewhere safe.
 
@@ -134,6 +136,9 @@ Install ``pyrocore`` utils for regular user
 
 You should run these under your normal user account:
 
+Install
+^^^^^^^
+
 .. code-block:: shell
 
    cd ~ && mkdir -p ~/bin ~/.local
@@ -149,6 +154,9 @@ You can check whether all went well with:
 .. code-block:: shell
 
    pyroadmin --version
+
+Update
+^^^^^^
 
 If you want to update ``pyrocore`` utils later:
 
