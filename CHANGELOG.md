@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.7.3-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.3-0.9.7) (2018-05-26)
+**Implemented enhancements:**
+
+- Upgrade the used external libraries [\#133](https://github.com/chros73/rtorrent-ps-ch/issues/133)
+- Refactor build script a bit [\#132](https://github.com/chros73/rtorrent-ps-ch/issues/132)
+- Move changing 'rpath' in binaries to the end of compilation in build script [\#131](https://github.com/chros73/rtorrent-ps-ch/issues/131)
+
 ## [1.7.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.2-0.9.7) (2018-05-19)
 **Implemented enhancements:**
 
