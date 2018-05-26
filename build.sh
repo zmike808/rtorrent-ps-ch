@@ -706,7 +706,7 @@ call_fpm() { # command_line_params : Helper function for pkg2* functions
     cat >"$tarballs_dir/after_install.sh" <<.
 if [[ -d "$root_pkg_dir" && -d "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" && -d "$root_sys_dir/lib" ]]; then
     cd "$root_pkg_dir"
-    [[ ! -L "$root_pkg_dir/$rt_ps_ch_dirname" ]] && ln -nfs "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" "$rt_ps_ch_dirname"
+    [[ ! -L "$root_pkg_dir/$rt_ps_ch_dirname" || -L "$root_pkg_dir/$rt_ps_ch_dirname" ]] && ln -nfs "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" "$rt_ps_ch_dirname"
     [[ ! -L "$root_sys_dir/lib/$rt_ps_ch_dirname" ]] && ln -nfs "$root_symlink_dir" "$root_sys_dir/lib/$rt_ps_ch_dirname"
 fi
 
