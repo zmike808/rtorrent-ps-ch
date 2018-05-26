@@ -458,6 +458,7 @@ build_deps() { # Build direct dependencies: c-ares, curl, xmlrpc-c
 build_lt() { # Build libTorrent
     [[ -e "$tarballs_dir/DONE-PKG" ]] || fail "You need to '$0 download' first!"
     [[ -d "$tarballs_dir" && -f "$tarballs_dir/DONE-libtorrent" ]] && rm -f "$tarballs_dir/DONE-libtorrent" >/dev/null
+    [[ -d "$tarballs_dir" && -f "$tarballs_dir/DONE-libtorrent-chrpath" ]] && rm -f "$tarballs_dir/DONE-libtorrent-chrpath" >/dev/null
 
     bold '~~~~~~~~~~~~~~~~~~~~~~~~   Building libTorrent   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
     ( set +x ; cd "libtorrent-$lt_version" \
@@ -493,12 +494,19 @@ build_lt_rt() { # Build libTorrent and rTorrent
     build_rt
 }
 
-change_rpath() { # Change rpath (to remove a possible absolute path) in libcurl.so and rtorrent binaries
+change_rpath() { # Change rpath (to remove a possible absolute path) in libcurl.so, libtorrent.so and rtorrent binaries
     if [[ -f "$tarballs_dir/DONE-curl" && ! -f "$tarballs_dir/DONE-curl-chrpath" && -f "$build_dir/lib/libcurl.so" ]]; then
         bold '~~~~~~~~~~~~~~~~~~~~~~~~   Changing RPATH in libcurl.so   ~~~~~~~~~~~~~~~~~~~~~~~~~~'
 
         chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$rt_ps_ch_dirname/lib" "$build_dir/lib/libcurl.so" \
             && touch "$tarballs_dir/DONE-curl-chrpath" || fail "changing RPATH in 'libcurl.so'!"
+    fi
+
+    if [[ -f "$tarballs_dir/DONE-libtorrent" && ! -f "$tarballs_dir/DONE-libtorrent-chrpath" && -f "$build_dir/lib/libtorrent.so" ]]; then
+        bold '~~~~~~~~~~~~~~~~~~~~~~~~   Changing RPATH in libtorrent.so   ~~~~~~~~~~~~~~~~~~~~~~~~~~'
+
+        chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$rt_ps_ch_dirname/lib" "$build_dir/lib/libtorrent.so" \
+            && touch "$tarballs_dir/DONE-libtorrent-chrpath" || fail "changing RPATH in 'libtorrent'!"
     fi
 
     if [[ -f "$tarballs_dir/DONE-rtorrent" && ! -f "$tarballs_dir/DONE-rtorrent-chrpath" && -f "$build_dir/bin/rtorrent" ]]; then
