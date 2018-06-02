@@ -171,7 +171,7 @@ set_compiler_flags() { # Set final compiler flags
 
 display_env_vars() { # Display env vars
     echo
-    echo "${bold}Env for building $rt_ps_ch_title${vanilla_postfix} $rt_ps_ch_version $rt_version/$lt_version into $build_dir$off"
+    echo "${bold}Env for building $rt_ps_ch_title${vanilla_postfix} $rt_ps_ch_version $rt_version/$lt_version into $build_dir${off}"
     echo
     printf 'optimize_build="%s"\n'            "${optimize_build}"
     printf 'export PKG_CONFIG_PATH="%s"\n'    "${PKG_CONFIG_PATH}"
@@ -314,7 +314,7 @@ check_deps() { # Check command and package dependency
 }
 
 prep() { # Check dependency and create basic directories
-    [[ -f "$build_dir/bin/$project" ]] && fail "Current '$rt_ps_ch_version' version is already built in '$build_dir', it has to be removed manually before a new compilation."
+    [[ -f "$build_dir/bin/rtorrent" ]] && fail "Current '$rt_ps_ch_version' version is already built in '$build_dir', it has to be removed manually before a new compilation."
 
     check_deps
     mkdir -p "$build_root"/{bin,lib}
@@ -495,6 +495,9 @@ change_rpath() { # Change rpath (to remove a possible absolute path) in libcurl.
         chrpath -r "\$ORIGIN/../lib:\$ORIGIN/../lib/$rt_ps_ch_dirname/lib" "$build_dir/bin/rtorrent" \
             && touch "$tarballs_dir/DONE-rtorrent-chrpath" || fail "changing RPATH in 'rtorrent'!"
     fi
+
+    chmod -R go-w "$build_dir"
+    chmod 644 "$build_dir/lib"/*.so*
 }
 
 patch_lt_vanilla() { # Patch vanilla libTorrent
@@ -621,6 +624,8 @@ rt_ps_ch_xmlrpc_tree='$xmlrpc_tree'
 rt_ps_ch_xmlrpc_rev='$xmlrpc_rev'
 optimized_build='$optimize_build'
 .
+
+    chmod go-w "$build_dir/$ver_info_filename"
 }
 
 symlink_binary_home() { # Symlink binary in HOME
@@ -687,6 +692,24 @@ install() { # Install (copy) to $pkg_inst_dir
     chmod -R a+rX "$pkg_inst_dir/"
 }
 
+pkg2tgz() { # Compress "$build_dir" into tarball
+    [[ ! -f "$build_dir/$ver_info_filename" ]] && fail "Compilation hasn't been finished, try it again."
+
+    local os_id='unknown' os_ver='unknown' os_arch="$HOSTTYPE" ch_separator='-' tgz_name
+
+    [[ -d "$dist_dir" ]] || mkdir -p "$dist_dir"
+    . "$build_dir/$ver_info_filename"
+
+    command which lsb_release &>/dev/null && os_id="$(echo $(lsb_release -is) | tr '[:upper:]' '[:lower:]')" && os_ver="$(lsb_release -cs)"
+    command which dpkg &>/dev/null && os_arch="$(dpkg --print-architecture)"
+    [[ "$optimized_build" = yes ]] && ch_separator='+'
+    tgz_name="${rt_ps_ch_dirname}${vanilla_postfix}_${rt_ps_ch_version}-${rt_ps_ch_rt_version}${ch_separator}${os_id}-${os_ver}_${os_arch}.tar.gz"
+
+    cd "$build_root/lib"
+    echo "${bold}Creating tarball $dist_dir/$tgz_name${off}"
+    tar --owner=nobody --group=nogroup -czvf "$dist_dir/$tgz_name" "$rt_ps_ch_dirname${vanilla_postfix}-$rt_ps_ch_version-$rt_ps_ch_rt_version/"
+}
+
 package_prep() { # Helper function for pkg2* functions
     [[ -n "$debfullname" ]] || fail 'You MUST set debfullname in your environment.'
     [[ -n "$debemail" ]] || fail 'You MUST set debemail in your environment.'
@@ -698,29 +721,42 @@ package_prep() { # Helper function for pkg2* functions
 
     [[ "$optimized_build" = yes ]] && fail "Could not package optimized build, it has to be compiled with 'optimize_build=no ./build.sh ch' first."
 
-    rm -rf "$dist_dir" && mkdir -p "$dist_dir"
+    [[ -d "$dist_dir" ]] || mkdir -p "$dist_dir"
 }
 
 call_fpm() { # command_line_params : Helper function for pkg2* functions
     # Prepare after install script for adding symlinks
     cat >"$tarballs_dir/after_install.sh" <<.
-if [[ -d "$root_pkg_dir" && -d "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" && -d "$root_sys_dir/lib" ]]; then
-    cd "$root_pkg_dir"
-    [[ ! -L "$root_pkg_dir/$rt_ps_ch_dirname" || -L "$root_pkg_dir/$rt_ps_ch_dirname" ]] && ln -nfs "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" "$rt_ps_ch_dirname"
-    [[ ! -L "$root_sys_dir/lib/$rt_ps_ch_dirname" ]] && ln -nfs "$root_symlink_dir" "$root_sys_dir/lib/$rt_ps_ch_dirname"
+#!/bin/sh
+set -e
+
+if [ -d "$root_pkg_dir" ] && [ -d "$root_pkg_dir/$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" ]; then
+    cd "$root_pkg_dir" 2>/dev/null || true
+    test ! -f "$rt_ps_ch_dirname" || test -L "$rt_ps_ch_dirname" && ln -nfs "$rt_ps_ch_dirname-$rt_ps_ch_version-$rt_version" "$rt_ps_ch_dirname" 2>/dev/null || true
 fi
 
-if [[ -d "$root_sys_dir/bin" && -d "$root_sys_dir/lib" ]]; then
-    cd "$root_sys_dir/bin"
-    [[ ! -L "$root_sys_dir/bin/rtorrent" ]] && ln -nfs "../lib/$rt_ps_ch_dirname/bin/rtorrent" 'rtorrent'
+if [ -d "$root_sys_dir/lib" ] && [ -L "$root_symlink_dir" ]; then
+    test ! -d "$root_sys_dir/lib/$rt_ps_ch_dirname" && test ! -f "$root_sys_dir/lib/$rt_ps_ch_dirname" || test -L "$root_sys_dir/lib/$rt_ps_ch_dirname" && ln -nfs "$root_symlink_dir" "$root_sys_dir/lib/$rt_ps_ch_dirname" 2>/dev/null || true
 fi
+
+if [ -d "$root_sys_dir/bin" ] && [ -d "$root_sys_dir/lib" ] && [ -L "$root_sys_dir/lib/$rt_ps_ch_dirname" ]; then
+    cd "$root_sys_dir/bin" 2>/dev/null || true
+    test ! -f 'rtorrent' || test -L 'rtorrent' && ln -nfs "../lib/$rt_ps_ch_dirname/bin/rtorrent" 'rtorrent' 2>/dev/null || true
+fi
+
+exit 0
 .
 
     # Prepare before remove script for removing symlinks
     cat >"$tarballs_dir/before_remove.sh" <<.
-[[ -L "$root_sys_dir/bin/rtorrent" ]] && rm -f "$root_sys_dir/bin/rtorrent" >/dev/null
-[[ -L "$root_sys_dir/lib/$rt_ps_ch_dirname" ]] && rm -f "$root_sys_dir/lib/$rt_ps_ch_dirname" >/dev/null
-[[ -L "$root_pkg_dir/$rt_ps_ch_dirname" ]] && rm -f "$root_pkg_dir/$rt_ps_ch_dirname" >/dev/null
+#!/bin/sh
+set -e
+
+test -L "$root_sys_dir/bin/rtorrent" && rm -f "$root_sys_dir/bin/rtorrent" 2>/dev/null || true
+test -L "$root_sys_dir/lib/$rt_ps_ch_dirname" && rm -f "$root_sys_dir/lib/$rt_ps_ch_dirname" 2>/dev/null || true
+test -L "$root_pkg_dir/$rt_ps_ch_dirname" && rm -f "$root_pkg_dir/$rt_ps_ch_dirname" 2>/dev/null || true
+
+exit 0
 .
 
     # Create the package
@@ -750,7 +786,7 @@ pkg2deb() { # Package current $pkg_inst_dir installation for APT [needs fpm]
     package_prep
 
     fpm_pkg_ext='deb'
-    fpm_iteration="$(lsb_release -cs)"
+    fpm_iteration="$(echo $(lsb_release -is) | tr '[:upper:]' '[:lower:]')-$(lsb_release -cs)"
     fpm_license='GPL v2'
     deps=$(ldd "$pkg_inst_dir/bin/rtorrent" | cut -f2 -d'>' | cut -f2 -d' ' | egrep '^/lib/|^/usr/lib/' \
         | sed -r -e 's:^/lib.+:&\n/usr&:' | xargs -n1 dpkg 2>/dev/null -S \
@@ -769,7 +805,7 @@ pkg2pacman() { # Package current $pkg_inst_dir installation for PACMAN [needs fp
     package_prep
 
     fpm_pkg_ext='tar.xz'
-    fpm_iteration='arch'
+    fpm_iteration='arch-unknown'
     fpm_license='GPL v2'
 
     ( cd "$dist_dir" && call_fpm -t pacman )
@@ -782,7 +818,7 @@ pkg2pacman() { # Package current $pkg_inst_dir installation for PACMAN [needs fp
 info() { # Display info
     local i
 
-    echo >&2 "${bold}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git] | vanilla [git] | info [git])$off"
+    echo >&2 "${bold}Usage: $0 (ch [git] | install [git] | pkg2deb [git] | pkg2pacman [git] | vanilla [git] | info [git])${off}"
     echo >&2 "Build $rt_ps_ch_title $rt_ps_ch_version $rt_version/$lt_version into $(sed -e s:$HOME/:~/: <<<$build_dir)"
     echo >&2
     echo >&2 'Custom environment variables:'
@@ -798,7 +834,7 @@ info() { # Display info
         eval "echo \"   $i\""
     done
 
-    exit 1
+    exit 0
 }
 
 
@@ -831,6 +867,8 @@ case "$1" in
                 symlink_binary_inst
                 check "$root_sys_dir"
                 ;;
+    pkg2tgz)    ## Compress "$build_dir" into tarball
+                pkg2tgz ;;
     pkg2deb)    ## Package "$pkg_inst_dir" installation for APT [needs fpm]
                 pkg2deb ;;
     pkg2pacman) ## Package "$pkg_inst_dir" installation for PACMAN [needs fpm]
