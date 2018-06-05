@@ -96,6 +96,12 @@ Compiling instructions
 See `Debian Install From Source - The Easy Way <docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 20 minutes.
 
 
+Binary tarballs, packages
+-------------------------
+
+Note: published binaries are **NOT** CPU optimized builds (for obvious reasons) hence `Installing from Source <docs/DebianInstallFromSourceTheEasyWay.rst>`_ is still the preferred way. If you still want to use them then see `Debian Install From Tarballs, Packages <docs/DebianInstallFromTarballsPackages.rst>`_. 
+
+
 Manual
 ------
 
