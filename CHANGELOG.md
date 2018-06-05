@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.7.4-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.4-0.9.7) (2018-06-05)
+**Implemented enhancements:**
+
+- Add binary tarballs and packages on Debian flavours [\#138](https://github.com/chros73/rtorrent-ps-ch/issues/138)
+- Add pkg2tgz functionality into build script [\#136](https://github.com/chros73/rtorrent-ps-ch/issues/136)
+
+**Fixed bugs:**
+
+- Fix bugs in 'math.\*' commands [\#135](https://github.com/chros73/rtorrent-ps-ch/issues/135)
+
 ## [1.7.3-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.3-0.9.7) (2018-05-26)
 **Implemented enhancements:**
 
