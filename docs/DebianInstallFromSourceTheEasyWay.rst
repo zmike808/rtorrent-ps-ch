@@ -7,7 +7,7 @@ Debian Install From Source - The Easy Way
 Introduction
 ------------
 
-This guide will show only the required methods / commands to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux``. It's really easy with the help of the amazing build scripts created by ``@pyroscope``.
+This guide will show only the required methods / commands to get ``rTorrent-PS-CH`` and `pyrocore <https://github.com/pyroscope/pyrocore/>`_ utilities up and running in `tmux <https://github.com/tmux/tmux>`_ within 20 minutes. It's really easy with the help of the amazing build script created by `@pyroscope <https://github.com/pyroscope>`_.
 
 Note that building process of ``rTorrent-PS-CH`` has been changed (simplified) as of ``v1.6.0``, still installing a compiled build into the `system <#install-it-into-system>`_ in the end is the preferred way.
 
@@ -39,22 +39,21 @@ After that all you need is to place a `.tmux.conf <https://raw.githubusercontent
 
 There is only 1 crucial option (along with the other useful ones) in that ``.tmux.conf``: ``set -g default-terminal "screen-256color"``. This is responsible for getting 256 color support. **No matter** what other tutorials / guides / intructions say about the ``TERM`` environment variable: **you shouldn't set it**! You will experience strange rendering problems! Although this will result that ``rTorrent-PS-CH`` won't start in a terminal window, but that's not a problem since we always run it in ``tmux``. (`Read more <https://sanctum.geek.nz/arabesque/term-strings/>`_ about it.)
 
-You can also build the latest CPU optimized version of `tmux <https://github.com/chros73/build-tmux/>`_.
+You can also build the latest `CPU optimized version of tmux <https://github.com/chros73/build-tmux/>`_.
 
 
-
-Compiling ``rTorrent-PS-CH`` from source
+Compiling and installing ``rTorrent-PS-CH`` from source
 -----------------------------------
 
 Multiple versions can be supported or just the latest stable ``git`` version. If patches for multiple version can be found inside the ``patches`` directory then ``build.sh`` will compile the latest release version, in this case ``git`` option can be passed to it to build ``git`` version. If ``only_git_lt_rt`` is set to ``true`` in ``build.sh`` script then it will always build ``git`` version.
 
 
-For regular user
-^^^^^^^^^^^^^^^^
+Compiling it
+^^^^^^^^^^^^
 
-It has to be compiled this way first. Build script creates local CPU optimized code by default (``+`` sign is displayed in the middle of title bar of ``rTorrent-PS-CH`` instead of ``-``).
+It has to be compiled first preferebly with a regural user. Build script creates local CPU optimized code by default (``+`` sign is displayed in the middle of title bar of ``rTorrent-PS-CH`` instead of ``-``).
 
-It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rtorrent-ps-ch*`` directory and create symlink to it in ``~/bin/`` directory.
+It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rtorrent-ps-ch*`` directory and create symlinks to it in ``~/bin/`` and ``~/lib/`` directories.
 
 .. code-block:: shell
 
@@ -63,6 +62,28 @@ It will build ``rTorrent-PS-CH`` binary including some libraries into ``~/lib/rt
    cd rtorrent-ps-ch
    time nice -n 19 ./build.sh ch
 
+
+Install it into system
+^^^^^^^^^^^^^^^^^^^^^^
+
+You need ``root access`` for this.
+
+It installs (copies) the compiled ``rtorrent-ps-ch*`` directory into ``/opt/`` directory and creates symlinks to it in ``/usr/local/bin/``, ``/usr/local/lib/`` and ``/opt/`` directories. (More `hint <http://web.archive.org/web/20171223124216/https://wiki.debian.org/sudo>`_ about ``sudo`` for Debian.)
+
+.. code-block:: shell
+
+   sudo ./build.sh install
+
+
+Other tasks
+^^^^^^^^^^^
+
+The build script provides other useful tasks as well.
+
+
+Compiling non CPU optimized builds
+""""""""""""""""""""""""""""""""""
+
 If you want to turn off optimization for some reason (e.g. packaging the build) it can be done by rebuilding it with:
 
 .. code-block:: shell
@@ -70,22 +91,34 @@ If you want to turn off optimization for some reason (e.g. packaging the build) 
    optimize_build=no time nice -n 19 ./build.sh ch
 
 
-Install it into system
-^^^^^^^^^^^^^^^^^^^^^^
+Compiling vanilla build
+"""""""""""""""""""""""
 
-You need ``root access`` for this.
+You can even build an optimized version of vanilla ``rtorrent`` (only including necessary patches if there's any).
 
-It installs (copies) the compiled ``rTorrent-PS-CH`` binary including some libraries into ``/opt/rtorrent-ps-ch*`` directory and creates  symlink to it in ``/usr/local/bin/`` directory. (More `hint <http://web.archive.org/web/20171223124216/https://wiki.debian.org/sudo>`_ about ``sudo`` for Debian.)
+It will build the binary including some libraries into ``~/lib/rtorrent-ps-ch-vanilla*`` directory and create symlink to it in ``~/bin/`` directory. (Note that installing, packaging a vanilla build is not supported.)
 
 .. code-block:: shell
 
-   sudo ./build.sh install
+   time nice -n 19 ./build.sh vanilla
+
+
+Creating tarballs
+"""""""""""""""""
+
+You can ``create tarballs`` of an optimized/unoptimized/vanilla build from the ``~/lib/rtorrent-ps-ch*`` build directory if you like:
+
+.. code-block:: shell
+
+   ./build.sh pkg2tgz
+
+You should copy the resulted ``*.tar.gz`` tarball from ``/tmp/rtorrent-ps-ch-dist`` to somewhere safe.
 
 
 Creating deb package
 """"""""""""""""""""
 
-You can even ``create a package`` of an unoptimized, installed build with ``fpm`` if you like (so you can distribute it later):
+You can even ``create a package`` of an unoptimized (``optimize_build=no``), installed build with ``fpm`` if you like (so you can distribute it later):
 
 .. code-block:: shell
 
@@ -97,25 +130,13 @@ You should copy the resulted ``*.deb`` package from ``/tmp/rtorrent-ps-ch-dist``
 Creating Arch Linux package
 """""""""""""""""""""""""""
 
-You can even ``create a package`` of an unoptimized, installed build with ``pacman`` (``fpm`` from the AUR should be used!) if you like (so you can distribute it later):
+You can also ``create a package`` of an unoptimized (``optimize_build=no``), installed build with ``pacman`` (``fpm`` from the AUR should be used!) if you like (so you can distribute it later):
 
 .. code-block:: shell
 
    debfullname="yourname" debemail="youremailaddress" ./build.sh pkg2pacman
 
 You should copy the resulted ``*.tar.xz`` package from ``/tmp/rtorrent-ps-ch-dist`` to somewhere safe.
-
-
-Vanilla build
-^^^^^^^^^^^^^
-
-You can even build an optimized version of vanilla ``rtorrent`` (only including necessary patches if there's any).
-
-It will build the binary including some libraries into ``~/lib/rtorrent-ps-ch-vanilla*`` directory and create symlink to it in ``~/bin/`` directory. (Note that installing, packaging a vanilla build is not supported.)
-
-.. code-block:: shell
-
-   time nice -n 19 ./build.sh vanilla
 
 
 If all went well
@@ -170,5 +191,5 @@ If you want to update ``pyrocore`` utils later:
 Summary
 -------
 
-It's really that simple, it only took about 30 minutes.
+It's really that simple, it only took about 20 minutes.
 

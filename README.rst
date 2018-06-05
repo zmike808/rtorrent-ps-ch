@@ -9,7 +9,7 @@ rTorrent-PS-CH - Fork notes
    
 *rTorrent-PS-CH*
 
-This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for ``rtorrent``. It was originally created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project but it doesn't depend on it in any way.
+This fork is another set of UI patches on top of the original, it also includes a set of fixes and enhancements for `rtorrent <https://github.com/rakshasa/rtorrent>`_. It was originally created to use with `rtorrent-ps-ch_setup <https://github.com/chros73/rtorrent-ps-ch_setup/>`_  project but it doesn't depend on it in any way.
 
 UI changes
 ----------
@@ -28,6 +28,32 @@ Extra keyboard shortcuts
 ------------------------
 
 It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_: ``*``, ``F``, ``↑``, ``↓``, ``ESC``.
+
+
+Important enhancements, fixes
+-----------------------------
+
+Over latest ``rtorrent v0.9.6/0.13.6``:
+
+-  `min_peers* settings fix <https://github.com/chros73/rtorrent-ps/issues/126>`_
+-  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
+-  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
+-  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
+-  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
+-  `basic arithmetic operators <https://github.com/chros73/rtorrent-ps/issues/71>`_
+-  `partially done downloads fix <https://github.com/chros73/rtorrent-ps/issues/69#issuecomment-284245459>`_
+-  `choke groups fix <https://github.com/chros73/rtorrent-ps/issues/69>`_
+-  `temp filter <https://github.com/chros73/rtorrent-ps/issues/63>`_
+-  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
+-  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
+
+Differences between ``rTorrent-PS``:
+
+-  `CPU optimized build <https://github.com/chros73/rtorrent-ps/issues/109>`_
+-  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
+-  `git version support <https://github.com/chros73/rtorrent-ps/issues/78>`_
+-  `vanilla build of rtorrent is completely separated <https://github.com/chros73/rtorrent-ps/issues/99>`_
+-  no docker support (due to CPU optimized build)
 
 
 Extra commands
@@ -56,33 +82,6 @@ The latter e.g. can include values of multiple ``throttle.up`` groups in the sta
     [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
 
 
-Important enhancements, fixes
------------------------------
-
-Over latest ``rtorrent v0.9.6/0.13.6``:
-
--  `min_peers* settings fix <https://github.com/chros73/rtorrent-ps/issues/126>`_
--  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
--  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
--  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
--  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
--  `basic arithmetic operators <https://github.com/chros73/rtorrent-ps/issues/71>`_
--  `partially done downloads fix <https://github.com/chros73/rtorrent-ps/issues/69#issuecomment-284245459>`_
--  `choke groups fix <https://github.com/chros73/rtorrent-ps/issues/69>`_
--  `temp filter <https://github.com/chros73/rtorrent-ps/issues/63>`_
--  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
--  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
-
-Differences between ``rTorrent-PS``:
-
--  `fully customizable collapsed display <docs/Manual.rst#built-in-columns-in-the-collapsed-display>`_
--  `CPU optimized build <https://github.com/chros73/rtorrent-ps/issues/109>`_
--  `relative rpath linking <https://github.com/chros73/rtorrent-ps/issues/93>`_
--  `git version support <https://github.com/chros73/rtorrent-ps/issues/78>`_
--  `vanilla build of rtorrent is completely separated <https://github.com/chros73/rtorrent-ps/issues/99>`_
--  no docker support (due to CPU optimized build)
-
-
 Notes
 -----
 
@@ -94,7 +93,7 @@ Client versions (rtorrent/libtorrent) are untouched. That means client still rep
 Compiling instructions
 -----------------------
 
-See `Debian Install From Source - The Easy Way <docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 30 minutes.
+See `Debian Install From Source - The Easy Way <docs/DebianInstallFromSourceTheEasyWay.rst>`_ to get ``rTorrent-PS-CH`` and ``pyrocore`` utilities up and running in ``tmux`` in 20 minutes.
 
 
 Manual
