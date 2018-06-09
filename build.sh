@@ -5,18 +5,18 @@
 
 
 # Set rT-PS-CH version
-rt_ps_ch_major_version='1.7'
+rt_ps_ch_major_version='1.8'
 rt_ps_ch_minor_release='0'
-rt_ps_ch_minor_git='4'
+rt_ps_ch_minor_git='0'
 
 # Set latest major libTorrent/rTorrent release versions
 lt_major='0.13'
 rt_major='0.9'
-rt_minor='6'
+rt_minor='7'
 
 # Specify git branch/commit for libTorrent/rTorrent to compile from: [master|15e64bd]
-git_lt='c167c5a'                # 2016-12-12 master
-git_rt='226e670'                # 2016-10-23 master
+git_lt='ef1e7c0'                # 2018-06-07 master v0.13.7
+git_rt='327164f'                # 2018-06-07 master v0.9.7
 
 # Dependency versions
 cares_version='1.14.0'          # 2018.02.16
@@ -51,7 +51,7 @@ export curl_opts cfg_opts cfg_opts_lt cfg_opts_rt make_opts
 
 
 # Support only git versions of lT/rT (not major releases)
-only_git_lt_rt=true
+only_git_lt_rt=false
 
 # Set main lT/rT variables
 rt_ps_ch_version="$rt_ps_ch_major_version.$rt_ps_ch_minor_release"
@@ -202,8 +202,8 @@ display_env_vars() { # Display env vars
 tarballs=("http://c-ares.haxx.se/download/c-ares-$cares_version.tar.gz")
 tarballs+=("http://curl.haxx.se/download/curl-$curl_version.tar.gz")
 tarballs+=("https://dl.bintray.com/chros73/$rt_ps_ch_dirname/pool/x/xmlrpc-c-$xmlrpc_tree/xmlrpc-c-$xmlrpc_tree-$xmlrpc_rev-src.tgz")
-tarballs+=("https://bintray.com/artifact/download/pyroscope/rtorrent-ps/libtorrent-$lt_version.tar.gz")
-tarballs+=("https://bintray.com/artifact/download/pyroscope/rtorrent-ps/rtorrent-$rt_version.tar.gz")
+tarballs+=("https://github.com/rakshasa/rtorrent/releases/download/v$rt_version/libtorrent-$lt_version.tar.gz")
+tarballs+=("https://github.com/rakshasa/rtorrent/releases/download/v$rt_version/rtorrent-$rt_version.tar.gz")
 
 # Get xmlrpc-c from svn if it's not mirrored
 [[ ! "$xmlrpc_rev" =~ ^(2985|2912|2775)$ ]] && xmlrpc_svn_url="http://svn.code.sf.net/p/xmlrpc-c/code/$xmlrpc_tree@$xmlrpc_rev"
@@ -218,8 +218,12 @@ src_pkg_hashes+=('xmlrpc-c-stable-2912-src.tgz:d6336bc1ff6d5ba705438bed72268701'
 src_pkg_hashes+=('xmlrpc-c-stable-2985-src.tgz:0784b5c41440e7451720cff316a64d80')
 src_pkg_hashes+=('libtorrent-0.13.6.tar.gz:66f18044432a62c006c75f6d0bb4d7dc')
 src_pkg_hashes+=('libtorrent-c167c5a.tar.gz:58448dbefe92616f6ad19ac41315feed')
+src_pkg_hashes+=('libtorrent-0.13.7.tar.gz:fe34521cd440910b7ad4e1720a1ff5e0')
+src_pkg_hashes+=('libtorrent-ef1e7c0.tar.gz:01720f250ca017a07e3c4d8378a992d5')
 src_pkg_hashes+=('rtorrent-0.9.6.tar.gz:5e7550f74e382a6245412c615f45444d')
 src_pkg_hashes+=('rtorrent-226e670.tar.gz:a0138f4739d4313d5dfad0432cabef5c')
+src_pkg_hashes+=('rtorrent-0.9.7.tar.gz:284b833794ce3ab4ddc62cf1a20edeb1')
+src_pkg_hashes+=('rtorrent-327164f.tar.gz:84944d3a23eeed5f4346b76d174e74e7')
 
 
 # Directory definitions
