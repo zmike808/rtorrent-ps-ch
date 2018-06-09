@@ -513,8 +513,8 @@ patch_lt_vanilla() { # Patch vanilla libTorrent
     local vanilla
     pushd "libtorrent-$lt_version"
 
-    for vanilla in "$src_dir/patches"/vanilla_{*"${lt_version%-svn}"*,all}_*.patch; do
-        [[ ! -e "$vanilla" ]] || { bold "$(basename "$vanilla")"; patch -uNp0 -i "$vanilla"; }
+    for vanilla in "$src_dir/patches"/vanilla_lt_{*"${lt_version%-svn}"*,all}_*.patch; do
+        [[ ! -e "$vanilla" ]] || { bold "$(basename "$vanilla")"; patch -uNp1 -i "$vanilla"; }
     done
 
     popd
@@ -529,8 +529,8 @@ patch_rt_vanilla() { # Patch vanilla rTorrent
     local vanilla
     pushd "rtorrent-$rt_version"
 
-    for vanilla in "$src_dir/patches"/vanilla_{*"${rt_version%-svn}"*,all}_*.patch; do
-        [[ ! -e "$vanilla" ]] || { bold "$(basename "$vanilla")"; patch -uNp0 -i "$vanilla"; }
+    for vanilla in "$src_dir/patches"/vanilla_rt_{*"${rt_version%-svn}"*,all}_*.patch; do
+        [[ ! -e "$vanilla" ]] || { bold "$(basename "$vanilla")"; patch -uNp1 -i "$vanilla"; }
     done
 
     popd
@@ -548,11 +548,11 @@ patch_lt() { # Patch libTorrent
     pushd "libtorrent-$lt_version"
 
     for corepatch in "$src_dir/patches"/lt-ps_{*"${lt_version%-svn}"*,all}_*.patch; do
-        [[ ! -e "$corepatch" ]] || { bold "$(basename "$corepatch")"; patch -uNp0 -i "$corepatch"; }
+        [[ ! -e "$corepatch" ]] || { bold "$(basename "$corepatch")"; patch -uNp1 -i "$corepatch"; }
     done
 
-    for backport in "$src_dir/patches"/{backport,misc}_{*"${lt_version%-svn}"*,all}_*.patch; do
-        [[ ! -e "$backport" ]] || { bold "$(basename "$backport")"; patch -uNp0 -i "$backport"; }
+    for backport in "$src_dir/patches"/{backport,misc}_lt_{*"${lt_version%-svn}"*,all}_*.patch; do
+        [[ ! -e "$backport" ]] || { bold "$(basename "$backport")"; patch -uNp1 -i "$backport"; }
     done
 
     popd
@@ -573,8 +573,8 @@ patch_rt() { # Patch rTorrent
         [[ ! -e "$corepatch" ]] || { bold "$(basename "$corepatch")"; patch -uNp1 -i "$corepatch"; }
     done
 
-    for backport in "$src_dir/patches"/{backport,misc}_*"${rt_version%-svn}"*_*.patch; do
-        [[ ! -e "$backport" ]] || { bold "$(basename "$backport")"; patch -uNp0 -i "$backport"; }
+    for backport in "$src_dir/patches"/{backport,misc}_rt_{*"${rt_version%-svn}"*,all}_*.patch; do
+        [[ ! -e "$backport" ]] || { bold "$(basename "$backport")"; patch -uNp1 -i "$backport"; }
     done
 
     ${nopyrop:-false} || for pyropatch in "$src_dir/patches"/pyroscope_{*"${rt_version%-svn}"*,all}.patch; do
