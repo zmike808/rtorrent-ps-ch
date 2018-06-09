@@ -43,11 +43,12 @@ Over latest ``rtorrent v0.9.7/0.13.7``:
 -  `partially done downloads fix <https://github.com/chros73/rtorrent-ps/issues/69#issuecomment-284245459>`_
 -  `choke groups fix <https://github.com/chros73/rtorrent-ps/issues/69>`_
 -  `temp filter <https://github.com/chros73/rtorrent-ps/issues/63>`_
--  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
+-  `partial system.file.allocate.set=1 fix <https://github.com/chros73/rtorrent-ps/issues/68>`_
 
 Merged into ``rtorrent v0.9.7/0.13.7``:
 
 -  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
+-  `system.file.allocate.set=0 fix <https://github.com/chros73/rtorrent-ps/issues/38>`_
 -  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
 Differences between ``rTorrent-PS``:
