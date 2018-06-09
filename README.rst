@@ -33,10 +33,9 @@ It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortc
 Important enhancements, fixes
 -----------------------------
 
-Over latest ``rtorrent v0.9.6/0.13.6``:
+Over latest ``rtorrent v0.9.7/0.13.7``:
 
 -  `min_peers* settings fix <https://github.com/chros73/rtorrent-ps/issues/126>`_
--  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
 -  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
 -  `throttle status bar mod <https://github.com/chros73/rtorrent-ps/issues/74>`_
@@ -45,6 +44,10 @@ Over latest ``rtorrent v0.9.6/0.13.6``:
 -  `choke groups fix <https://github.com/chros73/rtorrent-ps/issues/69>`_
 -  `temp filter <https://github.com/chros73/rtorrent-ps/issues/63>`_
 -  `system.file.allocate fix <https://github.com/chros73/rtorrent-ps/issues/39>`_ (value ``1`` is only `partially <https://github.com/chros73/rtorrent-ps/issues/68>`_ fixed)
+
+Merged into ``rtorrent v0.9.7/0.13.7``:
+
+-  `IPv4 filter enhancement <https://github.com/chros73/rtorrent-ps/issues/112>`_
 -  `scheduled sorting/filtering fix <https://github.com/chros73/rtorrent-ps/issues/19>`_
 
 Differences between ``rTorrent-PS``:
@@ -62,7 +65,6 @@ Extra commands
 It also adds the following extra `attributes, commands <docs/Manual.rst#command-extensions>`_:
 
 - ``d.custom=last_active``, ``d.custom=tm_completed`` `custom fields <https://github.com/chros73/rtorrent-ps/issues/120>`_
--  `d.is_meta <docs/Manual.rst#d-is-meta-merged-into-0-9-7>`_
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
 - ``convert.group``, ``d.is_done``, ``d.selected_size_bytes`` (`partially done downloads and choke groups fix  <https://github.com/chros73/rtorrent-ps/issues/69>`_)
 - ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` (`temp filter  <https://github.com/chros73/rtorrent-ps/issues/63>`_)
@@ -75,19 +77,14 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#command-
 -  `d.ui.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
 -  `ui.status.throttle.{up|down} <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
 
-The latter e.g. can include values of multiple ``throttle.up`` groups in the status bar of rtorrent:
-
-.. code-block::
-
-    [Throttle 500(154|25) / 1500 KB] [Rate 399.6(365.9|8.3|25.4) / 981.3 KB]
-
 
 Notes
 -----
 
-Only git version is supported from now on. If earlier version is required - for whatever reason -, use tag `1.4.6-0.9.6 <https://github.com/chros73/rtorrent-ps/releases>`_.
+Notes about ``git`` build script parameter:
 
-Client versions (rtorrent/libtorrent) are untouched. That means client still report the latest release version (e.g. ``0.9.6``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.7``).
+- if commits point to the release version of ``rtorrent``/``libtorrent`` in build script then there shouldn't be a difference between release and git builds
+- client versions (``rtorrent``/``libtorrent``) are still untouched, that means client still report the latest release version (e.g. ``0.9.7``) to trackers, only title bar and directory names are changed to display the increased version number (e.g. ``0.9.8``).
 
 
 Compiling instructions
