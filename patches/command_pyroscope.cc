@@ -27,9 +27,6 @@
 #include <rak/path.h>
 #include <rak/functional.h>
 #include <rak/functional_fun.h>
-#if RT_HEX_VERSION < 0x000904
-    #include <sigc++/adaptors/bind.h>
-#endif
 
 #include "core/download.h"
 #include "core/manager.h"
@@ -46,7 +43,7 @@
 #include "control.h"
 #include "command_helpers.h"
 
-#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION < 0x000907)
+#if (RT_HEX_VERSION <= 0x000906)
     #define _cxxstd_ tr1
 #else
     #define _cxxstd_ std
@@ -59,8 +56,8 @@ int log_messages_fd = -1;
 };
 
 
-#if RT_HEX_VERSION <= 0x000907
-// will be merged into 0.9.7+ mainline!
+#if RT_HEX_VERSION <= 0x000908
+// will be merged into 0.9.8+ mainline?
 
 namespace torrent {
 
@@ -140,36 +137,6 @@ int uniform_rng::rand_range(int lo, int hi)
 static torrent::uniform_rng system_random_gen;
 
 
-// Convert a value to string
-std::string convert_to_string(const torrent::Object::list_const_iterator& itr) {
-    std::string text;
-
-    if (itr->is_value())
-        text = rpc::convert_to_string(itr->as_value());
-    else if (itr->is_string())
-        text = itr->as_string();
-    else
-        throw torrent::input_error("Wrong type is supplied to convert_to_string.");
-
-    return text;
-}
-
-
-// Convert a value to number
-int64_t convert_to_value(const torrent::Object::list_const_iterator& itr) {
-    int64_t val = 0;
-
-    if (itr->is_value())
-        val = itr->as_value();
-    else if (itr->is_string())
-        val = rpc::convert_to_value(itr->as_string());
-    else
-        throw torrent::input_error("Wrong type is supplied to convert_to_value.");
-
-    return val;
-}
-
-
 /*  @DOC
     `system.random = [[<lower>,] <upper>]`
 
@@ -204,6 +171,36 @@ torrent::Object apply_random(rpc::target_type target, const torrent::Object::lis
 // #else
 // #include "torrent/utils/uniform_rng.h"
 #endif
+
+
+// Convert a value to string
+std::string ps_convert_to_string(const torrent::Object::list_const_iterator& itr) {
+    std::string text;
+
+    if (itr->is_value())
+        text = rpc::convert_to_string(itr->as_value());
+    else if (itr->is_string())
+        text = itr->as_string();
+    else
+        throw torrent::input_error("Wrong type is supplied to convert_to_string.");
+
+    return text;
+}
+
+
+// Convert a value to number
+int64_t ps_convert_to_value(const torrent::Object::list_const_iterator& itr) {
+    int64_t val = 0;
+
+    if (itr->is_value())
+        val = itr->as_value();
+    else if (itr->is_string())
+        val = rpc::convert_to_value(itr->as_string());
+    else
+        throw torrent::input_error("Wrong type is supplied to convert_to_value.");
+
+    return val;
+}
 
 
 // return the "main" tracker for this download item
@@ -420,13 +417,8 @@ torrent::Object apply_ui_bind_key(rpc::target_type target, const torrent::Object
     bound_commands[displayType][key] = commands; // keep hold of the string, so the c_str() below remains valid
     switch (displayType) {
         case ui::DownloadList::DISPLAY_DOWNLOAD_LIST:
-            display->bindings()[key] =
-#if RT_HEX_VERSION < 0x000904
-                sigc::bind(sigc::mem_fun(*(ui::ElementDownloadList*)display, &ui::ElementDownloadList::receive_command),
-#else
-                _cxxstd_::bind(&ui::ElementDownloadList::receive_command, (ui::ElementDownloadList*)display,
-#endif
-                bound_commands[displayType][key].c_str());
+            display->bindings()[key] = _cxxstd_::bind(&ui::ElementDownloadList::receive_command,
+                (ui::ElementDownloadList*)display, bound_commands[displayType][key].c_str());
             break;
         default:
             return torrent::Object();
@@ -697,38 +689,6 @@ torrent::Object cmd_value(rpc::target_type target, const torrent::Object::list_t
 }
 
 
-// Backports from 0.9.2
-#if (API_VERSION < 3)
-template <typename InputIterator, typename OutputIterator> OutputIterator
-pyro_transform_hex(InputIterator first, InputIterator last, OutputIterator dest) {
-  const char* hex = "0123456789abcdef";
-  while (first != last) {
-    *(dest++) = (*first >> 4)[hex];
-    *(dest++) = (*first & 15)[hex];
-
-    ++first;
-  }
-
-  return dest;
-}
-
-
-torrent::Object d_chunks_seen(core::Download* download) {
-    const uint8_t* seen = download->download()->chunks_seen();
-
-    if (seen == NULL)
-        return std::string();
-
-    uint32_t size = download->download()->file_list()->size_chunks();
-    std::string result;
-    result.resize(size * 2);
-    pyro_transform_hex((const char*)seen, (const char*)seen + size, result.begin());
-
-    return result;
-}
-#endif
-
-
 torrent::Object cmd_d_tracker_domain(core::Download* download) {
     return get_active_tracker_domain(download->download());
 }
@@ -765,25 +725,14 @@ torrent::Object cmd_ui_current_view() {
 
 
 void initialize_command_pyroscope() {
-// Backports from 0.9.2
-#if (API_VERSION < 3)
-    // https://github.com/rakshasa/rtorrent/commit/b28f2ea8070
-    // https://github.com/rakshasa/rtorrent/commit/020de10f38210a07a567aeebbe385a4faaf4b517
-    CMD2_DL("d.chunks_seen", _cxxstd_::bind(&d_chunks_seen, _cxxstd_::placeholders::_1));
-
-    // https://github.com/rakshasa/rtorrent/commit/5bed4f01ad
-    CMD2_TRACKER("t.is_usable",          _cxxstd_::bind(&torrent::Tracker::is_usable, _cxxstd_::placeholders::_1));
-    CMD2_TRACKER("t.is_busy",            _cxxstd_::bind(&torrent::Tracker::is_busy, _cxxstd_::placeholders::_1));
-#endif
-
 #if RT_HEX_VERSION <= 0x000906
-    // these are merged into 0.9.7+ mainline!
+    // these are merged into 0.9.7 mainline!
     CMD2_ANY_STRING("system.env", _cxxstd_::bind(&cmd_system_env, _cxxstd_::placeholders::_2));
     CMD2_ANY("ui.current_view", _cxxstd_::bind(&cmd_ui_current_view));
 #endif
 
-#if RT_HEX_VERSION <= 0x000907
-    // these will be merged into 0.9.7+ mainline!
+#if RT_HEX_VERSION <= 0x000908
+    // will be merged into 0.9.8+ mainline?
     CMD2_ANY_LIST("system.random", &apply_random);
     CMD2_ANY_LIST("d.multicall.filtered", _cxxstd_::bind(&d_multicall_filtered, _cxxstd_::placeholders::_2));
 #endif

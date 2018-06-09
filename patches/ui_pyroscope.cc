@@ -39,7 +39,7 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "control.h"
 #include "command_helpers.h"
 
-#if (RT_HEX_VERSION >= 0x000901 && RT_HEX_VERSION < 0x000907)
+#if (RT_HEX_VERSION <= 0x000906)
     #define _cxxstd_ tr1
 #else
     #define _cxxstd_ std
@@ -50,8 +50,8 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 
 // from command_pyroscope.cc
 extern std::string get_active_tracker_domain(torrent::Download* item);
-extern std::string convert_to_string(const torrent::Object::list_const_iterator& itr);
-extern int64_t convert_to_value(const torrent::Object::list_const_iterator& itr);
+extern std::string ps_convert_to_string(const torrent::Object::list_const_iterator& itr);
+extern int64_t ps_convert_to_value(const torrent::Object::list_const_iterator& itr);
 
 #define TRACKER_LABEL_WIDTH 20U
 #define PROGRESS_STEPS 9
@@ -394,7 +394,7 @@ static void decorate_download_title(Window* window, display::Canvas* canvas, cor
         core::Download* item = *range.first;
         bool active = item->is_open() && item->is_active();
 
-#if RT_HEX_VERSION < 0x000907
+#if RT_HEX_VERSION <= 0x000906
         if ((*range.first)->is_done())
 #else
         if ((*range.first)->data()->is_partially_done())
@@ -678,7 +678,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
 
         // color down rates / time if downrate_tm column exists
         if (column_pos.find(" ⌬ ≀∇") != column_pos.end()) {
-#if RT_HEX_VERSION < 0x000907
+#if RT_HEX_VERSION <= 0x000906
             if (d->is_done() || !D_INFO(item)->down_rate()->rate()) {
                 int tm_color = (d->is_done() ? ps::COL_SEEDING : ps::COL_INCOMPLETE) + offset;
 #else
@@ -711,7 +711,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         char* last = buffer + canvas->width() + 1;
 
         pos = canvas->height() - 2 - network_history_lines;
-#if RT_HEX_VERSION < 0x000907
+#if RT_HEX_VERSION <= 0x000906
         print_download_info(buffer, last, *view->focus());
 #else
         print_download_info_full(buffer, last, *view->focus());
@@ -828,7 +828,7 @@ std::string get_ui_downrate_tm(core::Download* item) {
     uint32_t down_rate = D_INFO(item)->down_rate()->rate();
 
     return
-#if RT_HEX_VERSION < 0x000907
+#if RT_HEX_VERSION <= 0x000906
             item->is_done() ?
 #else
             item->data()->is_partially_done() ?
@@ -993,16 +993,16 @@ torrent::Object apply_chars_chop(const torrent::Object::list_type& args) {
 
     for (torrent::Object::list_const_iterator itr = args.begin(); itr != args.end(); itr++) {
         if (itr - args.begin() == 0) {
-            text = convert_to_string(itr);
+            text = ps_convert_to_string(itr);
             text_len = u8_length(text);
             len = text_len;
         }
 
         if (itr - args.begin() == 1)
-            len = (size_t)convert_to_value(itr);
+            len = (size_t)ps_convert_to_value(itr);
 
         if (itr - args.begin() == 2)
-            use_trailing = (bool)convert_to_value(itr);
+            use_trailing = (bool)ps_convert_to_value(itr);
     }
 
     return (use_trailing && text_len > len && len > 1) ? u8_chop(text, len - 1) + "…" : u8_chop(text, len);
@@ -1022,16 +1022,16 @@ torrent::Object apply_chars_pad(const torrent::Object::list_type& args) {
 
     for (torrent::Object::list_const_iterator itr = args.begin(); itr != args.end(); itr++) {
         if (itr - args.begin() == 0)
-            text = convert_to_string(itr);
+            text = ps_convert_to_string(itr);
 
         if (itr - args.begin() == 1)
-            width = (size_t)convert_to_value(itr);
+            width = (size_t)ps_convert_to_value(itr);
 
         if (itr - args.begin() == 2)
-            fillchar = convert_to_string(itr);
+            fillchar = ps_convert_to_string(itr);
 
         if (itr - args.begin() == 3)
-            at_end = (bool)convert_to_value(itr);
+            at_end = (bool)ps_convert_to_value(itr);
     }
 
     return pad_string(text, width, fillchar, at_end);
@@ -1173,7 +1173,7 @@ void initialize_command_ui_pyroscope() {
         // Downrate or approximate time since completion (⌬ ≀∇)
         "method.set_key = ui.column.render, \"800:5: ⌬ ≀∇\", ((d.ui.downrate_tm))\n"
 
-#if RT_HEX_VERSION < 0x000907
+#if RT_HEX_VERSION <= 0x000906
         // Data size (✇)
         "method.set_key = ui.column.render, \"900:4:  ✇ \", ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
