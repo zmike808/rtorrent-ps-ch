@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.8.0-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.0-0.9.7) (2018-06-09)
+**Implemented enhancements:**
+
+- Modify build script a bit [\#140](https://github.com/chros73/rtorrent-ps-ch/issues/140)
+- Upgrade to official rtorrent/libtorrent 0.9.7/0.13.7 releases [\#139](https://github.com/chros73/rtorrent-ps-ch/issues/139)
+
 ## [1.7.4-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.7.4-0.9.7) (2018-06-05)
 **Implemented enhancements:**
 
