@@ -1,5 +1,5 @@
---- src/download/download_wrapper.cc	2017-04-30 21:25:15.511379804 +0100
-+++ src/download/download_wrapper.cc	2017-04-30 22:10:12.910100074 +0100
+--- a/src/download/download_wrapper.cc	2017-04-30 21:25:15.511379804 +0100
++++ a/src/download/download_wrapper.cc	2017-04-30 22:10:12.910100074 +0100
 @@ -46,6 +46,7 @@
  #include "protocol/handshake_manager.h"
  #include "protocol/peer_connection_base.h"
@@ -79,8 +79,8 @@
        data()->mutable_high_priority()->insert((*itr)->range().first, (*itr)->range().second);
        break;
      default:
---- src/download/download_wrapper.h	2016-12-12 08:49:18.000000000 +0000
-+++ src/download/download_wrapper.h	2017-04-30 22:06:19.000000000 +0100
+--- a/src/download/download_wrapper.h	2016-12-12 08:49:18.000000000 +0000
++++ a/src/download/download_wrapper.h	2017-04-30 22:06:19.000000000 +0100
 @@ -64,7 +64,7 @@ public:
    ChunkList*          chunk_list()                            { return m_main->chunk_list(); }
  
@@ -108,8 +108,8 @@
  
  private:
    DownloadWrapper(const DownloadWrapper&);
---- src/torrent/data/file.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/data/file.cc	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/data/file.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/data/file.cc	2017-04-30 22:06:19.000000000 +0100
 @@ -184,6 +184,7 @@ File::resize_file() {
    if (m_flags & flag_fallocate) {
      flags |= SocketFile::flag_fallocate;
@@ -118,8 +118,8 @@
    }
  
    return SocketFile(m_fd).set_size(m_size, flags);
---- src/torrent/data/file.h	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/data/file.h	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/data/file.h	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/data/file.h	2017-04-30 22:06:19.000000000 +0100
 @@ -68,8 +68,11 @@ public:
  
    bool                is_create_queued() const                 { return m_flags & flag_create_queued; }
@@ -132,8 +132,8 @@
    bool                has_flags(int flags)                     { return m_flags & flags; }
  
    void                set_flags(int flags);
---- src/torrent/data/file_list.cc	2017-04-30 21:15:43.000000000 +0100
-+++ src/torrent/data/file_list.cc	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/data/file_list.cc	2017-04-30 21:15:43.000000000 +0100
++++ a/src/torrent/data/file_list.cc	2017-04-30 22:06:19.000000000 +0100
 @@ -259,9 +259,9 @@ FileList::set_selected_size_bytes() {
  uint64_t
  FileList::free_diskspace() const {
@@ -234,8 +234,8 @@
  }
  
  MemoryChunk
---- src/torrent/data/file_list.h	2017-04-30 21:15:43.000000000 +0100
-+++ src/torrent/data/file_list.h	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/data/file_list.h	2017-04-30 21:15:43.000000000 +0100
++++ a/src/torrent/data/file_list.h	2017-04-30 22:06:19.000000000 +0100
 @@ -107,6 +107,7 @@ public:
  
    size_t              size_files() const                              { return base_type::size(); }
@@ -255,8 +255,8 @@
    // List of directories in the torrent that might be on different
    // volumes as they are links, including the root directory. Used by
    // 'free_diskspace()'.
---- src/torrent/download.cc	2017-04-30 21:15:43.000000000 +0100
-+++ src/torrent/download.cc	2017-05-14 21:28:05.138916583 +0100
+--- a/src/torrent/download.cc	2017-04-30 21:15:43.000000000 +0100
++++ a/src/torrent/download.cc	2017-05-14 21:28:05.138916583 +0100
 @@ -137,7 +137,13 @@ Download::start(int flags) {
      throw internal_error("Tried to start a download with empty bitfield.");
  
@@ -296,8 +296,8 @@
  }
  
  void
---- src/torrent/download.h	2017-04-30 21:15:43.000000000 +0100
-+++ src/torrent/download.h	2017-05-14 21:25:52.249636506 +0100
+--- a/src/torrent/download.h	2017-04-30 21:15:43.000000000 +0100
++++ a/src/torrent/download.h	2017-05-14 21:25:52.249636506 +0100
 @@ -186,7 +186,7 @@ public:
    // Call this when you want the modifications of the download priorities
    // in the entries to take effect. It is slightly expensive as it rechecks
@@ -307,8 +307,8 @@
  
    void                add_peer(const sockaddr* addr, int port);
  
---- src/torrent/torrent.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/torrent.cc	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/torrent.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/torrent.cc	2017-04-30 22:06:19.000000000 +0100
 @@ -164,7 +164,7 @@ encoding_list() {
  }
  
@@ -327,8 +327,8 @@
  
    // Add trackers, etc, after setting the info hash so that log
    // entries look sane.
---- src/torrent/torrent.h	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/torrent.h	2017-04-30 22:06:19.000000000 +0100
+--- a/src/torrent/torrent.h	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/torrent.h	2017-04-30 22:06:19.000000000 +0100
 @@ -93,7 +93,7 @@ EncodingList*       encoding_list() LIBT
  // is done by 'download_remove'.
  //

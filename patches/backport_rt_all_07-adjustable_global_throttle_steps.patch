@@ -1,5 +1,5 @@
---- src/command_ui.cc	2017-06-04 11:35:46.912217665 +0100
-+++ src/command_ui.cc	2017-06-04 16:25:17.051448876 +0100
+--- a/src/command_ui.cc	2017-06-04 11:35:46.912217665 +0100
++++ a/src/command_ui.cc	2017-06-04 16:25:17.051448876 +0100
 @@ -762,6 +762,10 @@ initialize_command_ui() {
    CMD2_ANY_VALUE_V ("ui.input.history.size.set", std::bind(&ui::Root::set_input_history_size, control->ui(), std::placeholders::_2));
    CMD2_ANY_V       ("ui.input.history.clear", std::bind(&ui::Root::clear_input_history, control->ui()));
@@ -11,8 +11,8 @@
    // TODO: Add 'option_string' for rtorrent-specific options.
    CMD2_VAR_STRING("ui.torrent_list.layout", "full");
  
---- src/ui/download.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/download.cc	2017-06-04 16:33:58.535290422 +0100
+--- a/src/ui/download.cc	2017-04-30 22:42:23.000000000 +0100
++++ a/src/ui/download.cc	2017-06-04 16:33:58.535290422 +0100
 @@ -54,6 +54,7 @@
  #include "display/window_download_statusbar.h"
  
@@ -56,8 +56,8 @@
  }
  
  }
---- src/ui/root.cc	2017-06-04 13:16:28.699486493 +0100
-+++ src/ui/root.cc	2017-06-04 16:30:11.869851707 +0100
+--- a/src/ui/root.cc	2017-06-04 13:16:28.699486493 +0100
++++ a/src/ui/root.cc	2017-06-04 16:30:11.869851707 +0100
 @@ -154,20 +154,20 @@ Root::setup_keys() {
  
    const char* keys = get_throttle_keys();

@@ -1,5 +1,5 @@
---- src/torrent/utils/log.cc
-+++ src/torrent/utils/log.cc
+--- a/src/torrent/utils/log.cc
++++ a/src/torrent/utils/log.cc
 @@ -296,8 +296,11 @@ log_open_output(const char* name, log_slot slot) {
    
 -  if (log_find_output_name(name) != log_outputs.end()) {

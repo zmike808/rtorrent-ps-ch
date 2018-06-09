@@ -1,5 +1,5 @@
---- src/command_ui.cc	2017-04-30 20:45:24.094335223 +0100
-+++ src/command_ui.cc	2017-04-30 20:56:18.000000000 +0100
+--- a/src/command_ui.cc	2017-04-30 20:45:24.094335223 +0100
++++ a/src/command_ui.cc	2017-04-30 20:56:18.000000000 +0100
 @@ -568,6 +568,26 @@ apply_elapsed_greater(const torrent::Obj
    return (int64_t)(start_time != 0 && rak::timer::current_seconds() - start_time > rpc::convert_to_value(args.back()));
  }
@@ -37,8 +37,8 @@
    // TODO: Add 'option_string' for rtorrent-specific options.
    CMD2_VAR_STRING("ui.torrent_list.layout", "full");
  
---- src/core/manager.cc	2017-04-30 20:37:29.000000000 +0100
-+++ src/core/manager.cc	2017-04-30 20:56:18.000000000 +0100
+--- a/src/core/manager.cc	2017-04-30 20:37:29.000000000 +0100
++++ a/src/core/manager.cc	2017-04-30 20:56:18.000000000 +0100
 @@ -146,6 +146,35 @@ Manager::get_address_throttle(const sock
    return m_addressThrottles.get(rak::socket_address::cast_from(addr)->sa_inet()->address_h(), torrent::ThrottlePair(NULL, NULL));
  }
@@ -75,8 +75,8 @@
  // Most of this should be possible to move out.
  void
  Manager::initialize_second() {
---- src/core/manager.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/core/manager.h	2017-04-30 20:56:18.000000000 +0100
+--- a/src/core/manager.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/core/manager.h	2017-04-30 20:56:18.000000000 +0100
 @@ -42,6 +42,7 @@
  
  #include <torrent/utils/log_buffer.h>
@@ -94,8 +94,8 @@
    // Use custom throttle for the given range of IP addresses.
    void                  set_address_throttle(uint32_t begin, uint32_t end, torrent::ThrottlePair throttles);
    torrent::ThrottlePair get_address_throttle(const sockaddr* addr);
---- src/display/utils.cc	2017-04-30 20:37:29.000000000 +0100
-+++ src/display/utils.cc	2017-04-30 20:56:18.000000000 +0100
+--- a/src/display/utils.cc	2017-04-30 20:37:29.000000000 +0100
++++ a/src/display/utils.cc	2017-04-30 20:56:18.000000000 +0100
 @@ -57,6 +57,7 @@
  #include "core/download.h"
  #include "core/manager.h"
@@ -215,8 +215,8 @@
  
    first = print_buffer(first, last, " [Port: %i]", (unsigned int)torrent::connection_manager()->listen_port());
  
---- src/display/utils.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/display/utils.h	2017-04-30 20:56:18.000000000 +0100
+--- a/src/display/utils.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/display/utils.h	2017-04-30 20:56:18.000000000 +0100
 @@ -80,6 +80,9 @@ char*       print_client_version(char* f
  char*       print_entry_tags(char* first, char* last);
  char*       print_entry_file(char* first, char* last, const torrent::Entry& entry);
@@ -227,8 +227,8 @@
  char*       print_status_info(char* first, char* last);
  char*       print_status_extra(char* first, char* last);
  
---- src/ui/root.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/ui/root.h	2017-04-30 20:56:18.000000000 +0100
+--- a/src/ui/root.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/ui/root.h	2017-04-30 20:56:18.000000000 +0100
 @@ -58,6 +58,8 @@ namespace ui {
  
  class DownloadList;

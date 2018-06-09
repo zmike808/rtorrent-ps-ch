@@ -1,5 +1,5 @@
---- src/download/download_wrapper.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/download/download_wrapper.cc	2017-04-30 21:25:15.511379804 +0100
+--- a/src/download/download_wrapper.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/download/download_wrapper.cc	2017-04-30 21:25:15.511379804 +0100
 @@ -228,6 +228,7 @@ DownloadWrapper::receive_hash_done(Chunk
          priority_queue_erase(&taskScheduler, &m_main->delay_partially_done());
          priority_queue_erase(&taskScheduler, &m_main->delay_partially_restarted());
@@ -38,8 +38,8 @@
  }
  
  void
---- src/manager.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/manager.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/manager.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/manager.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -98,7 +98,7 @@ Manager::Manager() :
    m_connectionManager->listen()->slot_accepted() =
      std::bind(&HandshakeManager::add_incoming, m_handshakeManager, std::placeholders::_1, std::placeholders::_2);
@@ -49,8 +49,8 @@
    m_resourceManager->group_back()->up_queue()->set_heuristics(choke_queue::HEURISTICS_UPLOAD_LEECH);
    m_resourceManager->group_back()->down_queue()->set_heuristics(choke_queue::HEURISTICS_DOWNLOAD_LEECH);
  }
---- src/protocol/handshake_manager.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/protocol/handshake_manager.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/protocol/handshake_manager.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/protocol/handshake_manager.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -232,7 +232,7 @@ HandshakeManager::receive_succeeded(Hand
  
      if (!download->info()->is_active())
@@ -60,8 +60,8 @@
        reason = e_handshake_unwanted_connection;
      else
        reason = e_handshake_duplicate;
---- src/protocol/peer_connection_base.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/protocol/peer_connection_base.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/protocol/peer_connection_base.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/protocol/peer_connection_base.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -197,7 +197,7 @@ PeerConnectionBase::initialize(DownloadM
  
    m_peerChunks.download_cache()->clear();
@@ -71,8 +71,8 @@
      m_sendInterested = true;
      m_downInterested = true;
    }
---- src/protocol/peer_connection_leech.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/protocol/peer_connection_leech.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/protocol/peer_connection_leech.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/protocol/peer_connection_leech.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -691,7 +691,7 @@ PeerConnection<type>::read_have_chunk(ui
      m_download->choke_group()->up_queue()->set_not_queued(this, &m_upChoke);
    }
@@ -82,8 +82,8 @@
      return;
  
    if (is_down_interested()) {
---- src/torrent/data/file_list.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/data/file_list.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/data/file_list.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/data/file_list.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -86,6 +86,7 @@ FileList::FileList() :
    m_isOpen(false),
  
@@ -182,8 +182,8 @@
    (*begin())->set_size_bytes(size);
    (*begin())->set_range(m_chunkSize);
  
---- src/torrent/data/file_list.h	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/data/file_list.h	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/data/file_list.h	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/data/file_list.h	2017-04-30 21:15:43.000000000 +0100
 @@ -109,6 +109,9 @@ public:
    uint64_t            size_bytes() const                              { return m_torrentSize; }
    uint32_t            size_chunks() const                             { return bitfield()->size_bits(); }
@@ -202,8 +202,8 @@
  
    std::string         m_rootDir;
  
---- src/torrent/download.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/download.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/download.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/download.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -565,32 +565,6 @@ Download::set_connection_type(Connection
    m_ptr->set_connection_type(t);
  }
@@ -237,8 +237,8 @@
  void
  Download::update_priorities() {
    m_ptr->receive_update_priorities();
---- src/torrent/download.h	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/download.h	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/download.h	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/download.h	2017-04-30 21:15:43.000000000 +0100
 @@ -183,15 +183,6 @@ public:
    ConnectionType      connection_type() const;
    void                set_connection_type(ConnectionType t);
@@ -255,8 +255,8 @@
    // Call this when you want the modifications of the download priorities
    // in the entries to take effect. It is slightly expensive as it rechecks
    // all the peer bitfields to see if we are still interested.
---- src/torrent/peer/connection_list.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/peer/connection_list.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/peer/connection_list.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/peer/connection_list.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -79,7 +79,7 @@ ConnectionList::clear() {
  
  bool
@@ -266,8 +266,8 @@
      return !bitfield->is_all_set();
  
    if (!m_download->info()->is_accepting_seeders())
---- src/torrent/utils/resume.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/torrent/utils/resume.cc	2017-04-30 21:15:43.000000000 +0100
+--- a/src/torrent/utils/resume.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/torrent/utils/resume.cc	2017-04-30 21:15:43.000000000 +0100
 @@ -254,10 +254,7 @@ resume_save_progress(Download download,
  
        //    } else if ((*listItr)->completed_chunks() == (*listItr)->size_chunks()) {

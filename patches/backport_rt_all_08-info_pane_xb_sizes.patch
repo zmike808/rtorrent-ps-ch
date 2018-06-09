@@ -1,5 +1,5 @@
---- src/command_ui.cc	2017-06-04 18:27:53.508262194 +0100
-+++ src/command_ui.cc	2017-06-04 18:28:15.144811646 +0100
+--- a/src/command_ui.cc	2017-06-04 18:27:53.508262194 +0100
++++ a/src/command_ui.cc	2017-06-04 18:28:15.144811646 +0100
 @@ -392,8 +392,16 @@ apply_to_xb(const torrent::Object& rawAr
      snprintf(buffer, 48, "%5.1f MB", (double)arg / (int64_t(1) << 20));
    else if (arg < (int64_t(1000) << 30))
@@ -18,8 +18,8 @@
  
    return std::string(buffer);
  }
---- src/display/window_peer_list.cc	2017-06-04 18:24:58.355877743 +0100
-+++ src/display/window_peer_list.cc	2017-06-04 18:25:52.675583468 +0100
+--- a/src/display/window_peer_list.cc	2017-06-04 18:24:58.355877743 +0100
++++ a/src/display/window_peer_list.cc	2017-06-04 18:25:52.675583468 +0100
 @@ -60,6 +60,8 @@ WindowPeerList::WindowPeerList(core::Dow
    m_focus(f) {
  }
@@ -46,8 +46,8 @@
  
      char remoteChoked;
      char peerType;
---- src/ui/download.cc	2017-06-04 17:44:36.748996714 +0100
-+++ src/ui/download.cc	2017-06-04 17:40:55.816860273 +0100
+--- a/src/ui/download.cc	2017-06-04 17:44:36.748996714 +0100
++++ a/src/ui/download.cc	2017-06-04 17:40:55.816860273 +0100
 @@ -171,10 +171,10 @@ Download::create_info() {
    element->push_column("State changed:",    te_command("convert.elapsed_time=$d.state_changed="));
  

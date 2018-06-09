@@ -1,5 +1,5 @@
---- src/command_events.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/command_events.cc	2017-06-11 10:26:11.545873005 +0100
+--- a/src/command_events.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/command_events.cc	2017-06-11 10:26:11.545873005 +0100
 @@ -308,24 +308,89 @@ d_multicall(const torrent::Object::list_
  }
  
@@ -121,8 +121,8 @@
 +  CMD2_ANY_LIST    ("directory.watch.added",   std::bind(&directory_watch_added, std::placeholders::_2));
 +  CMD2_ANY_LIST    ("directory.watch.removed", std::bind(&directory_watch_removed, std::placeholders::_2));
  }
---- src/main.cc	2017-06-04 13:03:39.000000000 +0100
-+++ src/main.cc	2017-06-10 09:33:10.387844804 +0100
+--- a/src/main.cc	2017-06-04 13:03:39.000000000 +0100
++++ a/src/main.cc	2017-06-10 09:33:10.387844804 +0100
 @@ -429,6 +429,11 @@ main(int argc, char** argv) {
  
      CMD2_REDIRECT        ("torrent_list_layout", "ui.torrent_list.layout.set");

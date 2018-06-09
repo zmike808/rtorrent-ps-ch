@@ -1,5 +1,5 @@
---- configure.ac	2016-12-12 08:49:18.000000000 +0000
-+++ configure.ac	2017-07-15 21:59:08.972258054 +0100
+--- a/configure.ac	2016-12-12 08:49:18.000000000 +0000
++++ a/configure.ac	2017-07-15 21:59:08.972258054 +0100
 @@ -65,37 +65,8 @@ CFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS
  CXXFLAGS="$PTHREAD_CFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
  LIBS="$PTHREAD_LIBS $CPPUNIT_LIBS $LIBS"
@@ -40,8 +40,8 @@
  
  AC_CHECK_FUNCS(posix_memalign)
  
---- Makefile.am	2016-12-12 08:49:18.000000000 +0000
-+++ Makefile.am	2017-07-15 22:02:49.907727811 +0100
+--- a/Makefile.am	2016-12-12 08:49:18.000000000 +0000
++++ a/Makefile.am	2017-07-15 22:02:49.907727811 +0100
 @@ -8,6 +8,7 @@ EXTRA_DIST= \
  	scripts/checks.m4 \
  	scripts/common.m4 \
@@ -50,8 +50,8 @@
  	doc/main.xml \
  	doc/http.xml \
  	doc/torrent.xml \
---- scripts/ssl.m4	1970-01-01 01:00:00.000000000 +0100
-+++ scripts/ssl.m4	2017-07-15 22:05:35.982955500 +0100
+--- a/scripts/ssl.m4	1970-01-01 01:00:00.000000000 +0100
++++ a/scripts/ssl.m4	2017-07-15 22:05:35.982955500 +0100
 @@ -0,0 +1,39 @@
 +AC_DEFUN([TORRENT_CHECK_OPENSSL],
 +  [
@@ -92,8 +92,8 @@
 +      ])
 +  ]
 +)
---- src/utils/diffie_hellman.cc
-+++ src/utils/diffie_hellman.cc
+--- a/src/utils/diffie_hellman.cc
++++ a/src/utils/diffie_hellman.cc
 @@ -54,11 +54,23 @@ DiffieHellman::DiffieHellman(const unsigned char *prime, int primeLength,
    m_secret(NULL), m_size(0) {
  

@@ -1,5 +1,5 @@
---- src/command_ui.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/command_ui.cc	2017-04-30 20:45:24.094335223 +0100
+--- a/src/command_ui.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/command_ui.cc	2017-04-30 20:45:24.094335223 +0100
 @@ -39,6 +39,8 @@
  #include <sys/types.h>
  
@@ -84,8 +84,8 @@
  
    CMD2_ANY_VALUE("convert.gm_time",      std::bind(&apply_to_time, std::placeholders::_2, 0));
    CMD2_ANY_VALUE("convert.gm_date",      std::bind(&apply_to_time, std::placeholders::_2, 0x2));
---- src/core/view.cc	2017-04-30 20:32:34.000000000 +0100
-+++ src/core/view.cc	2017-04-30 20:37:29.000000000 +0100
+--- a/src/core/view.cc	2017-04-30 20:32:34.000000000 +0100
++++ a/src/core/view.cc	2017-04-30 20:37:29.000000000 +0100
 @@ -89,17 +89,21 @@ struct view_downloads_compare : std::bin
  };
  
@@ -153,8 +153,8 @@
        
      if (itr >= end_visible()) {
        erase_internal(itr);
---- src/core/view.h	2017-04-30 20:32:34.000000000 +0100
-+++ src/core/view.h	2017-04-30 20:37:29.000000000 +0100
+--- a/src/core/view.h	2017-04-30 20:32:34.000000000 +0100
++++ a/src/core/view.h	2017-04-30 20:37:29.000000000 +0100
 @@ -125,6 +125,8 @@ public:
  
    const torrent::Object& get_filter() const { return m_filter; }
@@ -172,8 +172,8 @@
  
    torrent::Object     m_event_added;
    torrent::Object     m_event_removed;
---- src/core/view_manager.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/core/view_manager.cc	2017-04-30 20:37:29.000000000 +0100
+--- a/src/core/view_manager.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/core/view_manager.cc	2017-04-30 20:37:29.000000000 +0100
 @@ -110,6 +110,14 @@ ViewManager::set_filter(const std::strin
  }
  
@@ -189,8 +189,8 @@
  ViewManager::set_filter_on(const std::string& name, const filter_args& args) {
    iterator viewItr = find_throw(name);
  
---- src/core/view_manager.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/core/view_manager.h	2017-04-30 20:37:29.000000000 +0100
+--- a/src/core/view_manager.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/core/view_manager.h	2017-04-30 20:37:29.000000000 +0100
 @@ -93,6 +93,7 @@ public:
    void                set_sort_current(const std::string& name, const torrent::Object& cmd) { (*find_throw(name))->set_sort_current(cmd); }
  
@@ -199,8 +199,8 @@
    void                set_filter_on(const std::string& name, const filter_args& args);
  
    void                set_event_added(const std::string& name, const torrent::Object& cmd)   { (*find_throw(name))->set_event_added(cmd); }
---- src/display/window_download_list.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/display/window_download_list.cc	2017-04-30 20:37:29.000000000 +0100
+--- a/src/display/window_download_list.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/display/window_download_list.cc	2017-04-30 20:37:29.000000000 +0100
 @@ -81,7 +81,7 @@ WindowDownloadList::redraw() {
    if (m_view == NULL)
      return;
@@ -210,8 +210,8 @@
  
    if (m_view->empty_visible() || m_canvas->width() < 5 || m_canvas->height() < 2)
      return;
---- src/ui/download_list.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/ui/download_list.cc	2017-04-30 20:47:26.633671370 +0100
+--- a/src/ui/download_list.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/ui/download_list.cc	2017-04-30 20:47:26.633671370 +0100
 @@ -36,6 +36,7 @@
  
  #include "config.h"
@@ -288,8 +288,8 @@
  
    m_uiArray[DISPLAY_LOG]->bindings()[KEY_LEFT] =
      m_uiArray[DISPLAY_LOG]->bindings()['B' - '@'] =
---- src/ui/download_list.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/ui/download_list.h	2017-04-30 20:37:29.000000000 +0100
+--- a/src/ui/download_list.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/ui/download_list.h	2017-04-30 20:37:29.000000000 +0100
 @@ -86,7 +86,8 @@ public:
      INPUT_LOAD_DEFAULT,
      INPUT_LOAD_MODIFIED,

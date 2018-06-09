@@ -1,5 +1,5 @@
---- src/command_download.cc	2017-04-30 21:40:38.853044300 +0100
-+++ src/command_download.cc	2017-04-30 22:48:43.094251399 +0100
+--- a/src/command_download.cc	2017-04-30 21:40:38.853044300 +0100
++++ a/src/command_download.cc	2017-04-30 22:48:43.094251399 +0100
 @@ -64,6 +64,7 @@
  #include "core/download_store.h"
  #include "core/manager.h"
@@ -52,8 +52,8 @@
    CMD2_DL         ("d.size_chunks",    CMD2_ON_FL(size_chunks));
    CMD2_DL         ("d.chunk_size",     CMD2_ON_FL(chunk_size));
    CMD2_DL         ("d.size_pex",       CMD2_ON_DL(size_pex));
---- src/command_file.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/command_file.cc	2017-04-30 22:42:23.000000000 +0100
+--- a/src/command_file.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/command_file.cc	2017-04-30 22:42:23.000000000 +0100
 @@ -105,11 +105,15 @@ initialize_command_file() {
  
    CMD2_FILE("f.is_create_queued",       std::bind(&torrent::File::is_create_queued, std::placeholders::_1));
@@ -70,8 +70,8 @@
  
    CMD2_FILE  ("f.prioritize_first",         std::bind(&torrent::File::has_flags,   std::placeholders::_1, torrent::File::flag_prioritize_first));
    CMD2_FILE_V("f.prioritize_first.enable",  std::bind(&torrent::File::set_flags,   std::placeholders::_1, torrent::File::flag_prioritize_first));
---- src/core/download.h	2017-04-30 21:35:27.000000000 +0100
-+++ src/core/download.h	2017-04-30 22:42:23.000000000 +0100
+--- a/src/core/download.h	2017-04-30 21:35:27.000000000 +0100
++++ a/src/core/download.h	2017-04-30 22:42:23.000000000 +0100
 @@ -119,6 +119,8 @@ public:
    uint32_t            priority();
    void                set_priority(uint32_t p);
@@ -81,8 +81,8 @@
    uint32_t            resume_flags()                           { return m_resumeFlags; }
    void                set_resume_flags(uint32_t flags)         { m_resumeFlags = flags; }
  
---- src/core/download_list.cc	2017-04-30 21:35:27.000000000 +0100
-+++ src/core/download_list.cc	2017-05-14 21:24:57.199934736 +0100
+--- a/src/core/download_list.cc	2017-04-30 21:35:27.000000000 +0100
++++ a/src/core/download_list.cc	2017-05-14 21:24:57.199934736 +0100
 @@ -120,9 +120,10 @@ DownloadList::find_hex_ptr(const char* h
  Download*
  DownloadList::create(torrent::Object* obj, bool printLog) {
@@ -161,8 +161,8 @@
    } catch (torrent::local_error& e) {
      lt_log_print(torrent::LOG_TORRENT_ERROR, "Could not resume download: %s", e.what());
    }
---- src/ui/element_file_list.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/ui/element_file_list.cc	2017-04-30 22:42:23.000000000 +0100
+--- a/src/ui/element_file_list.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/ui/element_file_list.cc	2017-04-30 22:42:23.000000000 +0100
 @@ -38,6 +38,7 @@
  
  #include <rak/algorithm.h>

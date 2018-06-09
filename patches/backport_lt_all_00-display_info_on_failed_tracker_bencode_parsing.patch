@@ -1,5 +1,5 @@
---- rak/string_manip.h	2017-05-14 18:49:50.413687258 +0100
-+++ rak/string_manip.h	2017-05-15 18:49:46.947372437 +0100
+--- a/rak/string_manip.h	2017-05-14 18:49:50.413687258 +0100
++++ a/rak/string_manip.h	2017-05-15 18:49:46.947372437 +0100
 @@ -371,6 +371,51 @@ is_all_name(const Sequence& src) {
    return is_all_name(src.begin(), src.end());
  }
@@ -52,8 +52,8 @@
  }
  
  #endif
---- src/tracker/tracker_http.cc	2016-12-12 08:49:18.000000000 +0000
-+++ src/tracker/tracker_http.cc	2017-05-15 18:51:42.460079984 +0100
+--- a/src/tracker/tracker_http.cc	2016-12-12 08:49:18.000000000 +0000
++++ a/src/tracker/tracker_http.cc	2017-05-15 18:51:42.460079984 +0100
 @@ -288,8 +288,10 @@ TrackerHttp::receive_done() {
    Object b;
    *m_data >> b;

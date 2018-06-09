@@ -1,5 +1,5 @@
---- src/command_ui.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/command_ui.cc	2018-03-03 10:01:59.591031275 +0000
+--- a/src/command_ui.cc	2017-04-30 22:42:23.000000000 +0100
++++ a/src/command_ui.cc	2018-03-03 10:01:59.591031275 +0000
 @@ -759,6 +759,10 @@ initialize_command_ui() {
    CMD2_ANY_LIST  ("ui.status.throttle.up.set",   std::bind(&cmd_status_throttle_names, true, std::placeholders::_2));
    CMD2_ANY_LIST  ("ui.status.throttle.down.set", std::bind(&cmd_status_throttle_names, false, std::placeholders::_2));
@@ -11,8 +11,8 @@
    // TODO: Add 'option_string' for rtorrent-specific options.
    CMD2_VAR_STRING("ui.torrent_list.layout", "full");
  
---- src/core/download_list.cc	2017-05-14 21:24:57.199934736 +0100
-+++ src/core/download_list.cc	2017-05-29 18:24:10.356302701 +0100
+--- a/src/core/download_list.cc	2017-05-14 21:24:57.199934736 +0100
++++ a/src/core/download_list.cc	2017-05-29 18:24:10.356302701 +0100
 @@ -63,6 +63,7 @@
  #include "download.h"
  #include "download_list.h"
@@ -29,8 +29,8 @@
  }
  
  DownloadList::iterator
---- src/input/text_input.cc	2016-10-23 05:33:00.000000000 +0100
-+++ src/input/text_input.cc	2017-05-28 22:47:41.288802801 +0100
+--- a/src/input/text_input.cc	2016-10-23 05:33:00.000000000 +0100
++++ a/src/input/text_input.cc	2017-05-28 22:47:41.288802801 +0100
 @@ -47,22 +47,6 @@ TextInput::pressed(int key) {
    if (m_bindings.pressed(key)) {
      return true;
@@ -66,8 +66,8 @@
      default:
        return false;
      }
---- src/input/text_input.h	2016-10-23 05:33:00.000000000 +0100
-+++ src/input/text_input.h	2017-05-28 22:46:59.325696802 +0100
+--- a/src/input/text_input.h	2016-10-23 05:33:00.000000000 +0100
++++ a/src/input/text_input.h	2017-05-28 22:46:59.325696802 +0100
 @@ -54,7 +54,7 @@ public:
    using Base::size_type;
    using Base::npos;
@@ -94,8 +94,8 @@
    slot_void           m_slot_dirty;
  
    Bindings            m_bindings;
---- src/main.cc	2017-05-01 10:33:47.280774999 +0100
-+++ src/main.cc	2017-06-04 13:03:39.510320216 +0100
+--- a/src/main.cc	2017-05-01 10:33:47.280774999 +0100
++++ a/src/main.cc	2017-06-04 13:03:39.510320216 +0100
 @@ -66,6 +66,7 @@
  #include "display/window.h"
  #include "display/manager.h"
@@ -112,8 +112,8 @@
  
      // Load session torrents and perform scheduled tasks to ensure
      // session torrents are loaded before arg torrents.
---- src/ui/download_list.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/download_list.cc	2017-06-04 13:04:12.926805850 +0100
+--- a/src/ui/download_list.cc	2017-04-30 22:42:23.000000000 +0100
++++ a/src/ui/download_list.cc	2017-06-04 13:04:12.926805850 +0100
 @@ -295,21 +295,31 @@ DownloadList::receive_view_input(Input t
                                                        std::placeholders::_1,
                                                        std::placeholders::_2));
@@ -148,8 +148,8 @@
    control->ui()->disable_input();
  
    try {
---- src/ui/download_list.h	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/download_list.h	2017-06-04 13:01:51.950902915 +0100
+--- a/src/ui/download_list.h	2017-04-30 22:42:23.000000000 +0100
++++ a/src/ui/download_list.h	2017-06-04 13:01:51.950902915 +0100
 @@ -87,7 +87,8 @@ public:
      INPUT_LOAD_MODIFIED,
      INPUT_CHANGE_DIRECTORY,
@@ -160,8 +160,8 @@
    } Input;
  
    DownloadList();
---- src/ui/root.cc	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/root.cc	2018-03-03 10:02:40.287477470 +0000
+--- a/src/ui/root.cc	2017-04-30 22:42:23.000000000 +0100
++++ a/src/ui/root.cc	2018-03-03 10:02:40.287477470 +0000
 @@ -36,11 +36,14 @@
  
  #include "config.h"
@@ -445,8 +445,8 @@
 +}
 +
  }
---- src/ui/root.h	2017-04-30 22:42:23.000000000 +0100
-+++ src/ui/root.h	2018-03-03 10:04:59.230058087 +0000
+--- a/src/ui/root.h	2017-04-30 22:42:23.000000000 +0100
++++ a/src/ui/root.h	2018-03-03 10:04:59.230058087 +0000
 @@ -39,6 +39,7 @@
  
  #include <inttypes.h>
