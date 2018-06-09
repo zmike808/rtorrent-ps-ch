@@ -57,6 +57,8 @@ only_git_lt_rt=true
 rt_ps_ch_version="$rt_ps_ch_major_version.$rt_ps_ch_minor_release"
 lt_version="$lt_major.$rt_minor"
 rt_version="$rt_major.$rt_minor"
+lt_down_version="$lt_version"
+rt_down_version="$rt_version"
 
 # Let's fake the version number of the git version to be compatible with our patching system
 git_minor="$[$rt_minor + 1]"
@@ -65,6 +67,8 @@ set_git_env_vars() { # Reset lT/rT env vars if git is used
     rt_ps_ch_version="$rt_ps_ch_major_version.$rt_ps_ch_minor_git"
     lt_version="$lt_major.$git_minor"
     rt_version="$rt_major.$git_minor"
+    lt_down_version="$git_lt"
+    rt_down_version="$git_rt"
 }
 
 # Only support git versions or dealing with optional 2nd "git" argument: update necessary variables
@@ -899,15 +903,15 @@ case "$1" in
     build-curl) set_compiler_flags; display_env_vars; prep; clean_all "curl-$curl_version"; download "curl-$curl_version"; build_curl; change_rpath ;;
     build-xrpc) set_compiler_flags; display_env_vars; prep; clean_all "xmlrpc-c-$xmlrpc_tree-$xmlrpc_rev"; download "xmlrpc-c-$xmlrpc_tree-$xmlrpc_rev"; build_xmlrpc ;;
     deps)       set_compiler_flags; display_env_vars; prep; build_deps; change_rpath ;;
-    patch-d-lt) nopyrop=true; display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$git_lt"; patch_lt ;;
-    patch-d-rt) nopyrop=true; display_env_vars; clean_all "rtorrent-$rt_version"; download "rtorrent-$git_rt"; patch_rt ;;
-    patch-lt)   display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$git_lt"; patch_lt ;;
-    patch-rt)   display_env_vars; clean_all "rtorrent-$rt_version"; download "rtorrent-$git_rt"; patch_rt ;;
-    patch-ltrt) display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$git_lt"; clean_all "rtorrent-$rt_version"; download "rtorrent-$git_rt"; patch_lt_rt ;;
+    patch-d-lt) nopyrop=true; display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$lt_down_version"; patch_lt ;;
+    patch-d-rt) nopyrop=true; display_env_vars; clean_all "rtorrent-$rt_version"; download "rtorrent-$rt_down_version"; patch_rt ;;
+    patch-lt)   display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$lt_down_version"; patch_lt ;;
+    patch-rt)   display_env_vars; clean_all "rtorrent-$rt_version"; download "rtorrent-$rt_down_version"; patch_rt ;;
+    patch-ltrt) display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$lt_down_version"; clean_all "rtorrent-$rt_version"; download "rtorrent-$rt_down_version"; patch_lt_rt ;;
     build-lt)   set_compiler_flags; display_env_vars; build_lt ;;
     build-rt)   set_compiler_flags; display_env_vars; build_rt ;;
     build-ltrt) set_compiler_flags; display_env_vars; build_lt_rt ;;
-    patchbuild) set_compiler_flags; display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$git_lt"; clean_all "rtorrent-$rt_version"; download "rtorrent-$git_rt"; patch_lt_rt; build_lt_rt; add_version_info ;;
+    patchbuild) set_compiler_flags; display_env_vars; clean_all "libtorrent-$lt_version"; download "libtorrent-$lt_down_version"; clean_all "rtorrent-$rt_version"; download "rtorrent-$rt_down_version"; patch_lt_rt; build_lt_rt; add_version_info ;;
     chrpath)    change_rpath ;;
     clean-up)   clean_up ;;
     ver-info)   add_version_info ;;
