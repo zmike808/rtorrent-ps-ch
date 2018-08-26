@@ -743,11 +743,11 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 
                     // System colors – these are mapped to a 'normal' color index
                     if (item) {
-                        const char* c_down = "C28/4C27/2";             // leeching + incomplete
-                        const char* c_seed = "C24/4C21/2";             // seeding + info
-                        const char* c_done = "C21/1C24/1C21/2C24/2";   // info + seeding (is_done)
-                        const char* c_part = "C21/1C27/1C21/2C27/2";   // info + incomplete
-                        const char* c_queu = "C21/1C26/1C21/2C26/2";   // info + queued
+                        const char* c_down = "C28/4C27/1";             // leeching + incomplete
+                        const char* c_seed = "C24/4C21/1";             // seeding + info
+                        const char* c_done = "C21/1C24/1C21/2C24/1";   // info + seeding (is_done)
+                        const char* c_part = "C21/1C27/1C21/2C27/1";   // info + incomplete
+                        const char* c_queu = "C21/1C26/1C21/2C26/1";   // info + queued
 
                         switch (attr_idx) {
                             case ps::COL_DOWN_TIME:  // C90/6
@@ -803,8 +803,8 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
         }
 
         // Advance canvas column position, and add to length
-        column += header_len;
-        total += header_len;
+        column += header_len + 1;
+        total += header_len + 1;
     }
 
     return total;
@@ -1291,61 +1291,61 @@ void initialize_command_ui_pyroscope() {
         // 97:    COL_ACTIVE_TIME
 
         // Status flags (❢ ☢ ☍ ⌘)
-        "method.set_key = ui.column.render, \"100:3C95/2:❢  \","
+        "method.set_key = ui.column.render, \"100:2C95/2:❢ \","
         "    ((array.at, {\"  \", \"♺ \", \"ʘ \", \"⚠ \", \"◔ \", \"⚡ \", \"↯ \", \"¿?\","
                         " \"⨂ \", \"⋫ \", \"☡ \"}, ((d.message.alert)) ))\n"
-        "method.set_key = ui.column.render, \"110:?2C92/2:☢ \","
-        "    ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪ \"}, {01, \"▪ \"}, {10, \"╍ \"}, {11, \"▹ \"}))\n"
-        "method.set_key = ui.column.render, \"120:?2:☍ \","
-        "    ((array.at, {\"⚯ \", \"  \"}, ((not, ((d.tied_to_file)) )) ))\n"
-        "method.set_key = ui.column.render, \"130:?2:⌘ \","
-        "    ((array.at, {\"⚒ \", \"◌ \"}, ((d.ignore_commands)) ))\n"
+        "method.set_key = ui.column.render, \"110:?1C92/1:☢\","
+        "    ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪\"}, {01, \"▪\"}, {10, \"╍\"}, {11, \"▹\"}))\n"
+        "method.set_key = ui.column.render, \"120:?1:☍\","
+        "    ((array.at, {\"⚯\", \" \"}, ((not, ((d.tied_to_file)) )) ))\n"
+        "method.set_key = ui.column.render, \"130:?1:⌘\","
+        "    ((array.at, {\"⚒\", \"◌\"}, ((d.ignore_commands)) ))\n"
 
         // Scrape info (↺ ⤴ ⤵)
-        "method.set_key = ui.column.render, \"400:?3C23/3: ↺ \", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
-        "method.set_key = ui.column.render, \"410:?3C24/3: ⤴ \", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
-        "method.set_key = ui.column.render, \"420:?3C14/3: ⤵ \", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
+        "method.set_key = ui.column.render, \"400:?2C23/2: ↺\", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
+        "method.set_key = ui.column.render, \"410:?2C24/2: ⤴\", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
+        "method.set_key = ui.column.render, \"420:?2C14/2: ⤵\", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
 
         // Traffic indicator (↕)
-        "method.set_key = ui.column.render, \"500:?2:↕ \","
+        "method.set_key = ui.column.render, \"500:?1:↕\","
         "    ((string.map, ((cat, ((not, ((d.up.rate)) )), ((not, ((d.down.rate)) )) )),"
-        "                  {00, \"⇅ \"}, {01, \"↟ \"}, {10, \"↡ \"}, {11, \"  \"} ))\n"
+        "                  {00, \"⇅\"}, {01, \"↟\"}, {10, \"↡\"}, {11, \" \"} ))\n"
 
         // Number of connected peers (℞)
-        "method.set_key = ui.column.render, \"510:?3C28/3: ℞ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"510:?2C28/2: ℞\", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Up|Leech Time / Down|Completion or Loaded Time
         // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
         //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
-        "method.set_key = ui.column.render, \"520:6C96/6: ∆⋮ ⟲ \","
+        "method.set_key = ui.column.render, \"520:5C96/5: ∆⋮ ⟲\","
         "    ((if, ((d.up.rate)),"
         "        ((convert.human_size, ((d.up.rate)), ((value, 10)) )),"
         "        ((convert.time_delta, ((value, ((d.custom, tm_completed)) )),"
         "                              ((value, ((d.custom.if_z, tm_started, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
-        "method.set_key = ui.column.render, \"530:6C90/6: ∇⋮ ◷ \","
+        "method.set_key = ui.column.render, \"530:5C90/5: ∇⋮ ◷\","
         "    ((if, ((d.down.rate)),"
         "        ((convert.human_size, ((d.down.rate)), ((value, 10)) )),"
         "        ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
 
         // Upload total, progress, ratio, and data size
-        "method.set_key = ui.column.render, \"900:?5C24/3C21/2: Σ⇈  \","
+        "method.set_key = ui.column.render, \"900:?4C24/3C21/1: Σ⇈ \","
         "    ((if, ((d.up.total)),"
         "        ((convert.human_size, ((d.up.total)), (value, 10))),"
         "        ((cat, \"  ⋅ \"))"
         "    ))\n"
-        "method.set_key = ui.column.render, \"910:2C94/2:⣿ \","
-        "    ((string.substr, \"  ⠁ ⠉ ⠋ ⠛ ⠟ ⠿ ⡿ ⣿ ❚ \", ((math.mul, 2, "
-        "                     ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((d.size_chunks)) )) )), 2, \"✔ \"))\n"
-        // "  ⠁ ⠉ ⠋ ⠛ ⠟ ⠿ ⡿ ⣿ ❚ "
-        //⠀"  ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ "
-        "method.set_key = ui.column.render, \"920:3C93/3:☯  \","
-        "    ((string.substr, \"☹ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ \", ((math.mul, 2, ((math.div, ((d.ratio)), 1000)) )), 2, \"⊛ \"))\n"
-        // "☹ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ " "😇 "
-        // "☹ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ "
-        // "☹ ➊ ➋ ➌ ➍ ➎ ➏ ➐ ➑ ➒ ➓ "
-        "method.set_key = ui.column.render, \"930:5C15/3C21/2:  ⛁  \","
+        "method.set_key = ui.column.render, \"910:1C94/1:⣿\","
+        "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.mul, 2, "
+        "                     ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((d.size_chunks)) )) )), 1, \"✔\"))\n"
+        // " ⠁⠉⠋⠛⠟⠿⡿⣿❚"
+        //⠀" ▁▂▃▄▅▆▇█"
+        "method.set_key = ui.column.render, \"920:1C93/1:☯\","
+        "    ((string.substr, \"☹➀➁➂➃➄➅➆➇➈➉\", ((math.mul, 2, ((math.div, ((d.ratio)), 1000)) )), 1, \"⊛\"))\n"
+        // "☹➀➁➂➃➄➅➆➇➈➉"
+        // "☹①②③④⑤⑥⑦⑧⑨⑩"
+        // "☹➊➋➌➍➎➏➐➑➒➓"
+        "method.set_key = ui.column.render, \"930:4C15/3C21/1:  ⛁ \","
 #if RT_HEX_VERSION <= 0x000906
         "    ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
@@ -1353,10 +1353,10 @@ void initialize_command_ui_pyroscope() {
 #endif
 
         // Explicitly managed status (✰ = prio; ⚑ = tagged)
-        "method.set_key = ui.column.render, \"970:2C91/2:✰ \","
-        "    ((array.at, {\"✖ \", \"⇣ \", \"  \", \"⇡ \"}, ((d.priority)) ))\n"
-        "method.set_key = ui.column.render, \"980:2C16/2:⚑ \","
-        "    ((array.at, {\"  \", \"⚑ \"}, ((d.views.has, tagged)) ))\n"
+        "method.set_key = ui.column.render, \"970:1C91/1:✰\","
+        "    ((array.at, {\"✖\", \"⇣\", \" \", \"⇡\"}, ((d.priority)) ))\n"
+        "method.set_key = ui.column.render, \"980:1C16/1:⚑\","
+        "    ((array.at, {\" \", \"⚑\"}, ((d.views.has, tagged)) ))\n"
     );
 
     //printf("%s", init_commands.c_str());
