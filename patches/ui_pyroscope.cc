@@ -1288,7 +1288,7 @@ void initialize_command_ui_pyroscope() {
         "method.set_key = ui.column.render, \"100:3C95/2:❢  \","
         "    ((array.at, {\"  \", \"♺ \", \"ʘ \", \"⚠ \", \"◔ \", \"⚡ \", \"↯ \", \"¿?\","
                         " \"⨂ \", \"⋫ \", \"☡ \"}, ((d.message.alert)) ))\n"
-        "method.set_key = ui.column.render, \"110:2C92/2:☢ \","
+        "method.set_key = ui.column.render, \"110:?2C92/2:☢ \","
         "    ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪ \"}, {01, \"▪ \"}, {10, \"╍ \"}, {11, \"▹ \"}))\n"
         "method.set_key = ui.column.render, \"120:?2:☍ \","
         "    ((array.at, {\"⚯ \", \"  \"}, ((not, ((d.tied_to_file)) )) ))\n"
@@ -1306,7 +1306,7 @@ void initialize_command_ui_pyroscope() {
         "                  {00, \"⇅ \"}, {01, \"↟ \"}, {10, \"↡ \"}, {11, \"  \"} ))\n"
 
         // Number of connected peers (℞)
-        "method.set_key = ui.column.render, \"510:3C28/3: ℞ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"510:?3C28/3: ℞ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Up|Leech Time / Down|Completion or Loaded Time
         // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
