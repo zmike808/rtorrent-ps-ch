@@ -747,6 +747,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                         const char* c_seed = "C24/4C21/2";             // seeding + info
                         const char* c_done = "C21/1C24/1C21/2C24/2";   // info + seeding (is_done)
                         const char* c_part = "C21/1C27/1C21/2C27/2";   // info + incomplete
+                        const char* c_queu = "C21/1C26/1C21/2C26/2";   // info + queued
 
                         switch (attr_idx) {
                             case ps::COL_DOWN_TIME:  // C90/6
@@ -764,6 +765,9 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 #else
                                       item->is_partially_done()         ? c_done : c_part;
 #endif
+                                continue; // with new color definition
+                            case ps::COL_ACTIVE_TIME:  // C97/6
+                                ptr = D_INFO(item)->up_rate()->rate()   ? c_seed : c_queu;
                                 continue; // with new color definition
                             case ps::COL_PRIO:
                                 attr_idx = col_idx_prio[std::min(3U, (uint32_t) item->priority())];
@@ -1284,6 +1288,7 @@ void initialize_command_ui_pyroscope() {
         // 94:    COL_PROGRESS
         // 95:    COL_ALERT
         // 96:    COL_UP_TIME
+        // 97:    COL_ACTIVE_TIME
 
         // Status flags (❢ ☢ ☍ ⌘)
         "method.set_key = ui.column.render, \"100:3C95/2:❢  \","
