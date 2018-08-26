@@ -427,6 +427,34 @@ int64_t cmd_d_message_alert(core::Download* d) {
 }
 
 
+unsigned long cmd_d_eta_seconds(core::Download* d) {
+  uint32_t rate = d->info()->down_rate()->rate();
+
+  if (rate < 512)
+    return 0UL;
+
+#if RT_HEX_VERSION <= 0x000906
+  unsigned long remaining = (d->download()->file_list()->size_bytes() - d->download()->bytes_done()) / (rate & ~(uint32_t)(512 - 1));
+#else
+  unsigned long remaining = (d->download()->file_list()->selected_size_bytes() - d->download()->bytes_done()) / (rate & ~(uint32_t)(512 - 1));
+#endif
+
+  return remaining;
+}
+
+
+torrent::Object cmd_d_eta_time(core::Download* d) {
+  std::string eta_time = "⋆ ⋆⋆ ";
+  unsigned long remaining = cmd_d_eta_seconds(d);
+
+  if (remaining > 0) {
+    eta_time = elapsed_time(rpc::call_command_value("system.time") + remaining, 0L);
+  }
+
+  return eta_time;
+}
+
+
 std::string get_active_tracker_alias(torrent::Download* item) {
     std::string url = get_active_tracker_domain(item);
     if (!url.empty()) {
@@ -1162,6 +1190,9 @@ void initialize_command_ui_pyroscope() {
     CMD2_DL("d.tracker_alias", _cxxstd_::bind(&display::cmd_d_tracker_alias, _cxxstd_::placeholders::_1));
 
     CMD2_DL("d.message.alert", _cxxstd_::bind(&display::cmd_d_message_alert, _cxxstd_::placeholders::_1));
+
+    CMD2_DL("d.eta.seconds", _cxxstd_::bind(&display::cmd_d_eta_seconds, _cxxstd_::placeholders::_1));
+    CMD2_DL("d.eta.time", _cxxstd_::bind(&display::cmd_d_eta_time, _cxxstd_::placeholders::_1));
 
     CMD2_ANY        ("ui.canvas_color",         _cxxstd_::bind(&display::ui_canvas_color_get));
     CMD2_ANY_STRING ("ui.canvas_color.set",     _cxxstd_::bind(&display::ui_canvas_color_set, _cxxstd_::placeholders::_2));
