@@ -713,7 +713,8 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
         // Render title text, or the result of the column command
         ui_canvas_color = color_def;
         if (headers) {
-            canvas->print(column, pos, "%s", header_text);
+            std::string header_str = u8_chop(header_text, header_len);
+            canvas->print(column, pos, "%s", header_str.c_str());
         } else {
             std::string text;
             try {
