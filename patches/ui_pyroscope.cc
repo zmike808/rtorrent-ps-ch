@@ -1164,11 +1164,6 @@ void initialize_command_ui_pyroscope() {
     CMD2_ANY       ("ui.find.next", _cxxstd_::bind(&ui_find_next));
     CMD2_VAR_STRING("ui.find.term", "");
 
-
-
-
-
-
     PS_VARIABLE_COLOR("ui.color.progress0",     "red");
     PS_VARIABLE_COLOR("ui.color.progress20",    "bold bright red");
     PS_VARIABLE_COLOR("ui.color.progress40",    "bold bright magenta");
@@ -1241,8 +1236,8 @@ void initialize_command_ui_pyroscope() {
         "schedule2 = collapsed_view_toggle, 0, 0, ((ui.bind_key, download_list, *, \""
             "view.collapsed.toggle= ; ui.current_view.set = (ui.current_view)\"))\n"
 
-        // Bind 'F' / F3 to find the next item for 'ui.find.term'
-        "schedule2 = ui_find_next_f,  0, 0, ((ui.bind_key, download_list, F,    \"ui.find.next=\"))\n"
+        // Bind F3 to find the next item for 'ui.find.term'
+        "schedule2 = ui_find_next_f3, 0, 0, ((ui.bind_key, download_list, 0413, \"ui.find.next=\"))\n"
 
         // Collapse built-in views
         "view.collapsed.toggle = main\n"
