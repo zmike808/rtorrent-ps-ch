@@ -173,14 +173,14 @@ int64_t parse_value_arg(const torrent::Object& arg) {
 
 // convert absolute timestamp to approximate human readable time diff (5 chars wide)
 std::string elapsed_time(unsigned long dt, unsigned long t0) {
-    if (dt == 0) return std::string("⋆ ⋆⋆ ");
+    if (dt == 0) return std::string(" ⋆ ⋆⋆");
 
     const char* unit[] = {"”", "’", "h", "d", "w", "m", "y"};
     unsigned long threshold[] = {1, 60, 3600, 86400, 7*86400, 30*86400, 365*86400, 0};
 
     int dim = 0;
     dt = std::labs((t0 ? t0 : time(NULL)) - dt);
-    if (dt == 0) return std::string("⋅ ⋅⋅ ");
+    if (dt == 0) return std::string(" ⋅ ⋅⋅");
     while (threshold[dim] && dt >= threshold[dim]) ++dim;
     if (dim) --dim;
     float val = float(dt) / float(threshold[dim]);
@@ -1305,24 +1305,24 @@ void initialize_command_ui_pyroscope() {
         "method.set_key = ui.column.render, \"410:?3C24/3: ⤴ \", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
         "method.set_key = ui.column.render, \"420:?3C14/3: ⤵ \", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
 
-        // Traffic indicator (⚡)
+        // Traffic indicator (↕)
         "method.set_key = ui.column.render, \"500:?2:↕ \","
         "    ((string.map, ((cat, ((not, ((d.up.rate)) )), ((not, ((d.down.rate)) )) )),"
         "                  {00, \"⇅ \"}, {01, \"↟ \"}, {10, \"↡ \"}, {11, \"  \"} ))\n"
 
         // Number of connected peers (℞)
-        "method.set_key = ui.column.render, \"510:3C28/3:℞  \", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"510:3C28/3: ℞ \", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
         // Up|Leech Time / Down|Completion or Loaded Time
         // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
         //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
-        "method.set_key = ui.column.render, \"520:6C96/6:∆⋮ ⟲  \","
+        "method.set_key = ui.column.render, \"520:6C96/6: ∆⋮ ⟲ \","
         "    ((if, ((d.up.rate)),"
         "        ((convert.human_size, ((d.up.rate)), ((value, 10)) )),"
         "        ((convert.time_delta, ((value, ((d.custom, tm_completed)) )),"
         "                              ((value, ((d.custom.if_z, tm_started, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
-        "method.set_key = ui.column.render, \"530:6C90/6:∇⋮ ◷  \","
+        "method.set_key = ui.column.render, \"530:6C90/6: ∇⋮ ◷ \","
         "    ((if, ((d.down.rate)),"
         "        ((convert.human_size, ((d.down.rate)), ((value, 10)) )),"
         "        ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) ))"
@@ -1344,7 +1344,7 @@ void initialize_command_ui_pyroscope() {
         // "☹ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ " "😇 "
         // "☹ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ "
         // "☹ ➊ ➋ ➌ ➍ ➎ ➏ ➐ ➑ ➒ ➓ "
-        "method.set_key = ui.column.render, \"930:5C15/3C21/2: ⛁   \","
+        "method.set_key = ui.column.render, \"930:5C15/3C21/2:  ⛁  \","
 #if RT_HEX_VERSION <= 0x000906
         "    ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
