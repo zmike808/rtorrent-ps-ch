@@ -81,6 +81,11 @@ static int col_idx_state[] = {
     ps::COL_PROGRESS0, ps::COL_PROGRESS0, ps::COL_PROGRESS80, ps::COL_PROGRESS100
 };
 
+// ps::COL_UNSAFE_DATA
+static int col_idx_unsafe[] = {
+    ps::COL_PROGRESS100, ps::COL_PROGRESS80, ps::COL_PROGRESS40
+};
+
 // basic color names
 static const char* color_names[] = {
     "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"
@@ -782,6 +787,9 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                                 attr_idx = ratio_color(item->file_list()->completed_chunks() * 1000 /
                                                        item->file_list()->size_chunks());
                                 break;
+                            case ps::COL_UNSAFE_DATA:
+                                attr_idx = col_idx_unsafe[std::min(2U, (uint32_t) get_custom_long(item, "unsafe_data"))];
+                                break;
                             case ps::COL_ALERT:  // COL_ALARM is the actual color, this is the dynamic one
                                 bool has_alert = !item->message().empty()
                                               && item->message().find("Tried all trackers") == std::string::npos;
@@ -1289,6 +1297,7 @@ void initialize_command_ui_pyroscope() {
         // 95:    COL_ALERT
         // 96:    COL_UP_TIME
         // 97:    COL_ACTIVE_TIME
+        // 98:    COL_UNSAFE_DATA
 
         // Status flags (❢ ☢ ☍ ⌘)
         "method.set_key = ui.column.render, \"100:2C95/2:❢ \","

@@ -66,6 +66,7 @@ enum ColorKind {
     COL_ALERT,
     COL_UP_TIME,
     COL_ACTIVE_TIME,
+    COL_UNSAFE_DATA,
     COL_SYS_MAX
 };
 
