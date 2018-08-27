@@ -341,7 +341,6 @@ void ui_pyroscope_colormap_init() {
         if ((col[0] != -1 && col[0] >= get_colors()) || (col[1] != -1 && col[1] >= get_colors())) {
             char buf[33];
             sprintf(buf, "%d", get_colors());
-            Canvas::cleanup();
             throw torrent::input_error(col_def + ": your terminal only supports " + buf + " colors.");
         }
 
