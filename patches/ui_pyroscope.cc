@@ -786,9 +786,11 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                         const char* c_done = "C21/1C24/1C21/2C24/1";   // info + seeding (is_done)
                         const char* c_part = "C21/1C27/1C21/2C27/1";   // info + incomplete
                         const char* c_queu = "C21/1C26/1C21/2C26/1";   // info + queued
+                        const char* c_eta  = "C21/1C28/1C21/2C28/1";   // info + leeching
+                        const char* c_xfer = "C21/1C23/1C21/2C23/1";   // info + complete
 
                         switch (attr_idx) {
-                            case ps::COL_DOWN_TIME:  // C90/6
+                            case ps::COL_DOWN_TIME:  // C90/5
 #if RT_HEX_VERSION <= 0x000906
                                 ptr = item->is_done()                   ? c_done :
 #else
@@ -796,7 +798,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 #endif
                                       D_INFO(item)->down_rate()->rate() ? c_down : c_part;
                                 continue; // with new color definition
-                            case ps::COL_UP_TIME:  // C96/6
+                            case ps::COL_UP_TIME:  // C96/5
                                 ptr = D_INFO(item)->up_rate()->rate()   ? c_seed :
 #if RT_HEX_VERSION <= 0x000906
                                       item->is_done()                   ? c_done : c_part;
@@ -804,8 +806,15 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                                       item->is_partially_done()         ? c_done : c_part;
 #endif
                                 continue; // with new color definition
-                            case ps::COL_ACTIVE_TIME:  // C70/6
+                            case ps::COL_ACTIVE_TIME:  // C70/5
                                 ptr = D_INFO(item)->up_rate()->rate()   ? c_seed : c_queu;
+                                continue; // with new color definition
+                            case ps::COL_ETA_TIME:     // C73/5
+#if RT_HEX_VERSION <= 0x000906
+                                ptr = item->is_done()                   ? c_xfer : c_eta;
+#else
+                                ptr = item->is_partially_done()         ? c_xfer : c_eta;
+#endif
                                 continue; // with new color definition
                             case ps::COL_PRIO:
                                 attr_idx = col_idx_prio[std::min(3U, (uint32_t) item->priority())];
@@ -1335,6 +1344,7 @@ void initialize_command_ui_pyroscope() {
         // 70:    COL_ACTIVE_TIME
         // 71:    COL_UNSAFE_DATA
         // 72:    COL_THROTTLE_CH
+        // 73:    COL_ETA_TIME
 
         // 90:    COL_DOWN_TIME
         // 91:    COL_PRIO
