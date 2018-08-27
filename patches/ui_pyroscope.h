@@ -6,6 +6,7 @@
 
 namespace ps {
 
+#define COL_SYS_BASE_CH 70
 #define COL_SYS_BASE 90
 
 enum AlertKind {
@@ -58,6 +59,10 @@ enum ColorKind {
     COL_EVEN,
     COL_MAX,
 
+    COL_ACTIVE_TIME = COL_SYS_BASE_CH,
+    COL_UNSAFE_DATA,
+    COL_THROTTLE_CH,
+
     COL_DOWN_TIME = COL_SYS_BASE,
     COL_PRIO,
     COL_STATE,
@@ -65,8 +70,6 @@ enum ColorKind {
     COL_PROGRESS,
     COL_ALERT,
     COL_UP_TIME,
-    COL_ACTIVE_TIME,
-    COL_UNSAFE_DATA,
     COL_SYS_MAX
 };
 

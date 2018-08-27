@@ -86,6 +86,11 @@ static int col_idx_unsafe[] = {
     ps::COL_PROGRESS100, ps::COL_PROGRESS80, ps::COL_PROGRESS40
 };
 
+// ps::COL_THROTTLE_CH
+static int col_idx_throttle_ch[] = {
+    ps::COL_PROGRESS0, ps::COL_PROGRESS20, ps::COL_PROGRESS60, ps::COL_PROGRESS100
+};
+
 // basic color names
 static const char* color_names[] = {
     "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"
@@ -799,7 +804,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                                       item->is_partially_done()         ? c_done : c_part;
 #endif
                                 continue; // with new color definition
-                            case ps::COL_ACTIVE_TIME:  // C97/6
+                            case ps::COL_ACTIVE_TIME:  // C70/6
                                 ptr = D_INFO(item)->up_rate()->rate()   ? c_seed : c_queu;
                                 continue; // with new color definition
                             case ps::COL_PRIO:
@@ -818,7 +823,16 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                             case ps::COL_UNSAFE_DATA:
                                 attr_idx = col_idx_unsafe[std::min(2U, (uint32_t) get_custom_long(item, "unsafe_data"))];
                                 break;
-                            case ps::COL_ALERT:  // COL_ALARM is the actual color, this is the dynamic one
+                            case ps::COL_THROTTLE_CH:
+                                {
+                                    std::string throttlename = "";
+                                    if (!item->bencode()->get_key("rtorrent").get_key_string("throttle_name").empty()) {
+                                        throttlename = rpc::call_command_string("d.throttle_name", rpc::make_target(item)).c_str();
+                                    }
+                                    attr_idx = col_idx_throttle_ch[(!throttlename.empty() ? (throttlename == "NULL" ? 3 : (throttlename == "slowup" ? 2 : 1)) : 0)];
+                                }
+                                break;
+                            case ps::COL_ALERT: // COL_ALARM is the actual color, this is the dynamic one
                                 {
                                     bool has_alert = !item->message().empty()
                                                   && item->message().find("Tried all trackers") == std::string::npos;
@@ -1322,6 +1336,10 @@ void initialize_command_ui_pyroscope() {
         // 29:    COL_ODD
         // 30:    COL_EVEN
 
+        // 70:    COL_ACTIVE_TIME
+        // 71:    COL_UNSAFE_DATA
+        // 72:    COL_THROTTLE_CH
+
         // 90:    COL_DOWN_TIME
         // 91:    COL_PRIO
         // 92:    COL_STATE
@@ -1329,8 +1347,6 @@ void initialize_command_ui_pyroscope() {
         // 94:    COL_PROGRESS
         // 95:    COL_ALERT
         // 96:    COL_UP_TIME
-        // 97:    COL_ACTIVE_TIME
-        // 98:    COL_UNSAFE_DATA
 
         // Status flags (❢ ☢ ☍ ⌘)
         "method.set_key = ui.column.render, \"100:2C95/2:❢ \","
