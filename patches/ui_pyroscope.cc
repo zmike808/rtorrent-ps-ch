@@ -1263,10 +1263,6 @@ void initialize_command_ui_pyroscope() {
     CMD2_ANY_LIST("convert.human_size",         _cxxstd_::bind(&apply_human_size, _cxxstd_::placeholders::_2));
     CMD2_ANY_LIST("convert.magnitude",          _cxxstd_::bind(&apply_magnitude, _cxxstd_::placeholders::_2));
 
-    // TODO: deprecated and useless, remove these in v1.2
-    CMD2_VAR_VALUE("ui.style.progress", 1);
-    CMD2_VAR_VALUE("ui.style.ratio", 1);
-
 
     // Set some defaults by executing an in-memory script
     std::string init_commands;
