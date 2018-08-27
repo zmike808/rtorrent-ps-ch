@@ -819,10 +819,12 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                                 attr_idx = col_idx_unsafe[std::min(2U, (uint32_t) get_custom_long(item, "unsafe_data"))];
                                 break;
                             case ps::COL_ALERT:  // COL_ALARM is the actual color, this is the dynamic one
-                                bool has_alert = !item->message().empty()
-                                              && item->message().find("Tried all trackers") == std::string::npos;
-                                bool no_data = item->message().find("no data") != std::string::npos;
-                                attr_idx = no_data ? ps::COL_PROGRESS0 : has_alert ? ps::COL_ALARM : ps::COL_INFO;
+                                {
+                                    bool has_alert = !item->message().empty()
+                                                  && item->message().find("Tried all trackers") == std::string::npos;
+                                    bool no_data = item->message().find("no data") != std::string::npos;
+                                    attr_idx = no_data ? ps::COL_PROGRESS0 : has_alert ? ps::COL_ALARM : ps::COL_INFO;
+                                }
                                 break;
                         }
                     }
