@@ -17,6 +17,7 @@ python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318
 #include "config.h"
 #include "globals.h"
 
+#include <climits>
 #include <cstdio>
 #include <cwchar>
 #include <set>
@@ -434,8 +435,15 @@ int64_t cmd_d_message_alert(core::Download* d) {
 unsigned long cmd_d_eta_seconds(core::Download* d) {
   uint32_t rate = d->info()->down_rate()->rate();
 
-  if (rate < 512)
+#if RT_HEX_VERSION <= 0x000906
+  if (d->is_done())
+#else
+  if (d->data()->is_partially_done())
+#endif
     return 0UL;
+
+  if (rate < 512)
+    return ULONG_MAX;
 
 #if RT_HEX_VERSION <= 0x000906
   unsigned long remaining = (d->download()->file_list()->size_bytes() - d->download()->bytes_done()) / (rate & ~(uint32_t)(512 - 1));
@@ -451,7 +459,7 @@ torrent::Object cmd_d_eta_time(core::Download* d) {
   std::string eta_time = "⋆ ⋆⋆ ";
   unsigned long remaining = cmd_d_eta_seconds(d);
 
-  if (remaining > 0) {
+  if (remaining > 0 && remaining < ULONG_MAX) {
     eta_time = elapsed_time(rpc::call_command_value("system.time") + remaining, 0L);
   }
 
