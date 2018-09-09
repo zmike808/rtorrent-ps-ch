@@ -793,7 +793,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 #if RT_HEX_VERSION <= 0x000906
                                 ptr = item->is_done()                   ? c_done :
 #else
-                                ptr = item->is_partially_done()         ? c_done :
+                                ptr = item->data()->is_partially_done() ? c_done :
 #endif
                                       D_INFO(item)->down_rate()->rate() ? c_down : c_part;
                                 continue; // with new color definition
@@ -802,7 +802,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 #if RT_HEX_VERSION <= 0x000906
                                       item->is_done()                   ? c_done : c_part;
 #else
-                                      item->is_partially_done()         ? c_done : c_part;
+                                      item->data()->is_partially_done() ? c_done : c_part;
 #endif
                                 continue; // with new color definition
                             case ps::COL_ACTIVE_TIME:  // C70/5
@@ -812,7 +812,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
 #if RT_HEX_VERSION <= 0x000906
                                 ptr = item->is_done()                   ? c_xfer : c_eta;
 #else
-                                ptr = item->is_partially_done()         ? c_xfer : c_eta;
+                                ptr = item->data()->is_partially_done() ? c_xfer : c_eta;
 #endif
                                 continue; // with new color definition
                             case ps::COL_PRIO:
