@@ -1175,7 +1175,7 @@ torrent::Object ui_find_next() {
             if (name.empty()) name = (*itr)->info()->name();
             std::transform(name.begin(), name.end(), name.begin(), ::tolower);
             found = name.find(term) != std::string::npos;
-        } while (!found && itr != dl_view->focus());
+        } while (!found && itr != (dl_view->focus() == dl_view->end_visible() ? dl_view->begin_visible() : dl_view->focus()));
 
         if (!found) {
             control->core()->push_log(("Cannot find anything matching '" + term + "'").c_str());
