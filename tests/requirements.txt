@@ -1,0 +1,5 @@
+# Requirements for integration testing
+# Usage: .pyvenv/rtorrent-ps/bin/invoke test -n array
+# More info: https://github.com/chros73/rtorrent-ps-ch/issues/147
+
+invoke<0.15

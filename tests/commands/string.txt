@@ -1,0 +1,217 @@
+# Tests for "string.*"
+
+# string.len
+$ rtxmlrpc --repr string.len '' -- ''
+0
+$ rtxmlrpc --repr string.len '' -- 'foo123bar'
+9
+$ rtxmlrpc --repr string.len '' -- '♯'
+1
+$ rtxmlrpc --repr string.len '' --
+ERROR … <Fault -503: 'string.len needs a string argument.0!'>
+# END
+
+# string.shorten
+$ rtxmlrpc --repr string.shorten '' -- 'foo123…bar'
+'foo123\u2026bar'
+RC=0
+$ rtxmlrpc --repr string.shorten '' -- 'foo123bar' 6
+'foo\u2026ar'
+$ rtxmlrpc --repr string.shorten '' -- 'verylongnameofafile.txt' 15
+'verylongn\u2026e.txt'
+$ rtxmlrpc --repr string.shorten '' -- 'verylongnameofafile.txt' 15 4
+'verylongna\u2026.txt'
+$ rtxmlrpc --repr string.shorten '' -- 'file.txt' 8 4
+'file.txt'
+$ rtxmlrpc --repr string.shorten '' -- 'file.txt' 7 4
+'fil\u2026txt'
+$ rtxmlrpc --repr string.shorten '' -- 'filename.txt' 8 4
+'file\u2026txt'
+$ rtxmlrpc --repr string.shorten '' -- 'file.txt' 6 4
+'fil\u2026xt'
+# END
+
+# string.compare
+$ rtxmlrpc --repr string.equals '' first 2nd | as_bool
+‹false›
+$ rtxmlrpc --repr string.equals '' foobar foobar | as_bool
+‹true›
+$ rtxmlrpc --repr string.equals '' foo bar foo | as_bool
+‹true›
+
+$ rtxmlrpc --repr string.startswith '' foobar '' | as_bool
+‹true›
+$ rtxmlrpc --repr string.startswith '' foobar foo | as_bool
+‹true›
+$ rtxmlrpc --repr string.startswith '' foobar baz foo 4th | as_bool
+‹true›
+$ rtxmlrpc --repr string.startswith '' foobar foe | as_bool
+‹false›
+
+$ rtxmlrpc --repr string.endswith '' foobar '' | as_bool
+‹true›
+$ rtxmlrpc --repr string.endswith '' foobar bar | as_bool
+‹true›
+$ rtxmlrpc --repr string.endswith '' foobar baz bar | as_bool
+‹true›
+$ rtxmlrpc --repr string.endswith '' foobar baz | as_bool
+‹false›
+
+$ rtxmlrpc --repr string.equals ''
+ERROR … string.equals takes at least two arguments
+$ rtxmlrpc --repr string.equals '' first
+ERROR … string.equals takes at least two arguments
+$ rtxmlrpc --repr string.equals '' first +2
+ERROR … Wrong object type
+$ rtxmlrpc --repr string.equals '' +1 2nd
+ERROR … string.equals needs a string argument.0
+# END
+
+# string.[lr]pad
+$ rtxmlrpc --repr string.lpad '' 'foo' 5
+'  foo'
+$ rtxmlrpc --repr string.rpad '' 'foo' 5
+'foo  '
+$ rtxmlrpc --repr string.lpad '' 'foo' 5 ''
+'  foo'
+$ rtxmlrpc --repr string.rpad '' 'foo' 5 ''
+'foo  '
+
+$ rtxmlrpc --repr string.lpad '' '123' 5 '0'
+'00123'
+$ rtxmlrpc --repr string.lpad '' +123 5 '0'
+'00123'
+$ rtxmlrpc --repr string.lpad '' 123 3 '0'
+'123'
+
+$ rtxmlrpc --repr string.rpad '' '123' 5 '¹²³'
+u'123\xb9\xb2'
+$ rtxmlrpc --repr string.rpad '' '123' 6 '¹²³'
+u'123\xb9\xb2\xb3'
+$ rtxmlrpc --repr string.rpad '' '123' 7 '¹²³'
+u'123\xb9\xb2\xb3\xb9'
+
+$ rtxmlrpc --repr string.lpad -- '' 'foo' 1 +1
+ERROR … Wrong object type
+$ rtxmlrpc --repr string.lpad -- '' 'foo' -1
+ERROR … string.[lr]pad: Invalid negative padding length
+$ rtxmlrpc --repr string.lpad -- '' 'foo' [1,2
+ERROR … Wrong object type
+# END
+
+# string.strip
+$ rtxmlrpc --repr string.lstrip '' ' left only '
+'left only '
+$ rtxmlrpc --repr string.strip '' '   both ends '
+'both ends'
+$ rtxmlrpc --repr string.rstrip '' ' right only '
+' right only'
+$ rtxmlrpc --repr string.lstrip '' '.left.only.' .
+'left.only.'
+$ rtxmlrpc --repr string.strip '' '...both.ends.' .
+'both.ends'
+$ rtxmlrpc --repr string.rstrip '' '.right.only.' .
+'.right.only'
+$ rtxmlrpc --repr string.strip '' ' abc ' ' '
+'abc'
+$ rtxmlrpc --repr string.strip '' ' abc ' ''
+' abc '
+$ rtxmlrpc --repr string.strip '' ' abc ' ''
+' abc '
+$ rtxmlrpc --repr string.strip '' ' 21x9yxy1 ' 1 2 xy ' '
+'x9y'
+$ rtxmlrpc --repr string.strip '' ''
+''
+$ rtxmlrpc --repr string.strip '' '' ''
+''
+$ rtxmlrpc --repr string.strip '' '' 'x'
+''
+$ rtxmlrpc --repr string.strip '' '  '
+''
+$ rtxmlrpc --repr string.strip '' '  ' ' '
+''
+$ rtxmlrpc --repr string.lstrip '' '⍽left only⍽' '⍽'
+'left only\u237d'
+$ rtxmlrpc --repr string.strip '' '⍽⍽⍽both ends⍽' '⍽'
+'both ends'
+$ rtxmlrpc --repr string.rstrip '' '⍽right only⍽' '⍽'
+'\u237dright only'
+
+$ rtxmlrpc --repr string.strip '' +42
+ERROR … string.[lr]strip needs a string argument.0
+$ rtxmlrpc --repr string.strip '' 'foo' +42
+ERROR … Wrong object type
+# END
+
+# string.join
+$ rtxmlrpc --repr string.join '' ':'
+''
+$ rtxmlrpc --repr string.join '' '' 1 2 3
+'123'
+$ rtxmlrpc --repr string.join '' ':' a +2 [3,4
+'a:2:34'
+$ rtxmlrpc --repr string.join ''
+ERROR … string.join needs a string argument.0
+$ rtxmlrpc --repr string.join '' +42
+ERROR … string.join needs a string argument.0
+# END
+
+# string.split
+$ rtxmlrpc --repr string.split '' '1·₂·³' '·'
+['1', u'\u2082', u'\xb3']
+$ rtxmlrpc --repr string.split '' 1..2. .
+['1', '', '2', '']
+$ rtxmlrpc --repr string.split '' .1 .
+['', '1']
+$ rtxmlrpc --repr string.split '' abc .
+['abc']
+$ rtxmlrpc --repr string.split '' '1²₃' ''
+['1', u'\xb2', u'\u2083']
+$ rtxmlrpc --repr string.split '' '' '.'
+['']
+$ rtxmlrpc --repr string.split '' '' ''
+[]
+$ rtxmlrpc --repr string.split '' ''
+ERROR … string.split needs a string argument.1
+$ rtxmlrpc --repr string.split '' '' +1
+ERROR … string.split needs a string argument.1
+# END
+
+# string.substr
+$ rtxmlrpc --repr string.substr '' -- 'foo123bar'
+'foo123bar'
+$ rtxmlrpc --repr string.substr '' -- 'foo123bar' 6
+'bar'
+$ rtxmlrpc --repr string.substr '' -- 'foo123bar' 3 +3
+'123'
+$ rtxmlrpc --repr string.substr '' -- 'foo123bar' -6 3
+'123'
+$ rtxmlrpc --repr string.substr '' -- '➀ ♯'
+u'\u2780 \u266f'
+$ rtxmlrpc --repr string.substr '' -- '' 42
+''
+$ rtxmlrpc --repr string.substr '' -- 'foo' 3 +3 'bar'
+'bar'
+$ rtxmlrpc --repr string.substr '' -- '' 0 1 'foobar'
+'foobar'
+$ rtxmlrpc --repr string.substr '' -- '' 42 1 'Life, universe, everything'
+'Life, universe, everything'
+$ rtxmlrpc --repr string.substr '' -- 'foobar' 5
+'r'
+$ rtxmlrpc --repr string.substr '' -- 'foobar' 6
+''
+$ rtxmlrpc --repr string.substr '' -- '➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈' 2 1
+u'\u2781'
+$ rtxmlrpc --repr string.substr '' -- '➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈' 2 +2
+u'\u2781 '
+$ rtxmlrpc --repr string.substr '' -- '➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈' -3 2
+u'\u2787 '
+$ rtxmlrpc --repr string.substr '' -- 'for123bar' 3 bad
+ERROR … string.substr(count): junk at end of value: bad
+RC=65
+$ rtxmlrpc --repr string.substr '' --
+ERROR … string.substr needs a string argument
+RC=65
+# END
+
+# END string.*
