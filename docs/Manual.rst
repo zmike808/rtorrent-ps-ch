@@ -7,105 +7,20 @@ User's Manual
 Extended Canvas Explained
 -------------------------
 
-Built-in columns in the Collapsed Display
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The following is an explanation of the collapsed display of
-*rTorrent-PS-CH* (bind to ``*`` key by default).
-
 .. figure:: _static/img/rTorrent-PS-CH-0.9.6-solarized-yellow-kitty-s.png
    :align: center
    :alt: rTorrent-PS Main View
 
    *rTorrent-PS-CH collapsed canvas*
 
-Since ``rTorrent-PS-CH v1.7.0-0.9.7`` all the columns are configurable (can be disabled, overridden or new ones added on-the-fly) on the extended canvas except for "Name" and "Tracker Domain" columns, hence the previously included setup specific "Unsafe data" and "Data directory" columns are removed from the built-in columns (they can easily be readded, see below how).
-
-The following is an overview of the built-in column heading icons, their corresponding key definitions and what the values and icons in it mean.
-
-.. |_| unicode:: 0xA0
-   :trim:
-
-==============  ====================================  ===========
- Column          Key                                  Description
-==============  ====================================  ===========
- ☢              "100:1:☢"                             Item state (▹ = started, ╍ = paused, ▪ = stopped)
- ☍              "110:1:☍"                             Tied item? [⚯]
- ⌘              "120:1:⌘"                             Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
- ✰              "130:1:✰"                             Priority (✖ = off, ⇣ = low, nothing for normal, ⇡ = high)
- ⊘              "200:1:⊘"                             Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
- ⣿              "300:2:⣿ "                            Completion status (✔ = done; else up to 8 dots [⣿], i.e. 9 levels of 11% each); change to bar style using ``ui.style.progress.set=2``, ``0`` is a _mostly_ ASCII one
- ⋮              "310:1:⋮"                             Transfer direction indicator [⇅ ↡ ↟]
- ☯              "320:2:☯ "                            Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11); change to a different set of number glyphs using ``ui.style.ratio.set=2`` (or ``3``), ``0`` is a _mostly_ ASCII one
- ⚑              "330:2:⚑ "                            Message (♺ = Tracker cycle complete, i.e. "Tried all trackers"; ⚡ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⚠ = other; ⚑ = on the ``tagged`` view)
- ↺              "400:2: ↺"                            Number of completions from last scrape info \*
- ⤴              "410:2: ⤴"                            Number of seeds from last scrape info \*
- ⤵              "420:2: ⤵"                            Number of leeches from last scrape info \*
- ↻              "430:2: ↻"                            Number of connected peers *
- ⌬ ≀∆           "600:5: |_| ⌬ |_| ≀∆"                  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
- ⊼              "700:6: |_| |_| |_| ⊼ |_| |_|"        Uploaded data size
- ⌬ ≀∇           "800:5: |_| ⌬ |_| ≀∇"                 Approximate time since completion (units are «”’hdwmy» from seconds to years); for incomplete items the download rate or, if there's no traffic, the time since the item was loaded
- ✇              "900:4: |_| |_| ✇ |_|"                Data size
- Name                                                 Name of the download item
-Tracker Domain                                        Domain of the first HTTP tracker with seeds or leeches, or else the first one altogether
-==============  ====================================  ===========
-
-\* *The scrape info numbers are exact only for values below 100, else they
-indicate the order of magnitude using roman numerals (c = 10², m = 10³,
-X = 10⁴, C = 10⁵, M = 10⁶).*
-
-To add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config or run these in ``rTorrent-PS-CH`` on-the-fly at command prompt (``^x``):
-
-.. code-block:: ini
-
-    # Add Unsafe data column (◎)
-    method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
-    # Add Data directory column (⊕) (first character of parent directory)
-    method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
-
-==============  ====================================  ===========
- Column          Key                                  Description
-==============  ====================================  ===========
- ◎              "230:1:◎"                             Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
- ⊕              "250:1:⊕"                             Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
-==============  ====================================  ===========
-
-For more info about custom column definition take a look at the `ui.column.render <Manual.rst#uicolumnrender>`_ multi command.
+All the columns are configurable (can be disabled or new ones added on-the-fly) on the `extended canvas <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#canvas-v2-overview>`_ except for "Name" and "Tracker Domain" columns, hence the previously included setup specific columns are removed from the built-in columns, but they can be easily readded, take a look at the `Extra column definitions <https://github.com/chros73/rtorrent-ps-ch_setup/blob/master/ubuntu-14.04/home/chros73/.pyroscope/rtorrent-ps.rc#L188>`_ section of ``rtorrent-ps.rc`` of ``rtorrent-ps-ch_setup``.
 
 
 
 Adding Traffic Graphs
 ^^^^^^^^^^^^^^^^^^^^^
 
-Add these lines to your configuration:
-
-.. code-block:: ini
-
-    # Show traffic of the last hour
-    network.history.depth.set = 112
-    schedule = network_history_sampling,1,32, network.history.sample=
-    method.insert = network.history.auto_scale.toggle, simple|private, \
-        "branch=network.history.auto_scale=, \
-            \"network.history.auto_scale.set=0\", \
-            \"network.history.auto_scale.set=1\""
-    method.insert = network.history.auto_scale.ui_toggle, simple|private, \
-        "network.history.auto_scale.toggle= ;network.history.refresh="
-    branch=pyro.extended=,"schedule = bind_auto_scale,0,0, \
-        \"ui.bind_key=download_list,=,network.history.auto_scale.ui_toggle=\""
-
-And you'll get this in your terminal:
-
-.. figure:: https://raw.githubusercontent.com/pyroscope/rtorrent-ps/master/docs/_static/img/rt-ps-network-history.png
-   :align: center
-   :alt: rTorrent-PS Network History
-
-   *rTorrent-PS Network History*
-
-As you can see, you get the upper and lower bounds of traffic within
-your configured time window, and each bar of the graph represents an
-interval determined by the sampling schedule. Pressing ``=`` toggles
-between a graph display with base line 0, and a zoomed view that scales
-it to the current bounds.
+Take a look at the `Adding Traffic Graphs <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#adding-traffic-graphs>`_ section of rTorrent Handbook.
 
 
 Setting Up Your Terminal
@@ -127,12 +42,15 @@ all the necessary characters and your terminal is configured correctly:
 
 .. code-block:: shell
 
-    python -c 'print u"\u22c5 \u22c5\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318 \u2730 \u2298 " \
-        u"\u25ce \u2295 \u28ff \u22ee \u262f \u2691 \u21ba \u2934 \u2935 \u21bb \u232c \u2240\u2206 " \
-        u"\u22bc \u2207 \u2707 \u26a0\xa0\u25d4 \u21af \xbf \u2a02 \u2716 \u21e3 " \
-        u"\u21e1  \u2801 \u2809 \u280b \u281b \u281f \u283f \u287f \u28ff \u2639 \u2780 " \
-        u"\u2781 \u2782 \u2783 \u2784 \u2785 \u2786 \u2787 \u2788 \u2789 \u25b9\xa0\u254d " \
-        u"\u25aa \u26af \u2692 \u25cc \u21c5 \u21a1 \u219f \u229b \u267a \u221e \u2297 ".encode("utf8")'
+    python -c 'print u"\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318 \u2730 " \
+        u"\u22ee \u262f \u2691 \u21ba \u2934 \u2935 \u2206 \u2207 \u26a0 \u25d4 " \
+        u"\u21af \u00bf \u2a02 \u2716 \u21e3 \u21e1 \u25b9 \u254d \u25aa \u26af " \
+        u"\u2692 \u25cc \u21c5 \u21a1 \u219f \u229b \u267a \u22c6 \u2026 \u21f3 " \
+        u"\u2308 \u2309 \u230a \u230b \u21a8 \u2762 \u0298 \u21d5 \u22eb \u2621 " \
+        u"\u2195 \u211e \u27f2 \u25f7 \u03a3 \u21c8 \u2714 \u26c1 " \
+        u"\u2639 \u2780 \u2781 \u2782 \u2783 \u2784 \u2785 \u2786 \u2787 \u2788 \u2789 " \
+        u"\u2801 \u2809 \u280b \u281b \u281f \u283f \u287f \u28ff \u275a " \
+        u"\u2581 \u2582 \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 ".encode("utf8")'
 
 
 Supporting 256 or more colors
@@ -149,19 +67,18 @@ the terminal multiplexers; namely start ``tmux`` with the ``-2`` switch
 terminal already set to 256 color mode so it can sense the underlying
 terminal supports them. Take a look at the small `tmux guide <DebianInstallFromSourceTheEasyWay.rst#note-about-tmux>`_.
 
-You can create your own color theme by using the `ui.color.*= <Manual.rst#ui-color-type-set-color-def>`_ commands or find several color themes in the `contrib <contrib/>`_ folder.
+You can create your own color theme by using the `ui.color.*= <https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html#term-ui-color-alarm>`_ commands or find several color themes in the `contrib <contrib/>`_ folder.
 
 
 
 Extra Keyboard Shortcuts
 ------------------------
 
-There are extra keyboard shortcuts defined along with the `original ones in rTorrent <https://github.com/rakshasa/rtorrent/wiki/User-Guide#navigating>`_.
+There are extra keyboard shortcuts defined along with the `original ones in rTorrent <https://github.com/rakshasa/rtorrent/wiki/User-Guide#navigating>`_ (see all the `extra built-in ones <https://github.com/chros73/rtorrent-ps-ch_setup/wiki/Additions#extra-keyboard-shortcuts-in-rtorrent>`_).
 
 ==============  ====================================
  Column         Description
 ==============  ====================================
- \*              toggle between Collapsed and Expanded displays
  F              subfilter the current view based on the name of downloads by entering a regexp (capital ``f``)
  ↑, ↓           prev, next in input history (at any input prompt, e.g. at ``^x``)
  ESC            exit from any input prompt (e.g. at ``^x``)
@@ -171,473 +88,13 @@ There are extra keyboard shortcuts defined along with the `original ones in rTor
 
 .. _commands:
 
-Command Extensions
-------------------
+Extra commands
+--------------
 
-The following new commands are available.
+The following new commands are available along with the well documented ones in `rTorrent Handbook <https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html>`_.
 
 .. contents:: List of Commands
    :local:
-
-
-compare=order,command1=[,...]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Compares two items like ``less=`` or ``greater=``, but allows to compare
-by several different sort criteria, and ascending or descending order
-per given field.
-
-The first parameter is a string of order indicators, either ``aA+`` for
-ascending or ``dD-`` for descending. The default, i.e. when there's more
-fields than indicators, is ascending. Field types other than value or
-string are treated as equal (or in other words, they're ignored). If all
-fields are equal, then items are ordered in a random, but stable
-fashion.
-
-Configuration example:
-
-.. code-block:: ini
-
-    # VIEW: Show active and incomplete torrents (in view #9) and update every 20 seconds
-    # Items are grouped into complete, incomplete, and queued, in that order.
-    # Within each group, they're sorted by upload and then download speed.
-    view_sort_current = active,"compare=----,d.is_open=,d.get_complete=,d.get_up_rate=,d.get_down_rate="
-    schedule = filter_active, 12, 20, \
-        "view_filter = active,\"or={d.get_up_rate=,d.get_down_rate=,not=$d.get_complete=}\" ; \
-         view_sort=active"
-
-
-ui.bind\_key=display,key,"command1=[,...]"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Binds the given key on a specified display to execute the commands when
-pressed.
-
--  ``display`` must be equal to ``download_list`` (currently, no other
-   displays are supported).
--  ``key`` can be either a single character for normal keys, ``^`` plus
-   a character for control keys, or a 4 digit octal key code.
-
-.. important::
-
-    This currently can NOT be used immediately when ``rtorrent.rc`` is parsed,
-    so it has to be scheduled once shortly after startup (see below example).
-
-Configuration example:
-
-.. code-block:: ini
-
-    # VIEW: Bind view #7 to the "rtcontrol" result
-    schedule = bind_7,0,0,"ui.bind_key=download_list,7,ui.current_view.set=rtcontrol"
-
-
-ui.bind\_key.verbose[.set]=0|1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Determines whether to log key rebindings. Default is ``1``.
-
-
-view.collapsed.toggle=«VIEW NAME»
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This command changes between the normal item display where each item
-takes up three lines to a more condensed form where each item only takes
-up one line. Note that each view has its own state, and that if the view
-name is empty, the current view is toggled. You can set the default
-state in your configuration, by adding a toggle command for each view
-you want collapsed after startup (the default is expanded).
-
-Also, you should bind the current view toggle to a key, like this:
-
-.. code-block:: ini
-
-    schedule = bind_collapse,0,0,"ui.bind_key=download_list,*,view.collapsed.toggle="
-
-
-ui.color.«TYPE».set="«COLOR DEF»"
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-These commands allow you to set colors for selected elements of the user
-interface, in some cases depending on their status. You can either
-provide colors by specifying the numerical index in the terminal's color
-table, or by name (for the first 16 colors).
-
-The possible color names
-are "black", "red", "green", "yellow", "blue", "magenta", "cyan",
-"gray", and "white"; you can use them for both text and background
-color, in the form "«fg» on «bg»", and you can add "bright" in front of
-a color to select a more luminous version. If you don't specify a color,
-the default of your terminal is used.
-
-Also, these additional modifiers can be placed in the color definitions,
-but it depends on the terminal you're using whether they have an effect:
-"bold", "standout", "underline", "reverse", "blink", and "dim".
-
-Here's a configuration example showing all the commands and their
-defaults:
-
-.. code-block:: ini
-
-    # UI/VIEW: Colors
-    ui.color.alarm.set="bold white on red"
-    ui.color.complete.set="bright green"
-    ui.color.even.set=""
-    ui.color.focus.set="reverse"
-    ui.color.footer.set="bold bright cyan on blue"
-    ui.color.incomplete.set="yellow"
-    ui.color.info.set="white"
-    ui.color.label.set="gray"
-    ui.color.leeching.set="bold bright yellow"
-    ui.color.odd.set=""
-    ui.color.progress0.set="red"
-    ui.color.progress20.set="bold bright red"
-    ui.color.progress40.set="bold bright magenta"
-    ui.color.progress60.set="yellow"
-    ui.color.progress80.set="bold bright yellow"
-    ui.color.progress100.set="green"
-    ui.color.progress120.set="bold bright green"
-    ui.color.queued.set="magenta"
-    ui.color.seeding.set="bold bright green"
-    ui.color.stopped.set="blue"
-    ui.color.title.set="bold bright white on blue"
-
-Note that you might need to enable support for 256 colors in your
-terminal, see above for a description. You may want to create your own coloring
-theme, the easiest way is to use a second shell and ``rtxmlrpc``. Try
-out some colors, and add the combinations you like to your ``~/.rtorrent.rc``.
-
-.. code-block:: shell
-
-    # For people liking candy stores...
-    rtxmlrpc ui.color.title.set "bold magenta on bright cyan"
-
-You can use the following code in a terminal to dump a color scheme:
-
-.. code-block:: shell
-
-    for i in $(rtxmlrpc system.listMethods | grep ui.color. | grep -v '\.set$'); do
-        echo $i = $(rtxmlrpc -r $i | tr "'" '"') ;
-    done
-
-The term-256color script can help you with showing the colors your
-terminal supports, an example output using Gnome's terminal looks like
-the following...
-
-.. figure:: https://raw.githubusercontent.com/pyroscope/rtorrent-ps/master/docs/_static/img/xterm-256-color.png
-   :align: center
-   :alt: xterm-256-color
-
-   *xterm-256-color*
-
-
-ui.current\_view= (merged into 0.9.7+)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Returns the currently selected view, the vanilla 0.9.6 release only has
-a setter.
-
-Needed if you want to use a hyphen ``-`` as a view name in ``rtcontrol``
-to refer to the currently shown view. An example for that is passing
-``-M-`` as an option, which performs in-place filtering of the current
-view via ``rtcontrol``.
-
-Another use-case for this command is if you want to rotate through a set
-of views via XMLRPC.
-
-
-log.messages=«path»
-^^^^^^^^^^^^^^^^^^^
-
-(Re-)opens a log file that contains the messages normally only visible
-on the main panel and via the ``l`` key. Each line is prefixed with the
-current date and time in ISO8601 format. If an empty path is passed, the
-file is closed.
-
-
-network.history.\*=
-^^^^^^^^^^^^^^^^^^^
-
-Commands to add network traffic charts to the bottom of the collapsed
-download display. The commands added are
-``network.history.depth[.set]=``, ``network.history.sample=``,
-``network.history.refresh=``, and ``network.history.auto_scale=``.
-
-
-d.tracker\_domain=
-^^^^^^^^^^^^^^^^^^
-
-Returns the (shortened) tracker domain of the given download item. The
-chosen tracker is the first HTTP one with active peers (seeders or
-leechers), or else the first one.
-
-
-trackers.alias.set\_key=«domain»,«alias»
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Sets an alias that replaces the given domain, when displayed on the
-right of the collapsed canvas.
-
-Configuration example:
-
-.. code-block:: ini
-
-    trackers.alias.set_key = bttracker.debian.org, Debian
-
-
-trackers.alias.items=
-^^^^^^^^^^^^^^^^^^^^^
-
-Returns all the mappings in the form ``«domain»=«alias»`` as a list.
-
-Note that domains that were not explicitly defined so far, but shown
-previously, are also contained in the list, with an empty alias. So to
-create a list for you to fill in the aliases, scroll through all your
-items on ``main`` or ``trackers``, so you can dump the domains of all
-loaded items.
-
-Example that prints all the domains and their aliases as commands that
-define them:
-
-.. code-block:: shell
-
-    rtxmlrpc trackers.alias.items \
-        | sed -r -e 's/=/, "/' -e 's/^/trackers.alias.set_key = /' -e 's/$/"/' \
-        | tee ~/rtorrent/rtorrent.d/tracker-aliases.rc
-
-This also dumps them into the ``tracker-aliases.rc`` file to persist
-your mappings, and also make them easily editable. To reload edited
-alias definitions, use this:
-
-.. code-block:: shell
-
-    rtxmlrpc "try_import=,~/rtorrent/rtorrent.d/tracker-aliases.rc"
-
-
-system.env=«name» (merged into 0.9.7+)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Returns the value of the given environment variable, or an empty string
-if it does not exist.
-
-Configuration example:
-
-.. code-block:: ini
-
-    session.path.set="$cat=\"$system.env=RTORRENT_HOME\",\"/.session\""
-
-
-system.random=[[«lower»,]«upper»]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Generate *uniformly* distributed random numbers in the range defined by
-``lower``..``upper``.
-
-The default range with no args is ``0`` … ``RAND_MAX``. Providing just
-one argument sets an *exclusive* upper bound, and two arguments define
-an *inclusive* range.
-
-An example use-case is adding jitter to time values that you later check
-with ``elapsed.greater``, to avoid load spikes and similar effects of
-clustered time triggers.
-
-
-throttle.names=
-^^^^^^^^^^^^^^^
-
-Returns a list of all defined throttle names, including the built-in ones (i.e. '' and NULL).
-
-
-value=«number»[,«base»]
-^^^^^^^^^^^^^^^^^^^^^^^
-
-Converts a given number with the given base (or 10 as the default) to an
-integer value.
-
-Examples:
-
-.. code-block:: console
-
-    $ rtxmlrpc --repr value '' 1b 16
-    27
-    $ rtxmlrpc --repr value '' 1b
-    ERROR    While calling value('', '1b'): <Fault -503: 'Junk at end of number: 1b'>
-
-
-convert.human_size=«value»[,«format»]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Converts a number (e.g. output of the first parameter) to human readable byte size format. If ``«format»`` is ``0`` use 6 chars (one decimal place), if ``1`` then just print the rounded value (4 chars), if ``2`` then combine the two formats into 4 chars by rounding for values >= 9.95. It can be used e.g. with ``log.messages`` or ``ui.column.render``:
-
-.. code-block:: shell
-
-    # Uploaded data (⊼)
-    method.set_key = ui.column.render, "700:6:   ⊼  ", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, "   ·  "))))
-
-
-convert.magnitude=«value»
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Converts a number (e.g. output of the first parameter) to 2-digits number, or digit + dimension indicator (c = 10², m = 10³, X = 10⁴, C = 10⁵, M = 10⁶). It can be used e.g. with ``log.messages`` or ``ui.column.render``:
-
-.. code-block:: shell
-
-    # Scrape info (↺ ⤴ ⤵)
-    method.set_key = ui.column.render, "400:2: ↺", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))
-
-
-string.map=«cmd»,{«from1»,«to1»}[,{«from2»,«to2»},…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Compares a string (e.g. output of the first parameter) to ``fromx`` values and replaces them with the corresponding ``tox`` values upon a match. It can be used e.g. with ``ui.column.render``:
-
-.. code-block:: shell
-
-    # Override Throttle column (⊘)
-    method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
-
-
-string.replace=«cmd»,{«from1»,«to1»}[,{«from2»,«to2»},…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Replaces strings (``fromx`` values) of a string (e.g. output of the first parameter) with the corresponding ``tox`` values upon a match. Example usage:
-
-.. code-block:: shell
-
-    print=(string.replace,(d.name),{"Play","foo"},{"Plus","bar"})
-
-
-string.contains[\_i]=«haystack»,«needle»[,…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Checks if a given string contains any of the strings following it. The
-variant with ``_i`` is case-ignoring, but *only* works for pure ASCII
-needles.
-
-Example:
-
-.. code-block:: shell
-
-    rtxmlrpc d.multicall.filtered '' '' 'string.contains_i=(d.name),x264.aac' d.hash= d.name=
-
-
-d.multicall.filtered=«viewname»,«condition»,«command»[,…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Iterates over all items of a view (or ``default`` if the view name is
-empty), just like ``d.multicall2``, but only calls the given commands if
-``condition`` is true for an item.
-
-See directly above for an example.
-
-
-ui.focus.{home|end|pgup|pgdn}=
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Commands that can be assigned to keyboard schortcuts (with the help of ``ui.bind_key`` command) to jump to the first / last item in the current view or scroll by 50 items up or down at a time (or whatever other value ui.focus.page_size has). An example keyboard shortcut assignements:
-
-.. code-block:: ini
-
-    schedule = navigation_home,0,0,"ui.bind_key=download_list,0406,ui.focus.home="
-    schedule = navigation_end, 0,0,"ui.bind_key=download_list,0550,ui.focus.end="
-    schedule = navigation_pgup,0,0,"ui.bind_key=download_list,0523,ui.focus.pgup="
-    schedule = navigation_pgdn,0,0,"ui.bind_key=download_list,0522,ui.focus.pgdn="
-
-
-ui.focus.page_size[.set]=«value»
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Get / set the number of items to scroll with ``ui.focus.pgup`` or ``ui.focus.pgdn``. Default value: ``50``.
-
-
-ui.style.{progress|ratio}[.set]=«value»
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Get / set the value of style to use in ``completion status`` (values from ``0`` to ``2``) and ``ratio`` (values from ``0`` to ``3``) columns. Value ``0`` is a *mostly* ASCII one for both. Default value for both: ``1``.
-
-
-system.colors.max=
-^^^^^^^^^^^^^^^^^^
-
-Returns the max number of colors the underlying system supports.
-
-
-system.colors.enabled=
-^^^^^^^^^^^^^^^^^^
-
-Returns boolean, determines whether the underlying system (ncurses) has coloring support.
-
-
-system.colors.rgb=
-^^^^^^^^^^^^^^^^^^
-
-Returns boolean, determines whether the underlying system (ncurses) can change colors. (This always returns ``0`` for whatever reason.)
-
-
-ui.column.render
-^^^^^^^^^^^^^^^^
-
-Multi-command to hold column definitions, it's used on the collapsed canvas to configure and render all the columns except for "Name" and "Tracker Domain" columns. Built-in or custom columns can be disabled, overridden or new ones added on-the-fly. Colorizing columns is limited only to the following ones: ``⚑ , ⣿ , ☯ ,  ⌬ ≀∆,  ⌬ ≀∇`` (columns that use ``d.ui.*`` commands); meaning colorizing other built-in / custom columns isn't supported.
-
-Keys in the map define sorting, length and column title: ``sort:length:title``. See the `Columns in the collapsed display <Manual.rst#built-in-columns-in-the-collapsed-display>`_ section above for built-in columns key definition and their meaning.
-
-Here's a configuration example showing all the built-in columns and their defaults:
-
-.. code-block:: ini
-
-    # Status flags (☢ ☍ ⌘ ✰)
-    method.set_key = ui.column.render, "100:1:☢", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, "▪"}, {01, "▪"}, {10, "╍"}, {11, "▹"}))
-    method.set_key = ui.column.render, "110:1:☍", ((if, ((d.tied_to_file)), ((cat, "⚯")), ((cat, " "))))
-    method.set_key = ui.column.render, "120:1:⌘", ((if, ((d.ignore_commands)), ((cat, "◌")), ((cat, "⚒"))))
-    method.set_key = ui.column.render, "130:1:✰", ((string.map, ((cat, ((d.priority)))), {0, "✖"}, {1, "⇣"}, {2, " "}, {3, "⇡"}))
-    # First character of throttle name (⊘)
-    method.set_key = ui.column.render, "200:1:⊘", {(branch, ((equal,((d.throttle_name)),((cat,NULL)))), ((cat, "∞")), ((d.throttle_name)) )}
-    # Completion status (⣿)
-    method.set_key = ui.column.render, "300:2:⣿ ", ((d.ui.completion))
-    # Transfer direction (⋮)
-    method.set_key = ui.column.render, "310:1:⋮", ((if, ((d.down.rate)), ((if,((d.up.rate)),((cat, "⇅")),((cat, "↡")))), ((if,((d.up.rate)),((cat, "↟")),((cat, " ")))) ))
-    # Ratio (☯)
-    method.set_key = ui.column.render, "320:2:☯ ", ((d.ui.ratio))
-    # Message (⚑)
-    method.set_key = ui.column.render, "330:2:⚑ ", ((d.ui.message))
-    # Scrape info (↺ ⤴ ⤵)
-    method.set_key = ui.column.render, "400:2: ↺", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))
-    method.set_key = ui.column.render, "410:2: ⤴", ((convert.magnitude, ((d.tracker_scrape.complete)) ))
-    method.set_key = ui.column.render, "420:2: ⤵", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))
-    # Number of connected peers (↻)
-    method.set_key = ui.column.render, "430:2: ↻", ((convert.magnitude, ((d.peers_connected)) ))
-    # Uprate or approximate time since last active state (⌬ ≀∆)
-    method.set_key = ui.column.render, "600:5: ⌬ ≀∆", ((d.ui.uprate_tm))
-    # Uploaded data (⊼)
-    method.set_key = ui.column.render, "700:6:   ⊼  ", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0) )), ((cat, "   ·  "))))
-    # Downrate or approximate time since completion (⌬ ≀∇)
-    method.set_key = ui.column.render, "800:5: ⌬ ≀∇", ((d.ui.downrate_tm))
-    # Selected data size (✇)
-    method.set_key = ui.column.render, "900:4:  ✇ ", ((convert.human_size, ((d.selected_size_bytes)) ))
-
-To disable built-in columns use the same key of the column definition with no command defined. To override built-in columns use the same key of the column definition with a new command. To add new ones use a new key and a new title in the key that hasn't been used yet with a command, the title in the key *must be unique* accross columns!
-
-Example:
-
-.. code-block:: ini
-
-    # Disable Number of connected peers (↻) column
-    method.set_key = ui.column.render, "430:2: ↻"
-    # Override Throttle column (⊘)
-    method.set_key = ui.column.render, "200:1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
-    # Add Unsafe data column (◎) after Throttle (⊘) column
-    method.set_key = ui.column.render, "230:1:◎", ((string.map, ((cat, ((d.custom,unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
-    # Add Data directory column (⊕) (first character of parent directory) after Unsafe data (◎) column
-    method.set_key = ui.column.render, "250:1:⊕", ((d.parent_dir))
-
-
-event.view.{hide|show}
-^^^^^^^^^^
-
-Events (multi commands) that will be triggered upon view changes: first ``event.view.hide`` group is triggered then ``event.view.show`` group. Example usage:
-
-.. code-block:: ini
-
-    method.set_key = event.view.hide, ~log, ((print, ((ui.current_view)), " → ", ((argument.0))))
 
 
 event.download.partially_restarted
@@ -662,16 +119,16 @@ d.allocatable_size_bytes=
 Returns the size needed to create the selected files of a download in Bytes.
 
 
+d.eta.{seconds|time}=
+^^^^^^^^^^^^^^^^^^^^^
+
+While ``d.eta.time`` gives the estimated time left in short human readable format (e.g.: ``1h34’``), ``d.eta.seconds`` gives it in seconds: ``0`` = download is partially done, ``-1`` = download speed is less than `512` Byte/s.
+
+
 d.parent_dir=
 ^^^^^^^^^^^^^
 
 Returns the name of the parent directory of a download.
-
-
-d.tracker_scrape.{downloaded|complete|incomplete}=
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Return the number of downloads / seeders / leechers acquired during scraping request.
 
 
 d.selected_size_bytes=
@@ -690,12 +147,6 @@ d.is_done=
 ^^^^^^^^^^
 
 Returns boolean, determines whether all the files of a download have been finished (to be able to distinguish between finished and partially done downloads).
-
-
-d.is_meta= (merged into 0.9.7+)
-^^^^^^^^^^
-
-Returns boolean, determines whether a download is meta download of magnet URI.
 
 
 f.is_fallocatable=
@@ -746,55 +197,6 @@ It only supports 3 commands as the first parameter: ``d.stop``, ``d.close``, ``d
     directory.watch.removed = d.erase, (cat,(cfg.dir.meta_compl),various/), (cat,(cfg.dir.meta_compl),unsafe/)
 
 
-chars.chop=«text»[,«length»[,0|1]]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Chop a string or a number to the given ``«length»``, if third parameter is set to ``1`` then ``…`` character is appended to the chopped string. It's UTF-8 aware and also can be chained together with other ``chars.*`` commands. 
-
-.. code-block:: ini
-
-    # Result: 12…
-    print=(chars.chop, "1234567", 3, 1)
-    # Result: 123xx
-    print=(chars.pad, (chars.chop, "1234567", 3), 5, "x")
-
-
-chars.pad=«text»[,«length»[,«char»[,0|1]]]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Pad a string or a number to the given ``«length»`` with the specified ``«char»`` character (default is `` `` space), if fourth parameter is set to ``1`` then padding left is applied, otherwise padding right. It's UTF-8 aware and also can be chained together with other ``chars.*`` commands. 
-
-.. code-block:: ini
-
-    # Result: 00123
-    print=(chars.pad, "123", 5, "0", 1)
-    # Result: 123xx
-    print=(chars.pad, (chars.chop, "1234567", 3), 5, "x")
-
-
-math.{add|sub|mul|div|mod|min|max|cnt|avg|med}=«cmd1»[,«cmd2»,…]
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``math.*`` command group adds support for basic arithmetic operators (``+``, ``-``, ``*``, ``/``, ``%``) and ``min``, ``max``, ``count``, ``avg``, ``median`` functions. They support multiple arguments, even list type as well, they also can be chained together, but restricted to integer arithmetic only (as in ``bash``): ``/``, ``avg``, ``median`` always round down. 
-
-.. code-block:: ini
-
-    # Subtract 3 numbers: -4
-    print=(math.subtract,5,2,7)
-    # Divide 3 numbers: 2 !
-    print=(math.divide,80,9,4)
-
-    # Calculate size of a download using its size of files (example using list type)
-    print=(math.add,(f.multicall,,f.size_bytes=))
-    # Get average size in Bytes of downloads in main view
-    print=(math.divide,(math.add,(d.multicall2,main,d.size_bytes=)),(view.size,main))
-    
-    # Assign 0 if value smaller than 0, or assign value otherwise ( x >= 0 ? x : 0 )
-    print=(math.max,0,(math.subtract,2,7))
-    # Assign 0 if value smaller than 0, 100 if value is bigger than 100, or assign value otherwise ( x < 0 ? 0 : (x > 100 ? 100 : x) )
-    print=(math.max,0,(math.min,100,(math.divide,500,2)))
-
-
 match=«cmd1»,«cmd2»
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -803,6 +205,12 @@ Regexp based comparison operator can work with strings or values (integers), ret
 .. code-block:: ini
 
     method.insert = match_name, simple, "match={d.name=,.*linux.*iso}"
+
+
+try=«cmd»
+^^^^^^^^^^
+
+Catches input_errors of ``cmd`` and logs them on rpc_events. 
 
 
 view.temp_filter=«viewname»[,«cmd»]
@@ -895,11 +303,5 @@ Set `global throttle steps <https://github.com/rakshasa/rtorrent/wiki/User-Guide
     ui.throttle.global.step.small.set  =   5
     ui.throttle.global.step.medium.set =  50
     ui.throttle.global.step.large.set  = 500
-
-
-d.ui.*=
-^^^^^^^
-
-Commands to display various information that require coloring support on the collapsed download display. The commands added are ``d.ui.message``, ``d.ui.completion``, ``d.ui.ratio``, ``d.ui.uprate_tm``, ``d.ui.downrate_tm`` .
 
 

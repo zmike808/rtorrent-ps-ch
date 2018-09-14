@@ -14,20 +14,25 @@ This fork is another set of UI patches on top of the original, it also includes 
 UI changes
 ----------
 
-It includes the following changes on the fully customizable `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
+UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
 
-====  ========================================
- ⊘    Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
- ↻    Number of connected peers
-⌬ ≀∆  Approximate time since last active state (units are «”’hdwmy» from seconds to years) or upload rate
- ⊼    Uploaded data size
-====  ========================================
+- column/color lengths are shortened by 1 in column definition
+- extra `dynamic color schemes <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#column-layout-definitions>`_:
+
+  * ``C70`` - ``ACTIVE_TIME``: for Uprate (∆ *seeding*) or approximate time since last active state (◷ *info* + *queued*) column
+  * ``C71`` - ``UNSAFE_DATA``: for Unsafe data (◎) column, depending on ``d.custom=unsafe_data``: *progress100*, *progress80*, *progress40*
+  * ``C72`` - ``THROTTLE_CH``: for Throttle column, depending on ``d.throttle_name``: none=*progress0*, ``slowup``=*progress20*, anything-else=*progress60*, ``NULL``=*progress100*
+  * ``C73`` - ``ETA_TIME``: for ETA (*info* + *leeching*) or last-xfer (*info* + *complete*) column (⟲ ⇅)
+- the following columns are sacrificial by default:
+
+  * Item state (☢)
+  * Number of connected peers (℞)
 
 
 Extra keyboard shortcuts
 ------------------------
 
-It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_: ``*``, ``F``, ``↑``, ``↓``, ``ESC``.
+It adds couple of new `keyboard shortcuts <docs/Manual.rst#extra-keyboard-shortcuts>`_: ``F``, ``↑``, ``↓``, ``ESC``
 
 
 Important enhancements, fixes
@@ -69,14 +74,14 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#command-
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
 - ``convert.group``, ``d.is_done``, ``d.selected_size_bytes`` (`partially done downloads and choke groups fix  <https://github.com/chros73/rtorrent-ps/issues/69>`_)
 - ``view.temp_filter``, ``match``, ``view.temp_filter.log``, ``view.temp_filter.excluded`` (`temp filter  <https://github.com/chros73/rtorrent-ps/issues/63>`_)
--  `chars.* <https://github.com/chros73/rtorrent-ps/issues/123>`_ command group
 -  `math.* <https://github.com/chros73/rtorrent-ps/issues/71>`_ command group
 -  ``ui.throttle.global.step.small.set``, ``ui.throttle.global.step.medium.set``, ``ui.throttle.global.step.large.set``  (`global throttle steps <https://github.com/chros73/rtorrent-ps/issues/84>`_)
 -  ``ui.input.history.size``, ``ui.input.history.size.set``, ``ui.input.history.clear`` (`input history <https://github.com/chros73/rtorrent-ps/issues/83>`_)
 -  `directory.watch.removed <https://github.com/chros73/rtorrent-ps/issues/87>`_
--  ``d.parent_dir`` command and `d.tracker_scrape.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
--  `d.ui.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
+-  `d.parent_dir <docs/Manual.rst#d-parent-dir>`_ command and `d.tracker_scrape.* <https://github.com/chros73/rtorrent-ps/issues/119>`_ command group
 -  `ui.status.throttle.{up|down} <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
+-  `d.eta.* <https://github.com/chros73/rtorrent-ps-ch/issues/145>`_ command group
+-  `try <https://github.com/chros73/rtorrent-ps-ch/issues/146>`_
 
 
 Notes
