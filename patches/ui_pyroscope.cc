@@ -795,7 +795,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                         const char* c_part = "C21/1C27/1C21/2C27/1";   // info + incomplete
                         const char* c_queu = "C21/1C26/1C21/2C26/1";   // info + queued
                         const char* c_eta  = "C21/1C28/1C21/2C28/1";   // info + leeching
-                        const char* c_xfer = "C21/1C23/1C21/2C23/1";   // info + complete
+                        const char* c_xfer = "C21/1C15/1C21/2C15/1";   // info + progress100
 
                         switch (attr_idx) {
                             case ps::COL_DOWN_TIME:  // C90/5
@@ -1374,57 +1374,65 @@ void initialize_command_ui_pyroscope() {
         "    ((array.at, {\"⚒\", \"◌\"}, ((d.ignore_commands)) ))\n"
 
         // Scrape info (↺ ⤴ ⤵)
-        "method.set_key = ui.column.render, \"400:?2C23/2: ↺\", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
-        "method.set_key = ui.column.render, \"410:?2C24/2: ⤴\", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
-        "method.set_key = ui.column.render, \"420:?2C14/2: ⤵\", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
+        "method.set_key = ui.column.render, \"200:?2C23/2: ↺\", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))\n"
+        "method.set_key = ui.column.render, \"210:?2C15/2: ⤴\", ((convert.magnitude, ((d.tracker_scrape.complete)) ))\n"
+        "method.set_key = ui.column.render, \"220:?2C14/2: ⤵\", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))\n"
 
         // Traffic indicator (↕)
-        "method.set_key = ui.column.render, \"500:?1:↕\","
+        "method.set_key = ui.column.render, \"300:?1:↕\","
         "    ((string.map, ((cat, ((not, ((d.up.rate)) )), ((not, ((d.down.rate)) )) )),"
         "                  {00, \"⇅\"}, {01, \"↟\"}, {10, \"↡\"}, {11, \" \"} ))\n"
 
         // Number of connected peers (℞)
-        "method.set_key = ui.column.render, \"510:?2C28/2: ℞\", ((convert.magnitude, ((d.peers_connected)) ))\n"
+        "method.set_key = ui.column.render, \"400:?2C28/2: ℞\", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
-        // Up|Leech Time / Down|Completion or Loaded Time
-        // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
-        //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
-        "method.set_key = ui.column.render, \"520:5C96/5: ∆⋮ ⟲\","
+        // Up|Last Active Time
+        "method.set_key = ui.column.render, \"500:5C70/5: ∆⋮ ⟲\","
         "    ((if, ((d.up.rate)),"
         "        ((convert.human_size, ((d.up.rate)), ((value, 10)) )),"
-        "        ((convert.time_delta, ((value, ((d.custom, tm_completed)) )),"
-        "                              ((value, ((d.custom.if_z, tm_started, ((d.custom, tm_loaded)) )) )) ))"
+        "        ((if, ((d.peers_connected)), ((cat, \"   0”\")),"
+        "                                     ((convert.time_delta, ((value, ((d.custom, last_active)) )) )) ))"
         "    ))\n"
-        "method.set_key = ui.column.render, \"530:5C90/5: ∇⋮ ◷\","
+
+        // Upload total
+        "method.set_key = ui.column.render, \"600:?6C23/5C21/1:  Σ⇈  \","
+        "    ((if, ((d.up.total)),"
+        "        ((convert.human_size, ((d.up.total)), (value, 0))),"
+        "        ((cat, \"   ⋅  \"))"
+        "    ))\n"
+
+        // Down|Completion or Loaded Time
+        // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
+        //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
+        "method.set_key = ui.column.render, \"700:5C90/5: ∇⋮ ◷\","
         "    ((if, ((d.down.rate)),"
         "        ((convert.human_size, ((d.down.rate)), ((value, 10)) )),"
         "        ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
 
-        // Upload total, progress, ratio, and data size
-        "method.set_key = ui.column.render, \"900:?4C24/3C21/1: Σ⇈ \","
-        "    ((if, ((d.up.total)),"
-        "        ((convert.human_size, ((d.up.total)), (value, 10))),"
-        "        ((cat, \"  ⋅ \"))"
-        "    ))\n"
-        "method.set_key = ui.column.render, \"910:1C94/1:⣿\","
-        "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((math.add, ((d.completed_chunks)), ((d.wanted_chunks)))) )), 1, \"✔\"))\n"
-        // " ⠁⠉⠋⠛⠟⠿⡿⣿❚"
-        //⠀" ▁▂▃▄▅▆▇█❚"
-        "method.set_key = ui.column.render, \"920:1C93/1:☯\","
-        "    ((string.substr, \"☹➀➁➂➃➄➅➆➇➈➉\", ((math.div, ((d.ratio)), 1000)), 1, \"⊛\"))\n"
-        // "☹➀➁➂➃➄➅➆➇➈➉"
-        // "☹①②③④⑤⑥⑦⑧⑨⑩"
-        // "☹➊➋➌➍➎➏➐➑➒➓"
-        "method.set_key = ui.column.render, \"930:4C15/3C21/1:  ⛁ \","
+        // Data size
+        "method.set_key = ui.column.render, \"800:4C15/3C21/1:  ⛁ \","
 #if RT_HEX_VERSION <= 0x000906
         "    ((convert.human_size, ((d.size_bytes)) ))\n"
 #else
         "    ((convert.human_size, ((d.selected_size_bytes)) ))\n"
 #endif
 
+        // Progress
+        "method.set_key = ui.column.render, \"900:1C94/1:⣿\","
+        "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((math.add, ((d.completed_chunks)), ((d.wanted_chunks)))) )), 1, \"✔\"))\n"
+        // " ⠁⠉⠋⠛⠟⠿⡿⣿❚"
+        //⠀" ▁▂▃▄▅▆▇█❚"
+
+        // Ratio
+        "method.set_key = ui.column.render, \"920:1C93/1:☯\","
+        "    ((string.substr, \"☹➀➁➂➃➄➅➆➇➈➉\", ((math.div, ((d.ratio)), 1000)), 1, \"⊛\"))\n"
+        // "☹➀➁➂➃➄➅➆➇➈➉"
+        // "☹①②③④⑤⑥⑦⑧⑨⑩"
+        // "☹➊➋➌➍➎➏➐➑➒➓"
+
         // Explicitly managed status (✰ = prio; ⚑ = tagged)
-        "method.set_key = ui.column.render, \"970:1C91/1:✰\","
+        "method.set_key = ui.column.render, \"940:1C91/1:✰\","
         "    ((array.at, {\"✖\", \"⇣\", \" \", \"⇡\"}, ((d.priority)) ))\n"
         "method.set_key = ui.column.render, \"980:1C16/1:⚑\","
         "    ((array.at, {\" \", \"⚑\"}, ((d.views.has, tagged)) ))\n"
