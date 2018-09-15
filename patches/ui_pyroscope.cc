@@ -1408,7 +1408,7 @@ void initialize_command_ui_pyroscope() {
         "        ((cat, \"  ⋅ \"))"
         "    ))\n"
         "method.set_key = ui.column.render, \"910:1C94/1:⣿\","
-        "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((d.size_chunks)) )), 1, \"✔\"))\n"
+        "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((math.add, ((d.completed_chunks)), ((d.wanted_chunks)))) )), 1, \"✔\"))\n"
         // " ⠁⠉⠋⠛⠟⠿⡿⣿❚"
         //⠀" ▁▂▃▄▅▆▇█❚"
         "method.set_key = ui.column.render, \"920:1C93/1:☯\","
