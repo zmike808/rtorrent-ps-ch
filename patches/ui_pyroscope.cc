@@ -1,13 +1,13 @@
 /*
- ⋅ ” ’ ♯ ☢ ☍ ⌘ ✰ ⋮ ☯ ⚑ ↺ ⤴ ⤵ ∆ ∇ ⚠ ◔ ↯ ¿ ⨂ ✖ ⇣ ⇡ ▹ ╍ ▪ ⚯ ⚒ ◌ ⇅ ↡ ↟ ⊛ ♺ ⋆ … ⇳ ⌈ ⌉ ⌊ ⌋
- ↨ ❢ ʘ ⇕ ⋫ ☡ ↕ ℞ ⟲ ◷ Σ ⇈ ✔ ⛁ ☹ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ ⠁ ⠉ ⠋ ⠛ ⠟ ⠿ ⡿ ⣿ ❚ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █
+ ⋅ ” ’ ♯ ☢ ☍ ⌘ ✰ ⋮ ☯ ⚑ ↺ ⤴ ⤵ ∆ ∇ ⚠ ◔ ↯ ¿ ⨂ ✖ ⇣ ⇡ ▹ ╍ ▪ ⚯ ⚒ ◌ ⇅ ↡ ↟ ⊛ ♺ ⋆ … ⇳ ⌈ ⌉ ⌊ ⌋ ⊘
+ ∞ ↨ ❢ ʘ ⇕ ⋫ ☡ ↕ ℞ ⟲ ◷ Σ ⇈ ✔ ⛁ ☹ ➀ ➁ ➂ ➃ ➄ ➅ ➆ ➇ ➈ ➉ ⠁ ⠉ ⠋ ⠛ ⠟ ⠿ ⡿ ⣿ ❚ ▁ ▂ ▃ ▄ ▅ ▆ ▇ █
 
 python -c 'print u"\u22c5 \u201d \u2019 \u266f \u2622 \u260d \u2318 \u2730 " \
     u"\u22ee \u262f \u2691 \u21ba \u2934 \u2935 \u2206 \u2207 \u26a0 \u25d4 " \
     u"\u21af \u00bf \u2a02 \u2716 \u21e3 \u21e1 \u25b9 \u254d \u25aa \u26af " \
     u"\u2692 \u25cc \u21c5 \u21a1 \u219f \u229b \u267a \u22c6 \u2026 \u21f3 " \
-    u"\u2308 \u2309 \u230a \u230b \u21a8 \u2762 \u0298 \u21d5 \u22eb \u2621 " \
-    u"\u2195 \u211e \u27f2 \u25f7 \u03a3 \u21c8 \u2714 \u26c1 " \
+    u"\u2308 \u2309 \u230a \u230b \u2298 \u221e \u21a8 \u2762 \u0298 \u21d5 " \
+    u"\u22eb \u2621 \u2195 \u211e \u27f2 \u25f7 \u03a3 \u21c8 \u2714 \u26c1 " \
     u"\u2639 \u2780 \u2781 \u2782 \u2783 \u2784 \u2785 \u2786 \u2787 \u2788 \u2789 " \
     u"\u2801 \u2809 \u280b \u281b \u281f \u283f \u287f \u28ff \u275a " \
     u"\u2581 \u2582 \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 ".encode("utf8")'
@@ -1386,7 +1386,7 @@ void initialize_command_ui_pyroscope() {
         // Number of connected peers (℞)
         "method.set_key = ui.column.render, \"400:?2C28/2: ℞\", ((convert.magnitude, ((d.peers_connected)) ))\n"
 
-        // Up|Last Active Time
+        // Up|Last Active Time (∆⋮ ⟲)
         "method.set_key = ui.column.render, \"500:5C70/5: ∆⋮ ⟲\","
         "    ((if, ((d.up.rate)),"
         "        ((convert.human_size, ((d.up.rate)), ((value, 10)) )),"
@@ -1394,14 +1394,14 @@ void initialize_command_ui_pyroscope() {
         "                                     ((convert.time_delta, ((value, ((d.custom, last_active)) )) )) ))"
         "    ))\n"
 
-        // Upload total
+        // Upload total (Σ⇈)
         "method.set_key = ui.column.render, \"600:?6C23/5C21/1:  Σ⇈  \","
         "    ((if, ((d.up.total)),"
         "        ((convert.human_size, ((d.up.total)), (value, 0))),"
         "        ((cat, \"   ⋅  \"))"
         "    ))\n"
 
-        // Down|Completion or Loaded Time
+        // Down|Completion or Loaded Time (∇⋮ ◷)
         // TODO: Could use "d.timestamp.started" and "d.timestamp.finished" here, but need to check
         //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
         "method.set_key = ui.column.render, \"700:5C90/5: ∇⋮ ◷\","
@@ -1410,7 +1410,7 @@ void initialize_command_ui_pyroscope() {
         "        ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
 
-        // Data size
+        // Data size (⛁)
         "method.set_key = ui.column.render, \"800:4C15/3C21/1:  ⛁ \","
 #if RT_HEX_VERSION <= 0x000906
         "    ((convert.human_size, ((d.size_bytes)) ))\n"
@@ -1418,22 +1418,24 @@ void initialize_command_ui_pyroscope() {
         "    ((convert.human_size, ((d.selected_size_bytes)) ))\n"
 #endif
 
-        // Progress
+        // Progress (⣿)
         "method.set_key = ui.column.render, \"900:1C94/1:⣿\","
         "    ((string.substr, \" ⠁⠉⠋⠛⠟⠿⡿⣿❚\", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((math.add, ((d.completed_chunks)), ((d.wanted_chunks)))) )), 1, \"✔\"))\n"
         // " ⠁⠉⠋⠛⠟⠿⡿⣿❚"
         //⠀" ▁▂▃▄▅▆▇█❚"
 
-        // Ratio
+        // Ratio (☯)
         "method.set_key = ui.column.render, \"920:1C93/1:☯\","
         "    ((string.substr, \"☹➀➁➂➃➄➅➆➇➈➉\", ((math.div, ((d.ratio)), 1000)), 1, \"⊛\"))\n"
         // "☹➀➁➂➃➄➅➆➇➈➉"
         // "☹①②③④⑤⑥⑦⑧⑨⑩"
         // "☹➊➋➌➍➎➏➐➑➒➓"
 
-        // Explicitly managed status (✰ = prio; ⚑ = tagged)
+        // Explicitly managed status (✰ = prio; ⊘ = throttle name; ⚑ = tagged)
         "method.set_key = ui.column.render, \"940:1C91/1:✰\","
         "    ((array.at, {\"✖\", \"⇣\", \" \", \"⇡\"}, ((d.priority)) ))\n"
+        "method.set_key = ui.column.render, \"950:1:⊘\","
+        "    {(branch, ((equal,((d.throttle_name)),((cat,NULL)))), ((cat, \"∞\")), ((d.throttle_name)) )}\n"
         "method.set_key = ui.column.render, \"980:1C16/1:⚑\","
         "    ((array.at, {\" \", \"⚑\"}, ((d.views.has, tagged)) ))\n"
     );
