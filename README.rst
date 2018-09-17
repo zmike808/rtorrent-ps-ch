@@ -17,7 +17,7 @@ UI changes
 UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
 
 - column/color lengths are shortened by 1 in column definition
-- extra `dynamic color schemes <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#column-layout-definitions>`_:
+- extra `dynamic color schemes <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#column-layout-definitions>`_:
 
   * ``C70`` - ``ACTIVE_TIME``: for Uprate (∆ *seeding*) or approximate time since last active state (◷ *info* + *queued*) column
   * ``C71`` - ``UNSAFE_DATA``: for Unsafe data (◎) column, depending on ``d.custom=unsafe_data``: *progress100*, *progress80*, *progress40*
@@ -27,6 +27,11 @@ UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-
 
   * Item state (☢)
   * Number of connected peers (℞)
+- the following column is added:
+
+  * Throttle name (⊘)
+  
+- the order and colorization of some columns are changed
 
 
 Extra keyboard shortcuts
@@ -68,7 +73,7 @@ Differences between ``rTorrent-PS``:
 Extra commands
 --------------
 
-It also adds the following extra `attributes, commands <docs/Manual.rst#command-extensions>`_:
+It also adds the following extra `attributes, commands <docs/Manual.rst#extra-commands>`_:
 
 - ``d.custom=last_active``, ``d.custom=tm_completed`` `custom fields <https://github.com/chros73/rtorrent-ps/issues/120>`_
 - ``d.is_enough_diskspace``, ``d.allocatable_size_bytes``, ``f.is_fallocatable``, ``f.is_fallocatable_file``, ``f.set_fallocate``, ``f.unset_fallocate`` (`system.file.allocate fix  <https://github.com/chros73/rtorrent-ps/issues/68>`_)
@@ -123,7 +128,7 @@ rTorrent-PS
 Extended `rTorrent`_ *distribution* with UI enhancements, colorization,
 some added features, and a comprehensive standard configuration.
 
-.. figure:: https://raw.githubusercontent.com/pyroscope/rtorrent-ps/master/docs/_static/img/rT-PS-094-2014-05-24-shadow.png
+.. figure:: https://raw.githubusercontent.com/pyroscope/rtorrent-ps/master/docs/_static/img/rT-PS-1.0-301-g573a782-2018-06-10-small.png
    :align: center
    :alt: Extended Canvas Screenshot
 
@@ -178,4 +183,3 @@ References
 .. _`DebianInstallFromSource`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/DebianInstallFromSource.md
 .. _`RtorrentExtended`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/RtorrentExtended.md
 .. _`RtorrentExtendedCanvas`: https://github.com/pyroscope/rtorrent-ps/blob/master/docs/RtorrentExtendedCanvas.md
-

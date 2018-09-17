@@ -13,14 +13,115 @@ Extended Canvas Explained
 
    *rTorrent-PS-CH collapsed canvas*
 
-All the columns are configurable (can be disabled or new ones added on-the-fly) on the `extended canvas <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#canvas-v2-overview>`_ except for "Name" and "Tracker Domain" columns, hence the previously included setup specific columns are removed from the built-in columns, but they can be easily readded, take a look at the `Extra column definitions <https://github.com/chros73/rtorrent-ps-ch_setup/blob/master/ubuntu-14.04/home/chros73/.pyroscope/rtorrent-ps.rc#L188>`_ section of ``rtorrent-ps.rc`` of ``rtorrent-ps-ch_setup``.
+All the columns are configurable (can be disabled or new ones added on-the-fly) on the `extended canvas <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#customizing-the-display-layout>`_ except for "Name" and "Tracker" columns, hence the previously included setup specific columns are removed from the built-in columns (they can be easily readded, see below how).
+
+The following is an overview of the built-in column heading icons, their corresponding key definitions and what the values and icons in it mean.
+
+.. |_| unicode:: 0xA0
+   :trim:
+
+.. table:: This is my table
+    :widths: 5 35 60
+
+==============  ==========================================  ===========
+ Column          Key                                        Description
+==============  ==========================================  ===========
+ ❢              "100:2C95/2:❢ |_|"                          Message or alert indicator (♺ = Tracker cycle complete, i.e. “Tried all trackers”; ʘ = item’s data path does not exist (needs support by a cron job); ⇕ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⋫ = tracker downtime; ☡ = DNS problems; ⚠ = other)
+ ☢              "110:?1C92/1:☢"                              Item state (▹ = started, ╍ = paused, ▪ = stopped)
+ ☍              "120:?1:☍"                                  Tied item? [⚯]
+ ⌘              "130:?1:⌘"                                  Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
+ ↺              "200:?2C23/2: |_| ↺"                        Number of completions from last scrape info \*
+ ⤴              "210:?2C15/2: |_| ⤵"                        Number of seeds from last scrape info \*
+ ⤵              "220:?2C14/2: |_| ⤵"                        Number of leeches from last scrape info \*
+ ↕              "300:?1:↕"                                  Transfer direction indicator [⇅ ↡ ↟]
+ ℞              "400:?2C28/2: |_| ℞"                         Number of connected peers *
+ ∆⋮ ⟲           "500:5C70/5: |_| ∆⋮ |_| ⟲"                  Approximate time since last active state (units are ``”’hdwmy`` from seconds to years) or upload rate
+ Σ⇈             "600:?6C23/5C21/1: |_| |_| |_| Σ⇈ |_| |_|"        Uploaded data size
+ ∇⋮ ◷           "700:5C90/5: |_| ∇⋮ |_| ◷"                  Approximate time since completion (units are ``”’hdwmy`` from seconds to years); for incomplete items the download rate or, if there's no traffic, the time since the item was loaded
+ ⛁              "800:4C15/3C21/1: |_| |_| ⛁ |_|"             Selected data size
+ ⣿              "900:1C94/1:⣿"                              Completion status (✔ = done; else up to 8 dots [⣿] and ❚, i.e. progress in 10% steps); the old ``ui.style.progress.set`` command is deprecated, see `Defining Your Own Columns <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#add-custom-columns>`_ for the new way to get a different set of glyphs or an ASCII version
+ ☯              "920:1C93/1:☯"                              Ratio (☹  plus color indication for < 1, ➀  — ➉ : >= the number, ⊛ : >= 11);  the old ``ui.style.ratio.set`` command is deprecated, see `Defining Your Own Columns <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#add-custom-columns>`_ for the new way to get a different set of glyphs or an ASCII version
+ ✰              "940:1C91/1:✰"                              Priority (✖ = off, ⇣ = low, nothing for normal, ⇡ = high)
+ ⊘              "950:1:⊘"                                   Throttle (none = global throttle, ∞ = NULL throttle, otherwise the first letter of the throttle name)
+ ⚑              "980:1C16/1:⚑"                              A ⚑ indicates this item is on the ``tagged`` view
+ Name                                                       Name of the download item – either the name contained in the metafile, or else the value of the displayname custom field when set on an item
+Tracker                                                     Domain of the first HTTP tracker with seeds or leeches, or else the first one altogether – note that you can define nicer aliases using the `trackers.alias.set_key <https://rtorrent-docs.readthedocs.io/en/latest/cmd-ref.html#term-trackers-alias-set-key>`_ command in your configuration
+==============  ==========================================  ===========
+
+\* *The scrape info numbers are exact only for values below 100, else they
+indicate the order of magnitude using roman numerals (c = 10², m = 10³,
+X = 10⁴, C = 10⁵, M = 10⁶).*
+
+A ``?`` sign at the beginning of a column definition indicates a ‘sacrificial’ column, which disappears when the display gets too narrow to display all the columns. When even that does not provide enough space, columns are omitted beginning on the right side (Name is always included). Sacrificial columns can also be toggled using the ``/`` key – note they’re toggled as a whole group, so other dynamic  column states are ignored.
+
+A ``Cx`` values in a column definition are `dynamic color schemes <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#column-layout-definitions>`_.
+
+Here's a configuration example showing all the built-in columns and their defaults:
+
+.. code-block:: ini
+
+    # Status flags (❢ ☢ ☍ ⌘)
+    method.set_key = ui.column.render, "100:2C95/2:❢ ", ((array.at, {"  ", "♺ ", "ʘ ", "⚠ ", "◔ ", "⇕ ", "↯ ", "¿?", "⨂ ", "⋫ ", "☡ "}, ((d.message.alert)) ))
+    method.set_key = ui.column.render, "110:?1C92/1:☢", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, "▪"}, {01, "▪"}, {10, "╍"}, {11, "▹"}))
+    method.set_key = ui.column.render, "120:?1:☍", ((array.at, {"⚯", " "}, ((not, ((d.tied_to_file)) )) ))
+    method.set_key = ui.column.render, "130:?1:⌘", ((array.at, {"⚒", "◌"}, ((d.ignore_commands)) ))
+    # Scrape info (↺ ⤴ ⤵)
+    method.set_key = ui.column.render, "200:?2C23/2: ↺", ((convert.magnitude, ((d.tracker_scrape.downloaded)) ))
+    method.set_key = ui.column.render, "210:?2C15/2: ⤴", ((convert.magnitude, ((d.tracker_scrape.complete)) ))
+    method.set_key = ui.column.render, "220:?2C14/2: ⤵", ((convert.magnitude, ((d.tracker_scrape.incomplete)) ))
+    # Traffic indicator (↕)
+    method.set_key = ui.column.render, "300:?1:↕", ((string.map, ((cat, ((not, ((d.up.rate)) )), ((not, ((d.down.rate)) )) )), {00, "⇅"}, {01, "↟"}, {10, "↡"}, {11, " "} ))
+    # Number of connected peers (℞)
+    method.set_key = ui.column.render, "400:?2C28/2: ℞", ((convert.magnitude, ((d.peers_connected)) ))
+    # Up|Last Active Time (∆⋮ ⟲)
+    method.set_key = ui.column.render, "500:5C70/5: ∆⋮ ⟲", ((if, ((d.up.rate)), ((convert.human_size, ((d.up.rate)), ((value, 10)) )), ((if, ((d.peers_connected)), ((cat, "   0”")), ((convert.time_delta, ((value, ((d.custom, last_active)) )) )) )) ))
+    # Upload total (Σ⇈)
+    method.set_key = ui.column.render, "600:?6C23/5C21/1:  Σ⇈  ", ((if, ((d.up.total)), ((convert.human_size, ((d.up.total)), (value, 0))), ((cat, "   ⋅  ")) ))
+    # Down|Completion or Loaded Time (∇⋮ ◷)
+    method.set_key = ui.column.render, "700:5C90/5: ∇⋮ ◷", ((if, ((d.down.rate)), ((convert.human_size, ((d.down.rate)), ((value, 10)) )), ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) )) ))
+    # Data size (⛁)
+    method.set_key = ui.column.render, "800:4C15/3C21/1:  ⛁ ", ((convert.human_size, ((d.selected_size_bytes)) ))
+    # Progress (⣿)
+    method.set_key = ui.column.render, "900:1C94/1:⣿", ((string.substr, " ⠁⠉⠋⠛⠟⠿⡿⣿❚", ((math.div, ((math.mul, ((d.completed_chunks)), 10)), ((math.add, ((d.completed_chunks)), ((d.wanted_chunks)))) )), 1, "✔"))
+    # Ratio (☯)
+    method.set_key = ui.column.render, "920:1C93/1:☯", ((string.substr, "☹➀➁➂➃➄➅➆➇➈➉", ((math.div, ((d.ratio)), 1000)), 1, "⊛"))
+    # Explicitly managed status (✰ = prio; ⊘ = throttle name; ⚑ = tagged)
+    method.set_key = ui.column.render, "940:1C91/1:✰", ((array.at, {"✖", "⇣", " ", "⇡"}, ((d.priority)) ))
+    method.set_key = ui.column.render, "950:1:⊘", {(branch, ((equal,((d.throttle_name)),((cat,NULL)))), ((cat, "∞")), ((d.throttle_name)) )}
+    method.set_key = ui.column.render, "980:1C16/1:⚑", ((array.at, {" ", "⚑"}, ((d.views.has, tagged)) ))
+
+To add back the two removed "Unsafe data" and "Data directory" columns, add these lines into your config or run these in ``rTorrent-PS-CH`` on-the-fly at command prompt (``^x``):
+
+.. code-block:: ini
+
+    # Add "Unsafe data" column (◎) after "Throttle" column (⊘)
+    method.set_key = ui.column.render, "960:1C71/1:◎", ((string.map, ((cat, ((d.custom, unsafe_data)))), {0, " "}, {1, "⊘"}, {2, "⊗"}))
+    # Add "Data directory" column (⊕) (first character of parent directory) after "Unsafe data" column (◎)
+    method.set_key = ui.column.render, "970:1:⊕", ((d.parent_dir))
+
+==============  ==========================================  ===========
+ Column          Key                                        Description
+==============  ==========================================  ===========
+ ◎              "960:1C71/1:◎"                              Unsafe-data (none = safe data, ⊘ = unsafe data, ⊗ = unsafe data with delqueue)
+ ⊕              "970:1:⊕"                                   Data directory (none = base path entry is missing, otherwise the first letter of the name of data directory)
+==============  ==========================================  ===========
+
+The following is a short example how to disable/override built-in columns, more examples can be found at the `Extra column definitions <https://github.com/chros73/rtorrent-ps-ch_setup/blob/master/ubuntu-14.04/home/chros73/.pyroscope/rtorrent-ps.rc#L192>`_ section of ``rtorrent-ps.rc`` of ``rtorrent-ps-ch_setup``.
+
+.. code-block:: ini
+
+    # Disable Number of connected peers (℞) column
+    method.set_key = ui.column.render, (ui.column.spec, 400)
+    # Override built-in "Throttle" column (⊘) with a new one
+    method.set_key = ui.column.render, (ui.column.spec, 950)
+    method.set_key = ui.column.render, "951:1C72/1:⊘", ((string.map, ((d.throttle_name)), {"", " "}, {NULL, "∞"}, {slowup, "⊼"}, {tardyup, "⊻"}))
 
 
 
 Adding Traffic Graphs
 ^^^^^^^^^^^^^^^^^^^^^
 
-Take a look at the `Adding Traffic Graphs <https://rtorrent-docs.readthedocs.io/en/latest/rtorrent-ps/docs/customize.html?highlight=canvas#adding-traffic-graphs>`_ section of rTorrent Handbook.
+Take a look at the `Adding Traffic Graphs <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#adding-traffic-graphs>`_ section of rTorrent Handbook.
 
 
 Setting Up Your Terminal
@@ -46,8 +147,8 @@ all the necessary characters and your terminal is configured correctly:
         u"\u22ee \u262f \u2691 \u21ba \u2934 \u2935 \u2206 \u2207 \u26a0 \u25d4 " \
         u"\u21af \u00bf \u2a02 \u2716 \u21e3 \u21e1 \u25b9 \u254d \u25aa \u26af " \
         u"\u2692 \u25cc \u21c5 \u21a1 \u219f \u229b \u267a \u22c6 \u2026 \u21f3 " \
-        u"\u2308 \u2309 \u230a \u230b \u21a8 \u2762 \u0298 \u21d5 \u22eb \u2621 " \
-        u"\u2195 \u211e \u27f2 \u25f7 \u03a3 \u21c8 \u2714 \u26c1 " \
+        u"\u2308 \u2309 \u230a \u230b \u2298 \u221e \u21a8 \u2762 \u0298 \u21d5 " \
+        u"\u22eb \u2621 \u2195 \u211e \u27f2 \u25f7 \u03a3 \u21c8 \u2714 \u26c1 " \
         u"\u2639 \u2780 \u2781 \u2782 \u2783 \u2784 \u2785 \u2786 \u2787 \u2788 \u2789 " \
         u"\u2801 \u2809 \u280b \u281b \u281f \u283f \u287f \u28ff \u275a " \
         u"\u2581 \u2582 \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 ".encode("utf8")'
