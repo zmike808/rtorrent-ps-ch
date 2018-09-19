@@ -23,14 +23,8 @@ UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-
   * ``C71`` - ``UNSAFE_DATA``: for Unsafe data (◎) column, depending on ``d.custom=unsafe_data``: *progress100*, *progress80*, *progress40*
   * ``C72`` - ``THROTTLE_CH``: for Throttle column, depending on ``d.throttle_name``: none=*progress0*, ``slowup``=*progress20*, anything-else=*progress60*, ``NULL``=*progress100*
   * ``C73`` - ``ETA_TIME``: for ETA (*info* + *leeching*) or last-xfer (*info* + *complete*) column (⟲ ⇅)
-- the following columns are sacrificial by default:
-
-  * Item state (☢)
-  * Number of connected peers (℞)
-- the following column is added:
-
-  * Throttle name (⊘)
-  
+- the following columns are sacrificial by default: Item state (☢), Number of connected peers (℞)
+- the following column is added: Throttle name (⊘)
 - the order and colorization of some columns are changed
 
 

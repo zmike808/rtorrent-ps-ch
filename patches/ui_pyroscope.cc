@@ -1363,9 +1363,9 @@ void initialize_command_ui_pyroscope() {
         // 96:    COL_UP_TIME
 
         // Status flags (❢ ☢ ☍ ⌘)
-        "method.set_key = ui.column.render, \"100:2C95/2:❢ \","
-        "    ((array.at, {\"  \", \"♺ \", \"ʘ \", \"⚠ \", \"◔ \", \"⇕ \", \"↯ \", \"¿?\","
-        "                 \"⨂ \", \"⋫ \", \"☡ \"}, ((d.message.alert)) ))\n"
+        "method.set_key = ui.column.render, \"100:1C95/1:❢\","
+        "    ((array.at, {\" \", \"♺\", \"ʘ\", \"⚠\", \"◔\", \"⇕\", \"↯\", \"¿\","
+        "                 \"⨂\", \"⋫\", \"☡\"}, ((d.message.alert)) ))\n"
         "method.set_key = ui.column.render, \"110:?1C92/1:☢\","
         "    ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, \"▪\"}, {01, \"▪\"}, {10, \"╍\"}, {11, \"▹\"}))\n"
         "method.set_key = ui.column.render, \"120:?1:☍\","

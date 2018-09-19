@@ -26,7 +26,7 @@ The following is an overview of the built-in column heading icons, their corresp
 ==============  ==========================================  ===========
  Column          Key                                        Description
 ==============  ==========================================  ===========
- ❢              "100:2C95/2:❢ |_|"                          Message or alert indicator (♺ = Tracker cycle complete, i.e. “Tried all trackers”; ʘ = item’s data path does not exist (needs support by a cron job); ⇕ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿? = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⋫ = tracker downtime; ☡ = DNS problems; ⚠ = other)
+ ❢              "100:1C95/1:❢"                              Message or alert indicator (♺ = Tracker cycle complete, i.e. “Tried all trackers”; ʘ = item’s data path does not exist (needs support by a cron job); ⇕ = establishing connection; ↯ = data transfer problem; ◔ = timeout; ¿ = unknown torrent / info hash; ⨂ = authorization problem (possibly temporary); ⋫ = tracker downtime; ☡ = DNS problems; ⚠ = other)
  ☢              "110:?1C92/1:☢"                              Item state (▹ = started, ╍ = paused, ▪ = stopped)
  ☍              "120:?1:☍"                                  Tied item? [⚯]
  ⌘              "130:?1:⌘"                                  Command lock-out? (⚒ = heed commands, ◌ = ignore commands)
@@ -61,7 +61,7 @@ Here's a configuration example showing all the built-in columns and their defaul
 .. code-block:: ini
 
     # Status flags (❢ ☢ ☍ ⌘)
-    method.set_key = ui.column.render, "100:2C95/2:❢ ", ((array.at, {"  ", "♺ ", "ʘ ", "⚠ ", "◔ ", "⇕ ", "↯ ", "¿?", "⨂ ", "⋫ ", "☡ "}, ((d.message.alert)) ))
+    method.set_key = ui.column.render, "100:1C95/1:❢", ((array.at, {" ", "♺", "ʘ", "⚠", "◔", "⇕", "↯", "¿", "⨂", "⋫", "☡"}, ((d.message.alert)) ))
     method.set_key = ui.column.render, "110:?1C92/1:☢", ((string.map, ((cat, ((d.is_open)), ((d.is_active)))), {00, "▪"}, {01, "▪"}, {10, "╍"}, {11, "▹"}))
     method.set_key = ui.column.render, "120:?1:☍", ((array.at, {"⚯", " "}, ((not, ((d.tied_to_file)) )) ))
     method.set_key = ui.column.render, "130:?1:⌘", ((array.at, {"⚒", "◌"}, ((d.ignore_commands)) ))
@@ -157,7 +157,7 @@ all the necessary characters and your terminal is configured correctly:
 Supporting 256 or more colors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Having 256 colors you can use color gradients for ratio coloring, 
+Having 256 colors you can use color gradients for ratio coloring,
 and much more appropriate pallid color shades for backgrounds.
 
 To enable 256 colors, your terminal must obviously be able to support
