@@ -914,7 +914,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         narrow = true;
         custom_width = render_columns(true, narrow, rpc::make_target(), 0, canvas, column, pos, 0, column_defs);
     }
-    column += custom_width; canvas->print(column, pos, " Name   "); column += NAME_RESERVED_WIDTH;
+    column += custom_width; canvas->print(column, pos, "Name   "); column += NAME_RESERVED_WIDTH;
     if (int(canvas->width()) - 8 > column)
         canvas->print(canvas->width() - 8, pos, " Tracker");
     canvas->set_attr(0, pos, -1, attr_map[ps::COL_LABEL], ps::COL_LABEL); // header line unicolor
@@ -956,7 +956,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
         // Render name + tracker
         if (int(canvas->width()) > column) {
             std::string displayname = get_custom_string(d, "displayname");
-            canvas->print(column, pos, " %s",
+            canvas->print(column, pos, "%s",
                 u8_chop(displayname.empty() ? d->info()->name() : displayname.c_str(),
                         canvas->width() - column - 1).c_str());
             size_t hilite = std::string::npos;
@@ -965,7 +965,7 @@ bool ui_pyroscope_download_list_redraw(Window* window, display::Canvas* canvas, 
                 std::transform(displayname.begin(), displayname.end(), displayname.begin(), ::tolower);
                 hilite = displayname.find(find_term);
             }
-            decorate_download_title(window, canvas, view, pos, range, column + 1, hilite, find_term.length());
+            decorate_download_title(window, canvas, view, pos, range, column, hilite, find_term.length());
         }
 
         // Colorize focus marker
