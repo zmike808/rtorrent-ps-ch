@@ -24,6 +24,7 @@ UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-
   * ``C72`` - ``THROTTLE_CH``: for Throttle column, depending on ``d.throttle_name``: none=*progress0*, ``slowup``=*progress20*, anything-else=*progress60*, ``NULL``=*progress100*
   * ``C73`` - ``ETA_TIME``: for ETA (*info* + *leeching*) or last-xfer (*info* + *complete*) column (⟲ ⇅)
 - the following columns are sacrificial by default: Item state (☢), Number of connected peers (℞)
+- the following columns are modified: Message (❢), Uprate (∆⋮ ⟲), Uploaded data size (Σ⇈)
 - the following column is added: Throttle name (⊘)
 - the order and colorization of some columns are changed
 
