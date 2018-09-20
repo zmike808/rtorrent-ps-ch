@@ -795,7 +795,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                         const char* c_part = "C21/1C27/1C21/2C27/1";   // info + incomplete
                         const char* c_queu = "C21/1C26/1C21/2C26/1";   // info + queued
                         const char* c_eta  = "C21/1C28/1C21/2C28/1";   // info + leeching
-                        const char* c_xfer = "C21/1C15/1C21/2C15/1";   // info + progress100
+                        const char* c_xfer = "C21/1C13/1C21/2C13/1";   // info + progress60
 
                         switch (attr_idx) {
                             case ps::COL_DOWN_TIME:  // C90/5
