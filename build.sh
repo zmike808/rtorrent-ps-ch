@@ -20,7 +20,7 @@ git_rt='327164f'                # 2018-06-07 master v0.9.7
 
 # Dependency versions
 cares_version='1.14.0'          # 2018.02.16
-curl_version='7.60.0'           # 2018.05.16 ; WARNING: see rT issue #457 regarding curl configure options
+curl_version='7.61.1'           # 2018.09.05 ; WARNING: see rT issue #457 regarding curl configure options
 xmlrpc_tree='stable'            # [super-stable | stable | advanced]
 xmlrpc_rev='2985'               # 2018.04.08 v1.43.07
 export cares_version curl_version xmlrpc_tree xmlrpc_rev
@@ -214,6 +214,7 @@ src_pkg_hashes=('c-ares-1.13.0.tar.gz:d2e010b43537794d8bedfb562ae6bba2')
 src_pkg_hashes+=('c-ares-1.14.0.tar.gz:e57b37a7c46283e83c21cde234df10c7')
 src_pkg_hashes+=('curl-7.54.1.tar.gz:21a6e5658fd55103a90b11de7b2a8a8c')
 src_pkg_hashes+=('curl-7.60.0.tar.gz:48eb126345d3b0f0a71a486b7f5d0307')
+src_pkg_hashes+=('curl-7.61.1.tar.gz:4762f41ef0dba751d1c7a3060a1c6ec6')
 src_pkg_hashes+=('xmlrpc-c-stable-2912-src.tgz:d6336bc1ff6d5ba705438bed72268701')
 src_pkg_hashes+=('xmlrpc-c-stable-2985-src.tgz:0784b5c41440e7451720cff316a64d80')
 src_pkg_hashes+=('libtorrent-0.13.6.tar.gz:66f18044432a62c006c75f6d0bb4d7dc')
@@ -633,7 +634,13 @@ rt_ps_ch_xmlrpc_rev='$xmlrpc_rev'
 optimized_build='$optimize_build'
 .
 
-    chmod go-w "$build_dir/$ver_info_filename"
+    # Add docs as well if it's not the vanilla build
+    if [ -z "${vanilla_postfix+x}" ]; then
+        [[ -d "$src_dir/docs" ]] && \cp -rf "$src_dir/docs" "$build_dir/" || fail "Could not copy 'docs' dir into '$build_dir'"
+        \cp -f "$src_dir"/{README.rst,LICENSE,CHANGELOG.md} "$build_dir/" || fail "Could not copy doc files into '$build_dir'"
+    fi
+
+    chmod -R go-w "$build_dir/"
 }
 
 symlink_binary_home() { # Symlink binary in HOME
