@@ -18,7 +18,6 @@ showfile_delay=10
 
 # Loop over all arguments
 for path in "$@"; do
-    path="$1"
     test -f "$path" || { echo "$path is not a package file"; exit 1; }
 
     # Extract metadata
