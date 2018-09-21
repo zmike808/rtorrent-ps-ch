@@ -6,8 +6,8 @@
 
 # Set rT-PS-CH version
 rt_ps_ch_major_version='1.8'
-rt_ps_ch_minor_release='0'
-rt_ps_ch_minor_git='0'
+rt_ps_ch_minor_release='1'
+rt_ps_ch_minor_git='1'
 
 # Set latest major libTorrent/rTorrent release versions
 lt_major='0.13'
