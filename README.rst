@@ -17,15 +17,10 @@ UI changes
 UI changes on the fully customizable `extended canvas <docs/Manual.rst#extended-canvas-explained>`_:
 
 - column/color lengths are shortened by 1 in column definition
-- extra `dynamic color schemes <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#column-layout-definitions>`_:
-
-  * ``C70`` - ``ACTIVE_TIME``: for Uprate (∆ *seeding*) or approximate time since last active state (◷ *info* + *queued*) column
-  * ``C71`` - ``UNSAFE_DATA``: for Unsafe data (◎) column, depending on ``d.custom=unsafe_data``: *progress100*, *progress80*, *progress40*
-  * ``C72`` - ``THROTTLE_CH``: for Throttle column, depending on ``d.throttle_name``: none=*progress0*, ``slowup``=*progress20*, anything-else=*progress60*, ``NULL``=*progress100*
-  * ``C73`` - ``ETA_TIME``: for ETA (*info* + *leeching*) or last-xfer (*info* + *complete*) column (⟲ ⇅)
-- the following columns are sacrificial by default: Item state (☢), Number of connected peers (℞)
-- the following columns are modified: Message (❢), Uprate (∆⋮ ⟲), Uploaded data size (Σ⇈)
-- the following column is added: Throttle name (⊘)
+- extra `dynamic color schemes <https://rtorrent-ps.readthedocs.io/en/latest/customize.html#column-layout-definitions>`_: ``C70``, ``C71``, ``C72``, ``C73``
+- sacrificial columns by default: Item state (☢), Number of connected peers (℞)
+- modified columns: Message (❢), Uprate (∆⋮ ⟲), Uploaded data size (Σ⇈)
+- added column: Throttle name (⊘)
 - the order and colorization of some columns are changed
 
 
