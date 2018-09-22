@@ -7,7 +7,7 @@ User's Manual
 Extended Canvas Explained
 -------------------------
 
-.. figure:: _static/img/rTorrent-PS-CH-0.9.6-solarized-yellow-kitty-s.png
+.. figure:: _static/img/rTorrent-PS-CH-solarized-yellow-kitty-s.png
    :align: center
    :alt: rTorrent-PS Main View
 

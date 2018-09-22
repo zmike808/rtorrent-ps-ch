@@ -3,7 +3,7 @@
 rTorrent-PS-CH - Fork notes
 ===========================
 
-.. figure:: docs/_static/img/rTorrent-PS-CH-0.9.6-happy-pastel-kitty-s.png
+.. figure:: docs/_static/img/rTorrent-PS-CH-happy-pastel-kitty-s.png
    :align: center
    :alt: Extended Canvas Screenshot
    
