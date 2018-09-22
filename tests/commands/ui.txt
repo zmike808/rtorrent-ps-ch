@@ -8,9 +8,9 @@ $ rtcontrol // -/1 -qV && rtxmlrpc --repr ui.current_view ''
 
 # ui.column.spec
 $ rtxmlrpc --repr ui.column.spec '' 100
-u'100:2C…/2:… '
+u'100:1C…/1:… '
 $ rtxmlrpc --repr ui.column.spec '' +100
-u'100:2C…/2:… '
+u'100:1C…/1:… '
 $ rtxmlrpc --repr ui.column.spec '' 000
 ''
 $ rtxmlrpc ui.column.spec
