@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.8.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.1-0.9.7) (2018-09-22)
+**Implemented enhancements:**
+
+- Upgrade the used external libraries [\#149](https://github.com/chros73/rtorrent-ps-ch/issues/149)
+- Update bintray script with upstream changes [\#148](https://github.com/chros73/rtorrent-ps-ch/issues/148)
+- Backport integration tests from upstream [\#147](https://github.com/chros73/rtorrent-ps-ch/issues/147)
+- Backport 'try' command [\#146](https://github.com/chros73/rtorrent-ps-ch/issues/146)
+- Add 'd.eta.\*' commands [\#145](https://github.com/chros73/rtorrent-ps-ch/issues/145)
+- Backport and modify canvas v2 from rtorrent-ps [\#144](https://github.com/chros73/rtorrent-ps-ch/issues/144)
+
 ## [1.8.0-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.0-0.9.7) (2018-06-09)
 **Implemented enhancements:**
 
