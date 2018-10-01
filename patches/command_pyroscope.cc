@@ -1110,6 +1110,18 @@ torrent::Object cmd_array_at(rpc::target_type target, const torrent::Object::lis
 }
 
 
+torrent::Object cmd_array_size(rpc::target_type target, const torrent::Object::list_type& args) {
+    if (args.size() != 1) {
+        throw torrent::input_error("array.size takes exactly one argument!");
+    }
+
+    torrent::Object::list_const_iterator itr = args.begin();
+    torrent::Object::list_type array = (itr)->as_list();
+
+    return int(array.size());
+}
+
+
 void add_capability(const char* name) {
     system_capabilities.insert(name);
 }
@@ -1272,7 +1284,8 @@ void initialize_command_pyroscope() {
     CMD2_ANY_LIST("string.rpad",        std::bind(&cmd_string_pad, true,  std::placeholders::_2));
 
     // array.* group
-    CMD2_ANY_LIST("array.at", &cmd_array_at);
+    CMD2_ANY_LIST("array.at",           &cmd_array_at);
+    CMD2_ANY_LIST("array.size",         &cmd_array_size);
 
     // ui.focus.* – quick paging
     CMD2_ANY("ui.focus.home", _cxxstd_::bind(&cmd_ui_focus_home));
