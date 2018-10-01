@@ -35,6 +35,7 @@ Important enhancements, fixes
 
 Over latest ``rtorrent v0.9.7/0.13.7``:
 
+-  `list method type fix <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
 -  `min_peers* settings fix <https://github.com/chros73/rtorrent-ps/issues/126>`_
 -  `inotify fix <https://github.com/chros73/rtorrent-ps/issues/87>`_
 -  `input history <https://github.com/chros73/rtorrent-ps/issues/83>`_
@@ -77,6 +78,8 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#extra-co
 -  `ui.status.throttle.{up|down} <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
 -  `d.eta.* <https://github.com/chros73/rtorrent-ps-ch/issues/145>`_ command group
 -  `try <https://github.com/chros73/rtorrent-ps-ch/issues/146>`_
+-  `array.size <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
+-  `method.insert.[bool|string|list] <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
 
 
 Notes

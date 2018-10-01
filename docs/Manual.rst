@@ -216,6 +216,16 @@ Event (multi commands) that will be triggered when a download is being partially
     method.set_key = event.download.partially_restarted, ~log, ((print, "Partially restarted : ", ((d.name))))
 
 
+method.insert.[bool|string|list]
+^^^^^^^^^^
+
+Similarly to ``method.insert.value`` method, they create public, mutable properties. Example usage:
+
+.. code-block:: ini
+
+    method.insert.list = foo, {"z1", "z2", "z3"}
+
+
 d.custom[.set]=last_active|tm_completed[,«timestamp»]
 ^^^^^^^^^^
 
@@ -274,6 +284,12 @@ f.[un]set_fallocate=
 ^^^^^^^^^^
 
 ``f.set_fallocate`` and ``f.unset_fallocate`` commands are setter methods for ``flag_fallocate`` flag of a file.
+
+
+array.size=«cmd»
+^^^^^^^^^^
+
+Returns size of an array.
 
 
 convert.group=«cmd»
