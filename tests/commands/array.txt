@@ -20,4 +20,13 @@ $ rtxmlrpc --repr array.at '' -- '[]' +0
 ERROR … Wrong object type
 # END
 
+# array.size
+$ rtxmlrpc --repr array.size '' -- '['
+0
+$ rtxmlrpc --repr array.size '' -- '[0'
+1
+$ rtxmlrpc --repr array.size '' -- '[0,1,2'
+3
+# END
+
 # END array.*
