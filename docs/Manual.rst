@@ -216,7 +216,17 @@ Event (multi commands) that will be triggered when a download is being partially
     method.set_key = event.download.partially_restarted, ~log, ((print, "Partially restarted : ", ((d.name))))
 
 
-method.insert.[bool|string|list]
+event.system.{startup_done|shutdown}
+^^^^^^^^^^
+
+Events (multi commands) that will be triggered when startup is done (e.g. after loading session files) or shutdown is started. Example usage:
+
+.. code-block:: ini
+
+    method.set_key = event.system.startup_done, ~log, ((print, "Startup time: ", ((system.startup_time)) ))
+
+
+method.insert.{bool|string|list}
 ^^^^^^^^^^
 
 Similarly to ``method.insert.value`` method, they create public, mutable properties. Example usage:

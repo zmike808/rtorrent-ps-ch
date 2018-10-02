@@ -78,8 +78,9 @@ It also adds the following extra `attributes, commands <docs/Manual.rst#extra-co
 -  `ui.status.throttle.{up|down} <docs/Manual.rst#ui-status-throttle-up-down-set-throttlename-throttlename>`_
 -  `d.eta.* <https://github.com/chros73/rtorrent-ps-ch/issues/145>`_ command group
 -  `try <https://github.com/chros73/rtorrent-ps-ch/issues/146>`_
+-  `event.system.{startup_done|shutdown} <https://github.com/chros73/rtorrent-ps-ch/issues/152>`_
 -  `array.size <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
--  `method.insert.[bool|string|list] <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
+-  `method.insert.{bool|string|list} <https://github.com/chros73/rtorrent-ps-ch/issues/154>`_
 
 
 Notes
