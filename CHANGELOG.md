@@ -1,5 +1,15 @@
 # Change Log
 
+## [1.8.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.2-0.9.7) (2018-10-02)
+**Implemented enhancements:**
+
+- Add rtorrent config syntax highlighting for mcedit [\#153](https://github.com/chros73/rtorrent-ps-ch/issues/153)
+- Add 'event.system.startup\_done/shutdown' commands/events [\#152](https://github.com/chros73/rtorrent-ps-ch/issues/152)
+
+**Fixed bugs:**
+
+- Fix 'list' method type and add 'array.size' command [\#154](https://github.com/chros73/rtorrent-ps-ch/issues/154)
+
 ## [1.8.1-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.1-0.9.7) (2018-09-22)
 **Implemented enhancements:**
 
