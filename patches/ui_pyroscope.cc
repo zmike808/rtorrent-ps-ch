@@ -790,7 +790,7 @@ int render_columns(bool headers, bool narrow, rpc::target_type target, core::Dow
                     // System colors – these are mapped to a 'normal' color index
                     if (item) {
                         const char* c_down = "C28/4C27/1";             // leeching + incomplete
-                        const char* c_seed = "C24/4C21/1";             // seeding + info
+                        const char* c_seed = "C24/4C23/1";             // seeding + complete
                         const char* c_done = "C21/1C24/1C21/2C24/1";   // info + seeding (is_done)
                         const char* c_part = "C21/1C27/1C21/2C27/1";   // info + incomplete
                         const char* c_queu = "C21/1C26/1C21/2C26/1";   // info + queued
@@ -1389,7 +1389,7 @@ void initialize_command_ui_pyroscope() {
         // Up|Last Active Time (∆⋮ ⟲)
         "method.set_key = ui.column.render, \"500:5C70/5: ∆⋮ ⟲\","
         "    ((if, ((d.up.rate)),"
-        "        ((convert.human_size, ((d.up.rate)), ((value, 10)) )),"
+        "        ((cat, \" \", ((convert.human_size, ((d.up.rate)), ((value, 10)) )) )),"
         "        ((if, ((d.peers_connected)), ((cat, \"   0”\")),"
         "                                     ((convert.time_delta, ((value, ((d.custom, last_active)) )) )) ))"
         "    ))\n"
@@ -1406,7 +1406,7 @@ void initialize_command_ui_pyroscope() {
         //       when they were introduced, and if they're always set (e.g. what about fast-resumed items?)
         "method.set_key = ui.column.render, \"700:5C90/5: ∇⋮ ◷\","
         "    ((if, ((d.down.rate)),"
-        "        ((convert.human_size, ((d.down.rate)), ((value, 10)) )),"
+        "        ((cat, \" \", ((convert.human_size, ((d.down.rate)), ((value, 10)) )) )),"
         "        ((convert.time_delta, ((value, ((d.custom.if_z, tm_completed, ((d.custom, tm_loaded)) )) )) ))"
         "    ))\n"
 
