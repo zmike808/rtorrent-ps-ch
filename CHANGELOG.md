@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.8.3-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.3-0.9.7) (2018-10-05)
+**Fixed bugs:**
+
+- Fix position of 'up\_rate' and 'down\_rate' values in their column on canvas [\#156](https://github.com/chros73/rtorrent-ps-ch/issues/156)
+
 ## [1.8.2-0.9.7](https://github.com/chros73/rtorrent-ps-ch/tree/1.8.2-0.9.7) (2018-10-02)
 **Implemented enhancements:**
 
