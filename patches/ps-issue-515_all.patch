@@ -3,11 +3,11 @@
 @@ -63,15 +63,18 @@ CommandScheduler::insert(const std::string& key) {
    if (key.empty())
      throw torrent::input_error("Scheduler received an empty key.");
- 
+
 -  iterator itr = find(key);
 +  CommandSchedulerItem* current = new CommandSchedulerItem(key);
 +  current->slot() = std::bind(&CommandScheduler::call_item, this, current);
- 
+
 -  if (itr == end())
 -    itr = base_type::insert(end(), NULL);
 -  else
@@ -24,6 +24,6 @@
 +    *itr = current;
 +    delete old;
 +  }
- 
+
    return itr;
  }

@@ -4,11 +4,11 @@
    void                filter();
 +  void                filter_by(const torrent::Object& condition, base_type& result);
    void                filter_download(core::Download* download);
---- a/src/core/view.cc	2015-09-03 21:03:30.000000000 +0200
-+++ b/src/core/view.cc	2017-04-02 16:25:49.000000000 +0200
+--- orig-096/src/core/view.cc	2015-09-03 21:03:30.000000000 +0200
++++ rtorrent-0.9.6/src/core/view.cc	2017-04-02 16:25:49.000000000 +0200
 @@ -292,4 +296,16 @@
  }
- 
+
 +
 +void
 +View::filter_by(const torrent::Object& condition, View::base_type& result)

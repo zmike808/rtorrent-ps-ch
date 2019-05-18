@@ -1,7 +1,7 @@
 --- a/src/main.cc
 +++ b/src/main.cc
 @@ -249,6 +249,9 @@ main(int argc, char** argv) {
- 
+
      rpc::parse_command_multiple
        (rpc::make_target(),
 +       "method.insert = event.view.hide,multi|rlookup|static\n"
@@ -15,7 +15,7 @@
 @@ -220,7 +220,14 @@ ElementDownloadList::receive_change_view(const std::string& name) {
      return;
    }
- 
+
 +  std::string old_name = view() ? view()->name() : "";
 +  if (!old_name.empty())
 +    rpc::commands.call_catch("event.view.hide", rpc::make_target(), name,
@@ -25,5 +25,5 @@
 +    rpc::commands.call_catch("event.view.show", rpc::make_target(), old_name,
 +                             "View show event action failed: ");
  }
- 
+
  void

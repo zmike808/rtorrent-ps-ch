@@ -101,7 +101,7 @@ def test(ctx, name=''):
                                                      shell=True, stderr=subprocess.STDOUT)
                     output = output.decode('utf-8')
                 elif all(x.strip() in output for x in line.split('…')):
-                    print('.', end='')
+                    print('.', end='', flush=True)
                 else:
                     failures += 1
                     print('\nFAIL: »{l}« not found in output of »{cmd}«\n{d}\n{o}\n{d}\n'

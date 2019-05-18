@@ -21,3 +21,4 @@ for basepkg in pip setuptools wheel; do
 done
 
 pip install -r tests/requirements.txt
+pip install -r docs/requirements.txt

@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <rak/path.h>
+#include <rak/algorithm.h>
 #include <rak/functional.h>
 #include <rak/functional_fun.h>
 
@@ -1219,6 +1220,120 @@ torrent::Object cmd_d_tracker_scrape_info(const int operation, core::Download* d
 
 torrent::Object cmd_d_parent_dir(core::Download* download) {
     return get_parent_dir(download);
+// MATH FUNCTIONS
+
+inline std::vector<int64_t> as_vector(const torrent::Object::list_type& args) {
+    if (args.size() == 0)
+        throw torrent::input_error("Wrong argument count in as_vector.");
+
+    std::vector<int64_t> result;
+
+    for (torrent::Object::list_const_iterator itr = args.begin(), last = args.end(); itr != last; itr++) {
+        if (itr->is_value()) {
+            result.push_back(itr->as_value());
+        } else if (itr->is_string()) {
+            result.push_back(rpc::convert_to_value(itr->as_string()));
+        } else if (itr->is_list()) {
+            std::vector<int64_t> subResult = as_vector(itr->as_list());
+            result.insert(result.end(), subResult.begin(), subResult.end());
+        } else {
+            throw torrent::input_error("Wrong type supplied to as_vector.");
+        }
+    }
+
+    return result;
+}
+
+
+int64_t apply_math_basic(const char* name, const std::function<int64_t(int64_t,int64_t)> op,
+                         const torrent::Object::list_type& args) {
+    int64_t val = 0, rhs = 0;
+    bool divides = !strcmp(name, "math.div") || !strcmp(name, "math.mod");
+
+    if (args.size() == 0)
+        throw torrent::input_error(std::string(name) + ": No arguments provided!");
+
+    for (torrent::Object::list_const_iterator itr = args.begin(), last = args.end(); itr != last; itr++) {
+        if (itr->is_value()) {
+            rhs = itr->as_value();
+        } else if (itr->is_string()) {
+            rhs = rpc::convert_to_value(itr->as_string());
+        } else if (itr->is_list()) {
+            rhs = apply_math_basic(name, op, itr->as_list());
+        } else {
+            throw torrent::input_error(std::string(name) + ": Wrong argument type");
+        }
+
+        if (divides && !rhs && itr != args.begin())
+            throw torrent::input_error(std::string(name) + ": Division by zero!");
+        val = itr == args.begin() ? rhs : op(val, rhs);
+    }
+
+    return val;
+}
+
+
+int64_t apply_arith_basic(const std::function<int64_t(int64_t,int64_t)> op,
+                          const torrent::Object::list_type& args) {
+    if (args.size() == 0)
+        throw torrent::input_error("Wrong argument count in apply_arith_basic.");
+
+    int64_t val = 0;
+
+    for (torrent::Object::list_const_iterator itr = args.begin(), last = args.end(); itr != last; itr++) {
+        if (itr->is_value()) {
+            val = itr == args.begin() ? itr->as_value()
+                                      : (op(val, itr->as_value()) ? val : itr->as_value());
+        } else if (itr->is_string()) {
+            int64_t cval = rpc::convert_to_value(itr->as_string());
+            val = itr == args.begin() ? cval : (op(val, cval) ? val : cval);
+        } else if (itr->is_list()) {
+            int64_t fval = apply_arith_basic(op, itr->as_list());
+            val = itr == args.begin() ? fval : (op(val, fval) ? val : fval);
+        } else {
+            throw torrent::input_error("Wrong type supplied to apply_arith_basic.");
+        }
+    }
+
+    return val;
+}
+
+
+int64_t apply_arith_count(const torrent::Object::list_type& args) {
+    if (args.size() == 0)
+        throw torrent::input_error("Wrong argument count in apply_arith_count.");
+
+    int64_t val = 0;
+
+    for (torrent::Object::list_const_iterator itr = args.begin(), last = args.end(); itr != last; itr++) {
+        switch (itr->type()) {
+            case torrent::Object::TYPE_VALUE:
+            case torrent::Object::TYPE_STRING:
+                val++;
+                break;
+            case torrent::Object::TYPE_LIST:
+                val += apply_arith_count(itr->as_list());
+                break;
+            default:
+                throw torrent::input_error("Wrong type supplied to apply_arith_count.");
+        }
+    }
+
+    return val;
+}
+
+int64_t apply_arith_other(const char* op, const torrent::Object::list_type& args) {
+    if (args.size() == 0)
+        throw torrent::input_error("Wrong argument count in apply_arith_other.");
+
+    if (strcmp(op, "average") == 0) {
+        return (int64_t)(apply_math_basic(op, std::plus<int64_t>(), args) / apply_arith_count(args));
+    } else if (strcmp(op, "median") == 0) {
+        std::vector<int64_t> result = as_vector(args);
+        return (int64_t)rak::median(result.begin(), result.end());
+    } else {
+        throw torrent::input_error("Wrong operation supplied to apply_arith_other.");
+    }
 }
 
 
@@ -1287,6 +1402,18 @@ void initialize_command_pyroscope() {
     CMD2_ANY_LIST("array.at",           &cmd_array_at);
     CMD2_ANY_LIST("array.size",         &cmd_array_size);
 
+    // math.* group
+    CMD2_ANY_LIST("math.add", std::bind(&apply_math_basic, "math.add", std::plus<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.sub", std::bind(&apply_math_basic, "math.sub", std::minus<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.mul", std::bind(&apply_math_basic, "math.mul", std::multiplies<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.div", std::bind(&apply_math_basic, "math.div", std::divides<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.mod", std::bind(&apply_math_basic, "math.mod", std::modulus<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.min", std::bind(&apply_arith_basic, std::less<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.max", std::bind(&apply_arith_basic, std::greater<int64_t>(), std::placeholders::_2));
+    CMD2_ANY_LIST("math.cnt", std::bind(&apply_arith_count, std::placeholders::_2));
+    CMD2_ANY_LIST("math.avg", std::bind(&apply_arith_other, "average", std::placeholders::_2));
+    CMD2_ANY_LIST("math.med", std::bind(&apply_arith_other, "median", std::placeholders::_2));
+
     // ui.focus.* – quick paging
     CMD2_ANY("ui.focus.home", _cxxstd_::bind(&cmd_ui_focus_home));
     CMD2_ANY("ui.focus.end", _cxxstd_::bind(&cmd_ui_focus_end));
@@ -1331,6 +1458,10 @@ void initialize_command_pyroscope() {
     CMD2_ANY_STRING("log.messages", _cxxstd_::bind(&cmd_log_messages, _cxxstd_::placeholders::_2));
     CMD2_ANY_P("import.return", &cmd_import_return);
     CMD2_ANY("do", _cxxstd_::bind(&cmd_do, _cxxstd_::placeholders::_1, _cxxstd_::placeholders::_2));
+
+    CMD2_DL("d.is_meta", _cxxstd_::bind(&torrent::DownloadInfo::is_meta_download,
+                                        _cxxstd_::bind(&core::Download::info, _cxxstd_::placeholders::_1)));
+
 
     // List capabilities of this build
     add_capability("system.has");         // self

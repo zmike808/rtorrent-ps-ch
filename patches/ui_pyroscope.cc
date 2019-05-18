@@ -93,6 +93,7 @@ static int col_idx_throttle_ch[] = {
     ps::COL_PROGRESS0, ps::COL_PROGRESS20, ps::COL_PROGRESS60, ps::COL_PROGRESS100
 };
 
+
 // basic color names
 static const char* color_names[] = {
     "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"
@@ -1290,7 +1291,6 @@ void initialize_command_ui_pyroscope() {
                  color_vars[colidx], colidx);
         init_commands.append(cmdbuf);
     }
-
 
     init_commands.append(
         // Multi-method to store column definitions

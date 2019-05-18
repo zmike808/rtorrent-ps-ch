@@ -53,3 +53,30 @@ echo
 echo "Open ${url_base/api./}/$bintray_account/$bintray_project/$bintray_project/$version to view upload results."
 echo
 
+    # Extract metadata
+    filename=${debfile##*/}
+    version=$(dpkg-deb -f "$debfile" Version)
+    arch=$(dpkg-deb -f "$debfile" Architecture)
+    section=$(dpkg-deb -f "$debfile" Section)
+    distro=${version##*~}
+    version=${version%%~*}
+
+    # Build API URLs
+    upload_url="$BASE_URL/content/$BINTRAY_ACCOUNT/${BINTRAY_PROJECT}/${BINTRAY_PROJECT}/$version/$filename"
+    upload_url="$upload_url;deb_distribution=$distro;deb_component=${section};deb_architecture=$arch;publish=1"
+    showfile_url="$BASE_URL/file_metadata/$BINTRAY_ACCOUNT/${BINTRAY_PROJECT}/$filename"
+
+    # Perform the upload
+    echo "Uploading and publishing to $upload_url ..."
+    ${CURL_BIN[@]} --progress-bar -T "$debfile" "$upload_url"
+    echo
+
+    for i in $(seq ${SHOWFILE_DELAY:-9} -1 1); do echo -ne " $i  "'\r'; sleep 1; done; echo -e '\r     \r'
+
+    echo "Displaying $filename in download list using $showfile_url ..."
+    ${CURL_BIN[@]} "$showfile_url" -d '{ "list_in_downloads": true }'
+    echo
+done
+
+echo
+echo "Open ${BASE_URL/api./}/$BINTRAY_ACCOUNT/${BINTRAY_PROJECT}/${BINTRAY_PROJECT}/$version to view upload results."
